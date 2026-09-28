@@ -67,8 +67,10 @@ Application::D3DResourceLeakChecker::~D3DResourceLeakChecker() {
 void Application::Initialize(HINSTANCE hInstance) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
+#ifdef USE_IMGUI
 	// DPI 対応として起動する。ウィンドウ生成前に呼ぶこと.
 	ImGui_ImplWin32_EnableDpiAwareness();
+#endif
 
 	// クラッシュダンプの設定.
 	SetUnhandledExceptionFilter(ExportDump);

@@ -362,7 +362,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-generated/
+# ビルド生成物（OutDir / IntDir）
+/generated/
 
 !Engine/**
 !EngineResources/

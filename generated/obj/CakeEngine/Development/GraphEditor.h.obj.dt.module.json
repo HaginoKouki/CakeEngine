@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "C:\\Users\\k025g\\Documents\\CakeEngine\\project\\..\\generated\\obj\\CakeEngine\\Development\\GraphEditor.obj",
+            "outputs": [
+                "C:\\Users\\k025g\\Documents\\CakeEngine\\project\\..\\generated\\obj\\CakeEngine\\Development\\GraphEditor.h.obj.dt.module.json",
+                "C:\\Users\\k025g\\Documents\\CakeEngine\\project\\..\\generated\\obj\\CakeEngine\\Development\\GraphEditor.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

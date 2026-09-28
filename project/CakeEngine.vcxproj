@@ -102,46 +102,59 @@
     <ClCompile Include="Engine\Scene\System\LightSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\RenderSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp" />
+    <ClCompile Include="externals\imgui\GraphEditor.cpp" />
+    <ClCompile Include="externals\imgui\ImCurveEdit.cpp" />
+    <ClCompile Include="externals\imgui\ImGradient.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\ImGuizmo.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_demo.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_draw.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_tables.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+      </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="externals\imgui\ImSequencer.cpp" />
+    <ClCompile Include="externals\imgui\ImVectorEditor.cpp" />
     <ClCompile Include="Game\Components\RotatorComponent.cpp" />
     <ClCompile Include="Game\GameModule.cpp" />
     <ClCompile Include="main.cpp">
@@ -272,15 +285,22 @@
     <ClInclude Include="Engine\Scene\System\LightSystem.h" />
     <ClInclude Include="Engine\Scene\System\RenderSystem.h" />
     <ClInclude Include="Engine\Scene\System\UpdateContext.h" />
+    <ClInclude Include="externals\imgui\GraphEditor.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
+    <ClInclude Include="externals\imgui\ImCurveEdit.h" />
+    <ClInclude Include="externals\imgui\ImGradient.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\ImGuizmo.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
     <ClInclude Include="externals\imgui\imgui_impl_win32.h" />
     <ClInclude Include="externals\imgui\imgui_internal.h" />
+    <ClInclude Include="externals\imgui\ImLightRig.h" />
+    <ClInclude Include="externals\imgui\ImSequencer.h" />
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="externals\imgui\ImVectorEditor.h" />
+    <ClInclude Include="externals\imgui\ImZoomSlider.h" />
     <ClInclude Include="externals\nlohmann\json.hpp" />
     <ClInclude Include="Game\Components\RotatorComponent.h" />
     <ClInclude Include="Game\GameLayer.h" />
@@ -290,6 +310,9 @@
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>

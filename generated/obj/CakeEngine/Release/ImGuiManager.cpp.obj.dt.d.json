@@ -1,0 +1,12 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\k025g\\documents\\cakeengine\\project\\engine\\editor\\imgui\\imguimanager.cpp",
+        "ProvidedModule": "",
+        "Includes": [
+            "c:\\users\\k025g\\documents\\cakeengine\\project\\engine\\editor\\imgui\\imguimanager.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

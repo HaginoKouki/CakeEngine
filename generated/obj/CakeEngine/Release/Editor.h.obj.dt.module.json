@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "C:\\Users\\k025g\\Documents\\CakeEngine\\project\\..\\generated\\obj\\CakeEngine\\Release\\Editor.obj",
+            "outputs": [
+                "C:\\Users\\k025g\\Documents\\CakeEngine\\project\\..\\generated\\obj\\CakeEngine\\Release\\Editor.h.obj.dt.module.json",
+                "C:\\Users\\k025g\\Documents\\CakeEngine\\project\\..\\generated\\obj\\CakeEngine\\Release\\Editor.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

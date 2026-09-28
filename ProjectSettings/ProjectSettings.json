@@ -1,0 +1,10 @@
+{
+  "fullscreen": true,
+  "referenceHeight": 1080,
+  "referenceWidth": 1920,
+  "startupScene": "Assets/GameScene.scene",
+  "version": 1,
+  "windowHeight": 720,
+  "windowTitle": "CakeEngine_Game",
+  "windowWidth": 1280
+}

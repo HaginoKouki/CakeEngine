@@ -1,0 +1,27 @@
+{
+  "materials": {
+    "マテリアル.1": {
+      "params": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lightingType": [
+          1
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Standard",
+      "textures": {}
+    }
+  }
+}

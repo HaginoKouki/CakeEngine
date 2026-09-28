@@ -1,0 +1,419 @@
+{
+  "objects": [
+    {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "farClip": 1000.0,
+          "fovYDegree": 60.0,
+          "nearClip": 0.10000000149011612,
+          "priority": 0,
+          "type": "CameraComponent"
+        }
+      ],
+      "id": 0,
+      "name": "MainCamera",
+      "transform": {
+        "rotate": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          5.0,
+          3.0,
+          -10.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "enabled": true,
+          "intensity": 1.0,
+          "priority": 0,
+          "type": "LightComponent"
+        }
+      ],
+      "id": 1,
+      "name": "DirectionalLight",
+      "transform": {
+        "rotate": [
+          0.6100000143051147,
+          -0.6200000047683716,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "model": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        },
+        {
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "layer": 1,
+          "mask": 8,
+          "radius": 1.0,
+          "type": "SphereColliderComponent"
+        }
+      ],
+      "id": 2,
+      "name": "Player",
+      "transform": {
+        "rotate": [
+          0.0,
+          1.5700000524520874,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 3,
+      "name": "SwordAttatch",
+      "parent": 2,
+      "transform": {
+        "rotate": [
+          0.0,
+          -5.878971087724949e-09,
+          2.7403113112001165e-09
+        ],
+        "scale": [
+          1.0000004768371582,
+          1.0000003576278687,
+          1.000001072883606
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "model": {
+            "guid": "4d29cb9932fce6d463718ed08365b5a4",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 4,
+      "name": "SwordMesh",
+      "parent": 3,
+      "transform": {
+        "rotate": [
+          -3.141592502593994,
+          1.3915934562683105,
+          -3.141592502593994
+        ],
+        "scale": [
+          0.7550031542778015,
+          0.7549999952316284,
+          0.7550034523010254
+        ],
+        "translate": [
+          -4.764530103784637e-09,
+          2.0,
+          -5.303224526187478e-08
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "center": [
+            0.0,
+            2.75,
+            0.0
+          ],
+          "enabled": true,
+          "layer": 2,
+          "mask": 4,
+          "size": [
+            0.5,
+            4.0,
+            0.20000000298023224
+          ],
+          "type": "BoxColliderComponent"
+        }
+      ],
+      "id": 5,
+      "name": "SwordCollier",
+      "parent": 4,
+      "transform": {
+        "rotate": [
+          -2.7403119773339313e-09,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.9999989867210388,
+          0.9999996423721313,
+          0.999999463558197
+        ],
+        "translate": [
+          6.868512869573351e-09,
+          0.0,
+          -5.3759635632033564e-12
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 6,
+      "name": "ShieldAttatch",
+      "parent": 2,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0000014305114746,
+          1.0,
+          1.0000014305114746
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "model": {
+            "guid": "49dff1bb81833a7dc7cb9ec442533b9d",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 7,
+      "name": "ShieldMesh",
+      "parent": 6,
+      "transform": {
+        "rotate": [
+          0.0,
+          5.602533992288272e-10,
+          0.0
+        ],
+        "scale": [
+          0.9999916553497314,
+          1.0,
+          0.9999916553497314
+        ],
+        "translate": [
+          0.0018982556648552418,
+          0.0,
+          1.7999999523162842
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "model": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        },
+        {
+          "center": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "enabled": true,
+          "layer": 16,
+          "mask": 8,
+          "radius": 2.0,
+          "type": "SphereColliderComponent"
+        }
+      ],
+      "id": 8,
+      "name": "ShieldCollider",
+      "parent": 7,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.000006914138794,
+          1.0,
+          1.000006914138794
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "model": {
+            "guid": "00000000000000000000000000000000",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        },
+        {
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "layer": 2,
+          "mask": 4,
+          "radius": 1.0,
+          "type": "SphereColliderComponent"
+        }
+      ],
+      "id": 9,
+      "name": "ShieldBashCollider",
+      "parent": 7,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.000006914138794,
+          1.0,
+          1.000006914138794
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "45abec8985638c4e45fb09a562226ea2",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000005",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 10,
+      "name": "PlayerModel",
+      "parent": 2,
+      "transform": {
+        "rotate": [
+          1.570870280265808,
+          0.0007928486447781324,
+          1.5700000524520874
+        ],
+        "scale": [
+          1.0000001192092896,
+          1.000000238418579,
+          1.0000001192092896
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "version": 1
+}

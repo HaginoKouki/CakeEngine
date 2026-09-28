@@ -1,0 +1,29 @@
+{
+  "materials": {
+    "PlayerMaterial": {
+      "params": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lightingType": [
+          1
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Standard",
+      "textures": {
+        "albedo": "Assets/Textures/Rock060_1K-PNG_Color.png"
+      }
+    }
+  }
+}

@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\Application\Application.cpp" />
+    <ClCompile Include="Engine\Application\ProjectSettings.cpp" />
+    <ClCompile Include="Engine\Application\WindowApp.cpp" />
+    <ClCompile Include="Engine\Asset\Asset.cpp" />
+    <ClCompile Include="Engine\Asset\AssetTypes.cpp" />
+    <ClCompile Include="Engine\Asset\Database\AssetDatabase.cpp" />
+    <ClCompile Include="Engine\Asset\Database\AssetMeta.cpp" />
+    <ClCompile Include="Engine\Asset\Material\Material.cpp" />
+    <ClCompile Include="Engine\Asset\Material\MaterialManager.cpp" />
+    <ClCompile Include="Engine\Asset\Material\MaterialSerializer.cpp" />
+    <ClCompile Include="Engine\Asset\Model\ModelManager.cpp" />
+    <ClCompile Include="Engine\Asset\Sprite\Sprite.cpp" />
+    <ClCompile Include="Engine\Asset\Texture\TextureManager.cpp" />
+    <ClCompile Include="Engine\Editor\Camera\EditorCamera.cpp" />
+    <ClCompile Include="Engine\Editor\Editor.cpp" />
+    <ClCompile Include="Engine\Editor\ImGui\ImGuiCustomWidget.cpp" />
+    <ClCompile Include="Engine\Editor\ImGui\ImGuiManager.cpp" />
+    <ClCompile Include="Engine\Editor\Input\InputVisualizerWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Inspector\InspectorMaterialSection.cpp" />
+    <ClCompile Include="Engine\Editor\Inspector\MaterialEditor.cpp" />
+    <ClCompile Include="Engine\Editor\Inspector\ModelEditor.cpp" />
+    <ClCompile Include="Engine\Editor\Inspector\PropertyDrawer.cpp" />
+    <ClCompile Include="Engine\Editor\Inspector\SceneInspector.cpp" />
+    <ClCompile Include="Engine\Editor\Log\LogWindow.cpp" />
+    <ClCompile Include="Engine\Editor\MenuBar\MenuBar.cpp" />
+    <ClCompile Include="Engine\Editor\PlayMode\PlayModeController.cpp" />
+    <ClCompile Include="Engine\Editor\Settings\EditorCache.cpp" />
+    <ClCompile Include="Engine\Editor\Settings\EditorPreferences.cpp" />
+    <ClCompile Include="Engine\Editor\Settings\SettingsWindow.cpp" />
+    <ClCompile Include="Engine\Editor\ToolBar\ToolBar.cpp" />
+    <ClCompile Include="Engine\Editor\Viewport\GameWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Viewport\SceneWindow.cpp" />
+    <ClCompile Include="Engine\Foundation\Debug\DebugLog.cpp" />
+    <ClCompile Include="Engine\Foundation\Identity\Guid.cpp" />
+    <ClCompile Include="Engine\Foundation\Math\Geometry.cpp" />
+    <ClCompile Include="Engine\Foundation\Math\IsCollision.cpp" />
+    <ClCompile Include="Engine\Foundation\Math\Matrix.cpp" />
+    <ClCompile Include="Engine\Foundation\Math\Quaternion.cpp" />
+    <ClCompile Include="Engine\Foundation\Math\Transform.cpp" />
+    <ClCompile Include="Engine\Foundation\Math\Vector.cpp" />
+    <ClCompile Include="Engine\Foundation\Serialize\JsonFile.cpp" />
+    <ClCompile Include="Engine\Foundation\Utility\Convert.cpp" />
+    <ClCompile Include="Engine\Graphics\Buffer\FrameConstantBuffer.cpp" />
+    <ClCompile Include="Engine\Graphics\Buffer\FrameVertexBuffer.cpp" />
+    <ClCompile Include="Engine\Graphics\Buffer\GPUResourceUtility.cpp" />
+    <ClCompile Include="Engine\Graphics\Descriptor\DescriptorHeap.cpp" />
+    <ClCompile Include="Engine\Graphics\Device\CommandManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Device\DirectXDevice.cpp" />
+    <ClCompile Include="Engine\Graphics\Graphics.cpp" />
+    <ClCompile Include="Engine\Graphics\Pipeline\PipelineState.cpp" />
+    <ClCompile Include="Engine\Graphics\Profiler\PerformanceProfiler.cpp" />
+    <ClCompile Include="Engine\Graphics\RenderTarget\DepthBuffer.cpp" />
+    <ClCompile Include="Engine\Graphics\RenderTarget\SceneRenderTarget.cpp" />
+    <ClCompile Include="Engine\Graphics\RenderTarget\SwapChain.cpp" />
+    <ClCompile Include="Engine\Graphics\Shader\ShaderCompiler.cpp" />
+    <ClCompile Include="Engine\Graphics\Shader\ShaderDefinition.cpp" />
+    <ClCompile Include="Engine\Graphics\Shader\ShaderLibrary.cpp" />
+    <ClCompile Include="Engine\Platform\File\FileDialog.cpp" />
+    <ClCompile Include="Engine\Platform\Input\GamePad.cpp" />
+    <ClCompile Include="Engine\Platform\Input\InputManager.cpp" />
+    <ClCompile Include="Engine\Platform\Input\Keyboard.cpp" />
+    <ClCompile Include="Engine\Platform\Input\Mouse.cpp" />
+    <ClCompile Include="Engine\Platform\Platform.cpp" />
+    <ClCompile Include="Engine\Platform\Sound\SoundManager.cpp" />
+    <ClCompile Include="Engine\Platform\Time\Time.cpp" />
+    <ClCompile Include="Engine\Render\CameraView.cpp" />
+    <ClCompile Include="Engine\Render\Gizmo\GizmoDrawList.cpp" />
+    <ClCompile Include="Engine\Render\LightManager.cpp" />
+    <ClCompile Include="Engine\Render\Pass\GizmoPass.cpp" />
+    <ClCompile Include="Engine\Render\Pass\LightSetupPass.cpp" />
+    <ClCompile Include="Engine\Render\Pass\OpaquePass.cpp" />
+    <ClCompile Include="Engine\Render\Pass\SkyboxPass.cpp" />
+    <ClCompile Include="Engine\Render\Renderer.cpp" />
+    <ClCompile Include="Engine\Render\SceneRenderer.cpp" />
+    <ClCompile Include="Engine\Scene\Component\ComponentRegistration.cpp" />
+    <ClCompile Include="Engine\Scene\Component\ComponentRegistry\TypeRegistry.cpp" />
+    <ClCompile Include="Engine\Scene\Scene.cpp" />
+    <ClCompile Include="Engine\Scene\SceneManager.cpp" />
+    <ClCompile Include="Engine\Scene\Serialize\SceneSerializer.cpp" />
+    <ClCompile Include="Engine\Scene\System\CameraSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\CloneSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\CollisionSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\ComponentUpdateSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\GizmoSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\LightSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\RenderSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\UpdateContext.cpp" />
+    <ClCompile Include="externals\imgui\imgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\ImGuizmo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\imgui_demo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\imgui_draw.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\imgui_tables.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\imgui_widgets.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Game\Components\RotatorComponent.cpp" />
+    <ClCompile Include="Game\GameModule.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\Application\Application.h" />
+    <ClInclude Include="Engine\Application\BuildConfig.h" />
+    <ClInclude Include="Engine\Application\ProjectSettings.h" />
+    <ClInclude Include="Engine\Application\WindowApp.h" />
+    <ClInclude Include="Engine\Asset\Artifact\ModelArtifact.h" />
+    <ClInclude Include="Engine\Asset\Asset.h" />
+    <ClInclude Include="Engine\Asset\AssetTypes.h" />
+    <ClInclude Include="Engine\Asset\Database\AssetDatabase.h" />
+    <ClInclude Include="Engine\Asset\Database\AssetMeta.h" />
+    <ClInclude Include="Engine\Asset\Database\AssetRef.h" />
+    <ClInclude Include="Engine\Asset\Import\ArtifactCache.h" />
+    <ClInclude Include="Engine\Asset\Import\ArtifactKey.h" />
+    <ClInclude Include="Engine\Asset\Import\AssetImporter.h" />
+    <ClInclude Include="Engine\Asset\Import\ImportPipeline.h" />
+    <ClInclude Include="Engine\Asset\Material\Material.h" />
+    <ClInclude Include="Engine\Asset\Material\MaterialHandle.h" />
+    <ClInclude Include="Engine\Asset\Material\MaterialManager.h" />
+    <ClInclude Include="Engine\Asset\Material\MaterialSerializer.h" />
+    <ClInclude Include="Engine\Asset\Model\Mesh.h" />
+    <ClInclude Include="Engine\Asset\Model\ModelHandle.h" />
+    <ClInclude Include="Engine\Asset\Model\ModelManager.h" />
+    <ClInclude Include="Engine\Asset\Model\PrimitiveShape.h" />
+    <ClInclude Include="Engine\Asset\Runtime\HandlePool.h" />
+    <ClInclude Include="Engine\Asset\Sprite\Sprite.h" />
+    <ClInclude Include="Engine\Asset\Texture\TextureHandle.h" />
+    <ClInclude Include="Engine\Asset\Texture\TextureManager.h" />
+    <ClInclude Include="Engine\Editor\Camera\EditorCamera.h" />
+    <ClInclude Include="Engine\Editor\Editor.h" />
+    <ClInclude Include="Engine\Editor\EditorDrawContext.h" />
+    <ClInclude Include="Engine\Editor\ImGui\Icons.h" />
+    <ClInclude Include="Engine\Editor\ImGui\ImGuiCustomWidget.h" />
+    <ClInclude Include="Engine\Editor\ImGui\ImGuiManager.h" />
+    <ClInclude Include="Engine\Editor\Input\InputVisualizerWindow.h" />
+    <ClInclude Include="Engine\Editor\Inspector\InspectorMaterialSection.h" />
+    <ClInclude Include="Engine\Editor\Inspector\MaterialEditor.h" />
+    <ClInclude Include="Engine\Editor\Inspector\ModelEditor.h" />
+    <ClInclude Include="Engine\Editor\Inspector\PropertyDrawer.h" />
+    <ClInclude Include="Engine\Editor\Inspector\SceneInspector.h" />
+    <ClInclude Include="Engine\Editor\Log\LogWindow.h" />
+    <ClInclude Include="Engine\Editor\MenuBar\MenuBar.h" />
+    <ClInclude Include="Engine\Editor\PlayMode\PlayModeController.h" />
+    <ClInclude Include="Engine\Editor\Settings\EditorCache.h" />
+    <ClInclude Include="Engine\Editor\Settings\EditorPreferences.h" />
+    <ClInclude Include="Engine\Editor\Settings\SettingsWindow.h" />
+    <ClInclude Include="Engine\Editor\ToolBar\ToolBar.h" />
+    <ClInclude Include="Engine\Editor\Viewport\GameWindow.h" />
+    <ClInclude Include="Engine\Editor\Viewport\SceneWindow.h" />
+    <ClInclude Include="Engine\Foundation\Debug\DebugLog.h" />
+    <ClInclude Include="Engine\Foundation\Identity\Guid.h" />
+    <ClInclude Include="Engine\Foundation\Identity\LocalId.h" />
+    <ClInclude Include="Engine\Foundation\Math\Easing.h" />
+    <ClInclude Include="Engine\Foundation\Math\Geometry.h" />
+    <ClInclude Include="Engine\Foundation\Math\IsCollision.h" />
+    <ClInclude Include="Engine\Foundation\Math\Matrix.h" />
+    <ClInclude Include="Engine\Foundation\Math\Quaternion.h" />
+    <ClInclude Include="Engine\Foundation\Math\Transform.h" />
+    <ClInclude Include="Engine\Foundation\Math\Vector.h" />
+    <ClInclude Include="Engine\Foundation\Reflection\ReflectMacros.h" />
+    <ClInclude Include="Engine\Foundation\Reflection\TypeInfo.h" />
+    <ClInclude Include="Engine\Foundation\Serialize\BinaryStream.h" />
+    <ClInclude Include="Engine\Foundation\Serialize\JsonFile.h" />
+    <ClInclude Include="Engine\Foundation\Utility\Convert.h" />
+    <ClInclude Include="Engine\Graphics\Buffer\FrameConstantBuffer.h" />
+    <ClInclude Include="Engine\Graphics\Buffer\FrameVertexBuffer.h" />
+    <ClInclude Include="Engine\Graphics\Buffer\GPUResourceUtility.h" />
+    <ClInclude Include="Engine\Graphics\Descriptor\DescriptorHeap.h" />
+    <ClInclude Include="Engine\Graphics\Device\CommandManager.h" />
+    <ClInclude Include="Engine\Graphics\Device\DirectXDevice.h" />
+    <ClInclude Include="Engine\Graphics\Graphics.h" />
+    <ClInclude Include="Engine\Graphics\Pipeline\PipelineState.h" />
+    <ClInclude Include="Engine\Graphics\Profiler\PerformanceProfiler.h" />
+    <ClInclude Include="Engine\Graphics\RenderTarget\DepthBuffer.h" />
+    <ClInclude Include="Engine\Graphics\RenderTarget\SceneRenderTarget.h" />
+    <ClInclude Include="Engine\Graphics\RenderTarget\SwapChain.h" />
+    <ClInclude Include="Engine\Graphics\Shader\ShaderCompiler.h" />
+    <ClInclude Include="Engine\Graphics\Shader\ShaderDefinition.h" />
+    <ClInclude Include="Engine\Graphics\Shader\ShaderLibrary.h" />
+    <ClInclude Include="Engine\Graphics\Shader\ShaderParam.h" />
+    <ClInclude Include="Engine\Platform\File\FileDialog.h" />
+    <ClInclude Include="Engine\Platform\Input\GamePad.h" />
+    <ClInclude Include="Engine\Platform\Input\InputManager.h" />
+    <ClInclude Include="Engine\Platform\Input\Keyboard.h" />
+    <ClInclude Include="Engine\Platform\Input\KeyCode.h" />
+    <ClInclude Include="Engine\Platform\Input\KeyState.h" />
+    <ClInclude Include="Engine\Platform\Input\Mouse.h" />
+    <ClInclude Include="Engine\Platform\Platform.h" />
+    <ClInclude Include="Engine\Platform\Sound\SoundManager.h" />
+    <ClInclude Include="Engine\Platform\Time\Time.h" />
+    <ClInclude Include="Engine\Render\CameraView.h" />
+    <ClInclude Include="Engine\Render\Gizmo\GizmoDrawList.h" />
+    <ClInclude Include="Engine\Render\Light.h" />
+    <ClInclude Include="Engine\Render\LightManager.h" />
+    <ClInclude Include="Engine\Render\Pass\GizmoPass.h" />
+    <ClInclude Include="Engine\Render\Pass\LightSetupPass.h" />
+    <ClInclude Include="Engine\Render\Pass\OpaquePass.h" />
+    <ClInclude Include="Engine\Render\Pass\RenderPass.h" />
+    <ClInclude Include="Engine\Render\Pass\SkyboxPass.h" />
+    <ClInclude Include="Engine\Render\Renderer.h" />
+    <ClInclude Include="Engine\Render\SceneRenderer.h" />
+    <ClInclude Include="Engine\Scene\Component\BoxColliderComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\CameraComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\ComponentRegistration.h" />
+    <ClInclude Include="Engine\Scene\Component\ComponentRegistry\RequireComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\ComponentRegistry\TypeRegistry.h" />
+    <ClInclude Include="Engine\Scene\Component\LightComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\MeshRendererComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\SphereColliderComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\TransformComponent.h" />
+    <ClInclude Include="Engine\Scene\Object\ComponentPool.h" />
+    <ClInclude Include="Engine\Scene\Object\GameObject.h" />
+    <ClInclude Include="Engine\Scene\Object\GameObjectId.h" />
+    <ClInclude Include="Engine\Scene\Scene.h" />
+    <ClInclude Include="Engine\Scene\SceneManager.h" />
+    <ClInclude Include="Engine\Scene\Serialize\SceneSerializer.h" />
+    <ClInclude Include="Engine\Scene\System\CameraSystem.h" />
+    <ClInclude Include="Engine\Scene\System\CloneSystem.h" />
+    <ClInclude Include="Engine\Scene\System\CollisionSystem.h" />
+    <ClInclude Include="Engine\Scene\System\ComponentUpdateSystem.h" />
+    <ClInclude Include="Engine\Scene\System\GizmoSystem.h" />
+    <ClInclude Include="Engine\Scene\System\LightSystem.h" />
+    <ClInclude Include="Engine\Scene\System\RenderSystem.h" />
+    <ClInclude Include="Engine\Scene\System\UpdateContext.h" />
+    <ClInclude Include="externals\imgui\imconfig.h" />
+    <ClInclude Include="externals\imgui\imgui.h" />
+    <ClInclude Include="externals\imgui\ImGuizmo.h" />
+    <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
+    <ClInclude Include="externals\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="externals\imgui\imgui_internal.h" />
+    <ClInclude Include="externals\imgui\imstb_rectpack.h" />
+    <ClInclude Include="externals\imgui\imstb_textedit.h" />
+    <ClInclude Include="externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="externals\nlohmann\json.hpp" />
+    <ClInclude Include="Game\Components\RotatorComponent.h" />
+    <ClInclude Include="Game\GameLayer.h" />
+    <ClInclude Include="Game\GameModule.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
+      <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a702f300-e9e8-4841-b195-1006a251d9d8}</ProjectGuid>
+    <RootNamespace>CakeEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ENABLE_EDITOR;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Game/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Game/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;ENABLE_EDITOR;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Game/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Game/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

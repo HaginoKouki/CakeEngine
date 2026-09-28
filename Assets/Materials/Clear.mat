@@ -1,0 +1,29 @@
+{
+  "materials": {
+    "Clear": {
+      "params": {
+        "color": [
+          1.0,
+          0.9254902005195618,
+          1.0,
+          1.0
+        ],
+        "lightingType": [
+          1
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Standard",
+      "textures": {
+        "albedo": "Assets/Textures/clear.png"
+      }
+    }
+  }
+}

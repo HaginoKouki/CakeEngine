@@ -362,16 +362,19 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# ビルド生成物（OutDir / IntDir）
-/generated/
-
-!Engine/**
-!EngineResources/
-!EngineResources/**
-!Assets/
-!Assets/**
-/UserSettings/
-logs/
-Dumps/
+# ビルド生成物
+generated/
+project/logs/
+project/Dumps/
 *.dmp
+
+# 拡張子設定被りによる除外を防ぐ
+!project/Engine/**
+!project/EngineResources/
+!project/EngineResources/**
+!project/Assets/
+!project/Assets/**
+
+# ローカルキャッシュを除外
+project/UserSettings/
 imgui.ini

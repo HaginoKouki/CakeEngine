@@ -45,6 +45,7 @@ class PipelineState {
 public:
 	static constexpr uint32_t kMaxTextureSlots = 4; // t0..t3.
 	static constexpr uint32_t kTextureRootParamStart = 3;
+	static constexpr uint32_t kInstancingRootParam = kTextureRootParamStart + kMaxTextureSlots; // 7: VS t0.
 
 private:
 	ID3D12Device* device_ = nullptr;

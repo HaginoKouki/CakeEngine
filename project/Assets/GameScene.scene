@@ -413,6 +413,42 @@
           0.0
         ]
       }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "48c8d98ee0eb31d77b7167bce08bc8a4",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000003",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 11,
+      "name": "ParticleTest",
+      "transform": {
+        "rotate": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          5.970749378204346,
+          -4.76837158203125e-07,
+          -0.49774396419525146
+        ]
+      }
     }
   ],
   "version": 1

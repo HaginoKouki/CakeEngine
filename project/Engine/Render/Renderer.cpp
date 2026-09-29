@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-#include <span>
+#include <vector>
 
 #include "Engine/Foundation/Debug/DebugLog.h"
 #include "Engine/Foundation/Math/Transform.h"
@@ -292,6 +292,45 @@ void Renderer::DrawModel(ModelHandle model, const Matrix4x4& world, const Camera
 			commandList_->SetGraphicsRootConstantBufferView(0, mat->GetCB()->GetGPUVirtualAddress());
 			commandList_->IASetVertexBuffers(0, 1, &sub.vbv);
 			commandList_->DrawInstanced(sub.vertexCount, 1, 0, 0);
+		}
+	}
+}
+void Renderer::DrawModelInstanced(ModelHandle model, std::span<const Matrix4x4> worlds, const CameraView& cameraView, MaterialHandle material) {
+	std::span<const Mesh> meshes = modelManager_->ResolveMeshes(model);
+	if (meshes.empty() || worlds.empty()) {
+		return;
+	}
+
+	const Material* mat = materialManager_->ResolveOrError(material);
+	const ShaderDefinition* shader = mat->GetShader();
+	if (shader == nullptr || shader->pso == nullptr) {
+		return;
+	}
+
+	// インスタンスごとの WVP / World を詰めて、フレーム内バッファへ書き込む.
+	const Matrix4x4 viewProj = cameraView.viewMatrix * cameraView.projectionMatrix;
+	std::vector<TransformationMatrix> instances;
+	instances.reserve(worlds.size());
+	for (const Matrix4x4& world : worlds) {
+		instances.push_back(TransformationMatrix{world * viewProj, world});
+	}
+	const D3D12_GPU_VIRTUAL_ADDRESS instancesAddress = frameConstants_.Allocate(instances.data(), sizeof(TransformationMatrix) * instances.size());
+
+	commandList_->SetPipelineState(shader->pso);
+	commandList_->SetGraphicsRootConstantBufferView(0, mat->GetCB()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootShaderResourceView(PipelineState::kInstancingRootParam, instancesAddress);
+	for (const TextureSlotDesc& slot : shader->textures) {
+		commandList_->SetGraphicsRootDescriptorTable(
+			PipelineState::kTextureRootParamStart + slot.registerIndex,
+			mat->GetTexture(slot.name).gpuHandle
+		);
+	}
+
+	const UINT instanceCount = static_cast<UINT>(worlds.size());
+	for (const Mesh& mesh : meshes) {
+		for (const SubMesh& sub : mesh.subMeshes) {
+			commandList_->IASetVertexBuffers(0, 1, &sub.vbv);
+			commandList_->DrawInstanced(sub.vertexCount, instanceCount, 0, 0);
 		}
 	}
 }

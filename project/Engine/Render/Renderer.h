@@ -9,6 +9,7 @@
  * ====================================*/
 #include <cstdint>
 #include <string>
+#include <span>
 #include <d3d12.h>
 
 #include "Engine/Graphics/Buffer/FrameConstantBuffer.h"
@@ -125,6 +126,13 @@ public:
 		const Matrix4x4& world,
 		const CameraView& cameraView,
 		MaterialHandle materialOverride = {}
+	);
+	// 同じモデルを worlds の数だけインスタンシングで描画する（Particle シェーダー用）.
+	void DrawModelInstanced(
+		ModelHandle model,
+		std::span<const Matrix4x4> worlds,
+		const CameraView& cameraView,
+		MaterialHandle material
 	);
 
 	void SetPSO(const std::string& name);

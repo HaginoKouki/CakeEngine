@@ -1,0 +1,18 @@
+{
+  "materials": {
+    "ParticleMaterial": {
+      "params": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Particle",
+      "textures": {
+        "albedo": "Assets/Textures/Bricks101_1K-PNG_Color.png"
+      }
+    }
+  }
+}

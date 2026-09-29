@@ -45,6 +45,29 @@ void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 		}, // t0.
 	};
 	shaderLibrary.Register(object3d);
+	/*
+	* Particle
+	———————————————*/
+	Cake::ShaderDefinition particle;
+	particle.name = "Particle";
+	particle.vsPath = L"Assets/Shaders/Object3D/Particle.VS.hlsl";
+	particle.psPath = L"Assets/Shaders/Object3D/Particle.PS.hlsl";
+	particle.params = {
+		Cake::ShaderParamDesc{
+			.name = "color",
+			.type = Cake::ShaderParamType::Color,
+			.defaultValue = {1, 1, 1, 1},
+			.uiMin = 0.0f,
+			.uiMax = 1.0f
+		},
+	};
+	particle.textures = {
+		Cake::TextureSlotDesc{
+			.name = "albedo",
+			.registerIndex = 0
+		}, // t0.
+	};
+	shaderLibrary.Register(particle);
 }
 
 } // namespace Game

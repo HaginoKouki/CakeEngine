@@ -8,7 +8,6 @@ namespace Cake {
 namespace {
 constexpr const char* kLogCategory = "PipelineState";
 
-
 // レイアウト種別ごとの入力要素。PSO生成の間だけ参照されるので static で持って良い.
 const D3D12_INPUT_ELEMENT_DESC kMeshLayout[] = {
 	{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -19,7 +18,7 @@ const D3D12_INPUT_ELEMENT_DESC kLineLayout[] = {
 	{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
 	{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
 };
-}
+} // namespace
 
 void PipelineState::Initialize(ID3D12Device* device) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
@@ -93,7 +92,7 @@ ID3D12PipelineState* PipelineState::GetPSO(const std::string& name) const {
 
 void PipelineState::BuildRootSignature(ID3D12Device* device) {
 	// RootParameter.
-	D3D12_ROOT_PARAMETER rootParameters[kTextureRootParamStart + kMaxTextureSlots] = {};
+	D3D12_ROOT_PARAMETER rootParameters[kInstancingRootParam + 1] = {};
 
 	// 0: material CBV (b0, PIXEL).
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -118,12 +117,20 @@ void PipelineState::BuildRootSignature(ID3D12Device* device) {
 		texRanges[i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		texRanges[i].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-		uint32_t p = kTextureRootParamStart + i;
+		uint32_t p = kTextureRootParamStart + i; // p = 3, 4, 5, 6.
+		// テクスチャ t_i 用テーブル (PIXEL).
 		rootParameters[p].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		rootParameters[p].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 		rootParameters[p].DescriptorTable.pDescriptorRanges = &texRanges[i];
 		rootParameters[p].DescriptorTable.NumDescriptorRanges = 1;
 	}
+
+	// 7: インスタンシング用 StructuredBuffer (t0, VERTEX).
+	// ルートSRVなので、ディスクリプタを作らずGPUアドレスを直接渡せる.
+	rootParameters[kInstancingRootParam].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rootParameters[kInstancingRootParam].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[kInstancingRootParam].Descriptor.ShaderRegister = 0; // t0.
+	rootParameters[kInstancingRootParam].Descriptor.RegisterSpace = 0;
 
 	// StaticSampler.
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};

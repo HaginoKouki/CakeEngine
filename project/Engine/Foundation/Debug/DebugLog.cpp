@@ -1,19 +1,41 @@
 #include "DebugLog.h"
 
 #include <cassert>
+#include <cstdint>
 #include <winerror.h>
 #include <format>
+#include <iterator>
 #include <string>
 #include <sstream>
 #include <iomanip>
-// ファイルやディレクトリに関する操作を行うライブラリ.
+#include <utility>
 #include <filesystem>
-// 時間を扱うライブラリ.
 #include <chrono>
 
 namespace Cake {
+namespace {
+
+// SetCurrentThreadName で決めた、このスレッドの名前。空なら既定の名前を使う.
+thread_local std::string tlsThreadName;
+
+// ファイル / デバッグ出力用に1行へ整形する（LogWindow も同じ並びで表示する）.
+std::string FormatLine(const LogEntry& entry) {
+	return std::format(
+		"{} [{}] [{:<8}] [{:<15}] {}",
+		entry.timeString,
+		LevelToString(entry.level),
+		entry.threadName,
+		entry.category,
+		entry.message
+	);
+}
+
+} // namespace
 
 DebugLog::DebugLog() {
+	// 最初に GetInstance を呼んだスレッドをメインスレッドとする（DebugLog.h を参照）.
+	mainThreadId_ = std::this_thread::get_id();
+
 	// 現在時刻を取得.
 	auto now = std::chrono::system_clock::now();
 	auto nowSecond = std::chrono::time_point_cast<std::chrono::seconds>(now);
@@ -33,6 +55,7 @@ DebugLog::DebugLog() {
 }
 
 DebugLog::~DebugLog() {
+	std::lock_guard lock(mutex_);
 	if (logStream_.is_open()) {
 		logStream_.close();
 	}
@@ -41,34 +64,72 @@ DebugLog::~DebugLog() {
 std::string DebugLog::GetCurrentTimeString() const {
 	// 現在時刻を取得.
 	auto now = std::chrono::system_clock::now();
-	// ミリ秒に丸める.
-	auto nowMs = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	// ローカル時間に変換.
-	std::chrono::zoned_time localTime{std::chrono::current_zone(), nowMs};
-	return std::format("{:%Y-%m-%d %H:%M:%S}", localTime);
+	std::chrono::zoned_time localTime{std::chrono::current_zone(), now};
+	return std::format("{:%Y-%m-%d %T}", localTime);
+}
+
+std::string DebugLog::GetCurrentThreadName() const {
+	if (!tlsThreadName.empty()) {
+		return tlsThreadName;
+	}
+	if (IsMainThread()) {
+		return "Main";
+	}
+	return std::format("T{}", GetCurrentThreadId());
+}
+
+void DebugLog::SetCurrentThreadName(std::string_view name) {
+	tlsThreadName.assign(name);
 }
 
 void DebugLog::Log(LogLevel level, const std::string& category, const std::string& message) {
-	// キャッシュ用に要素を分解して保持しておく.
+	// 時刻の取得と整形はロックの外で行い、ロックを持つ時間を短くする.
 	LogEntry entry;
 	entry.level = level;
 	entry.timeString = GetCurrentTimeString();
+	entry.threadName = GetCurrentThreadName();
 	entry.category = category;
 	entry.message = message;
 
-	// ファイル / デバッグ出力用に1行へ整形.
-	std::string fullMessage = std::format(
-		"{} [{}] [{:<15}] {}",
-		entry.timeString,
-		LevelToString(level),
-		category,
-		message
-	);
-	logStream_ << fullMessage << std::endl;
-	OutputDebugStringA((fullMessage + "\n").c_str());
+	const std::string line = FormatLine(entry);
 
-	// ImGui表示用にキャッシュへ追加.
-	logEntries_.push_back(std::move(entry));
+	// ファイル・デバッグ出力・保留キューを同じロックの中で書く。
+	// こうすると、3つに現れる行の順番が必ず一致する.
+	std::lock_guard lock(mutex_);
+	if (logStream_.is_open()) {
+		// 落ちる直前のログも残るよう、1行ごとに flush する（std::endl と同じ）.
+		logStream_ << line << '\n';
+		logStream_.flush();
+	}
+	OutputDebugStringA((line + "\n").c_str());
+
+	// 画面表示用。メインスレッドが PumpMainThread で logEntries_ へ移す.
+	pending_.push_back(std::move(entry));
+}
+
+void DebugLog::PumpMainThread() {
+	assert(IsMainThread() && "DebugLog::PumpMainThread はメインスレッドから呼ぶこと");
+
+	{
+		// 入れ替えるだけにして、ロックを持つ時間を最短にする.
+		std::lock_guard lock(mutex_);
+		pending_.swap(pumpBuffer_);
+	}
+	if (pumpBuffer_.empty()) {
+		return;
+	}
+	logEntries_.insert(
+		logEntries_.end(),
+		std::make_move_iterator(pumpBuffer_.begin()),
+		std::make_move_iterator(pumpBuffer_.end())
+	);
+	pumpBuffer_.clear(); // 容量は残し、次の入れ替えで pending_ として使い回す.
+}
+
+const std::vector<LogEntry>& DebugLog::GetLogEntry() const {
+	assert(IsMainThread() && "DebugLog::GetLogEntry はメインスレッドから呼ぶこと");
+	return logEntries_;
 }
 
 // -----------------------------------------------------------------------
@@ -199,7 +260,7 @@ void DebugLog::LogHRESULT(HRESULT hr) {
 	Log(
 		logLevel,
 		"HRESULT",
-		std::format("{:08X} {} {}\n", hr, hrInfo.first, hrInfo.second)
+		std::format("{:08X} {} {}", static_cast<uint32_t>(hr), hrInfo.first, hrInfo.second)
 	);
 }
 void AssertHRESULT(HRESULT hr, const std::string& message) {

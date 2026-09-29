@@ -236,6 +236,9 @@ void Application::Run() {
 }
 
 void Application::RunFrame() {
+	// 前のフレーム以降に出たログ（ワーカーの分も含む）を、画面表示用の一覧へ移す.
+	DebugLog::GetInstance().PumpMainThread();
+
 	// Platform層のフレーム開始.
 	platform_.BeginFrame();
 	Time& time = platform_.GetTime();

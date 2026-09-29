@@ -110,10 +110,11 @@ void LogWindow::DrawLogWindow(const char* title, bool* open) {
 					break;
 			}
 			std::string line = std::format(
-				"{} {} [{}] [{:<15}] {}",
+				"{} {} [{}] [{:<8}] [{:<15}] {}",
 				levelIcon,
 				e.timeString,
 				LevelToString(e.level),
+				e.threadName,
 				e.category,
 				e.message
 			);

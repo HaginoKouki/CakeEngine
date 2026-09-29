@@ -211,6 +211,7 @@
     <ClInclude Include="Engine\Editor\Viewport\GameWindow.h" />
     <ClInclude Include="Engine\Editor\Viewport\SceneWindow.h" />
     <ClInclude Include="Engine\Foundation\Debug\DebugLog.h" />
+    <ClInclude Include="Engine\Foundation\Identity\AssetId.h" />
     <ClInclude Include="Engine\Foundation\Identity\Guid.h" />
     <ClInclude Include="Engine\Foundation\Identity\LocalId.h" />
     <ClInclude Include="Engine\Foundation\Math\Easing.h" />

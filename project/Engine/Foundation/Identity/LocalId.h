@@ -50,8 +50,7 @@ constexpr uint64_t FnvStep(uint64_t hash, uint8_t byte) {
 
 // 種別タグと名前から LocalId を導出する。
 // タグを先に畳み込むので、同名でも種別が違えば別の値になる。
-// タグも結果の値に焼き込まれて保存されるので、enum の数値のような変わりうる値ではなく
-// 固定の値を渡すこと（Asset 層の SubAssetTagOf がその表）。
+// タグも結果の値に焼き込まれて保存されるので、enum の数値のような変わりうる値ではなく固定の値を渡すこと（Asset 層の SubAssetTagOf がその表）。
 // 0 は「本体」を意味する予約値なので、万一0になったら1へずらす.
 constexpr LocalId MakeTaggedLocalId(uint32_t tag, std::string_view name) {
 	uint64_t hash = Detail::kLocalIdFnvOffsetBasis;

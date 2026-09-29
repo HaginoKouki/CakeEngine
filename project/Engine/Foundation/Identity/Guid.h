@@ -37,12 +37,12 @@ struct Guid {
 	// GUIDを区切りなし32桁の小文字16進数に変換する.
 	std::string ToString() const;
 
-	// 新しいGUIDを生成する.
-	static Guid Generate();
-
 	// ToStringの逆変換(文字列をGuidに変換).
 	// 文字列が不正な場合はfalseを返す.
 	static bool TryParse(std::string_view text, Guid& out);
+
+	// 新しいGUIDを生成する.
+	static Guid Generate();
 
 	// 無効値（全ビット0）を返す.
 	static Guid Invalid() { return Guid{}; }

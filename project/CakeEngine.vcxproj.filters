@@ -920,6 +920,9 @@
     <ClInclude Include="externals\imgui\ImZoomSlider.h">
       <Filter>externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Foundation\Identity\AssetId.h">
+      <Filter>Engine\Foundation\Identity</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

@@ -100,6 +100,7 @@
     <ClCompile Include="Engine\Scene\System\ComponentUpdateSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\GizmoSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\LightSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\ParticleSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\RenderSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp" />
     <ClCompile Include="externals\imgui\GraphEditor.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="Engine\Scene\Component\ComponentRegistry\TypeRegistry.h" />
     <ClInclude Include="Engine\Scene\Component\LightComponent.h" />
     <ClInclude Include="Engine\Scene\Component\MeshRendererComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\ParticleSystemComponent.h" />
     <ClInclude Include="Engine\Scene\Component\SphereColliderComponent.h" />
     <ClInclude Include="Engine\Scene\Component\TransformComponent.h" />
     <ClInclude Include="Engine\Scene\Object\ComponentPool.h" />
@@ -284,6 +286,7 @@
     <ClInclude Include="Engine\Scene\System\ComponentUpdateSystem.h" />
     <ClInclude Include="Engine\Scene\System\GizmoSystem.h" />
     <ClInclude Include="Engine\Scene\System\LightSystem.h" />
+    <ClInclude Include="Engine\Scene\System\ParticleSystem.h" />
     <ClInclude Include="Engine\Scene\System\RenderSystem.h" />
     <ClInclude Include="Engine\Scene\System\UpdateContext.h" />
     <ClInclude Include="externals\imgui\GraphEditor.h" />

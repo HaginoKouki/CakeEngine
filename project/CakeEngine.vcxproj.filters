@@ -492,6 +492,9 @@
     <ClCompile Include="externals\imgui\ImVectorEditor.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Scene\System\ParticleSystem.cpp">
+      <Filter>Engine\Scene\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Application\Application.h">
@@ -922,6 +925,12 @@
     </ClInclude>
     <ClInclude Include="Engine\Foundation\Identity\AssetId.h">
       <Filter>Engine\Foundation\Identity</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\Component\ParticleSystemComponent.h">
+      <Filter>Engine\Scene\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\System\ParticleSystem.h">
+      <Filter>Engine\Scene\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@
         {
           "enabled": true,
           "farClip": 1000.0,
-          "fovYDegree": 60.0,
+          "fovYDegree": 45.0,
           "nearClip": 0.10000000149011612,
           "priority": 0,
           "type": "CameraComponent"
@@ -26,9 +26,9 @@
           1.0
         ],
         "translate": [
-          5.0,
+          0.0,
           3.0,
-          -10.0
+          -15.0
         ]
       }
     },
@@ -85,7 +85,7 @@
           1.0
         ],
         "translate": [
-          0.0,
+          -5.0,
           0.0,
           0.0
         ]
@@ -204,7 +204,7 @@
             "localId": 0
           },
           "model": {
-            "guid": "4ff6145acb0ad874a4180c9c9973af8b",
+            "guid": "4bf116a4590b2b16f92fc7420c7e20ba",
             "localId": 0
           },
           "type": "MeshRendererComponent",
@@ -227,7 +227,67 @@
         ],
         "translate": [
           0.0,
-          -10.0,
+          -5.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 7,
+      "name": "Boss",
+      "transform": {
+        "rotate": [
+          -0.0,
+          -1.5700242519378662,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          5.0,
+          2.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "45abec8985638c4e45fb09a562226ea2",
+            "localId": 0
+          },
+          "model": {
+            "guid": "487148d434120e2a271a390887bccb88",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 8,
+      "name": "BossModel",
+      "parent": 7,
+      "transform": {
+        "rotate": [
+          0.23000000417232513,
+          -0.0,
+          -4.361306888550631e-12
+        ],
+        "scale": [
+          3.0,
+          2.999999761581421,
+          2.9999988079071045
+        ],
+        "translate": [
+          0.0,
+          0.0,
           0.0
         ]
       }

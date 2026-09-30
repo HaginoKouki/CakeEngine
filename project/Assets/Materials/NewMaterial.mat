@@ -1,0 +1,19 @@
+{
+  "materials": {
+    "NewMaterial": {
+      "params": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "enableLighting": [
+          1
+        ]
+      },
+      "shader": "Object3D",
+      "textures": {}
+    }
+  }
+}

@@ -157,6 +157,7 @@
     </ClCompile>
     <ClCompile Include="externals\imgui\ImSequencer.cpp" />
     <ClCompile Include="externals\imgui\ImVectorEditor.cpp" />
+    <ClCompile Include="Game\Components\Player\PlayerComponent.cpp" />
     <ClCompile Include="Game\Components\RotatorComponent.cpp" />
     <ClCompile Include="Game\GameModule.cpp" />
     <ClCompile Include="main.cpp">
@@ -310,6 +311,7 @@
     <ClInclude Include="externals\imgui\ImVectorEditor.h" />
     <ClInclude Include="externals\imgui\ImZoomSlider.h" />
     <ClInclude Include="externals\nlohmann\json.hpp" />
+    <ClInclude Include="Game\Components\Player\PlayerComponent.h" />
     <ClInclude Include="Game\Components\RotatorComponent.h" />
     <ClInclude Include="Game\GameLayer.h" />
     <ClInclude Include="Game\GameModule.h" />

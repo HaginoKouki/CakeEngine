@@ -1,0 +1,29 @@
+{
+  "materials": {
+    "PlatformMaterial": {
+      "params": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lightingType": [
+          1
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Standard",
+      "textures": {
+        "albedo": "Assets/kenney_platformer-kit/Models/OBJ format/Textures/colormap.png"
+      }
+    }
+  }
+}

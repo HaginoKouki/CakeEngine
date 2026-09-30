@@ -22,7 +22,7 @@
       },
       "shader": "Standard",
       "textures": {
-        "albedo": "Assets/Textures/Rock060_1K-PNG_Color.png"
+        "albedo": "Assets/kenney_cube-pets_1.0/Models/OBJ format/Textures/colormap.png"
       }
     }
   }

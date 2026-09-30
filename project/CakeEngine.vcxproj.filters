@@ -181,6 +181,9 @@
     <Filter Include="Game\Components">
       <UniqueIdentifier>{dfe490ca-b67f-488f-8955-d2787640c514}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Components\Player">
+      <UniqueIdentifier>{58d9ee75-a3b4-4cfe-a6a2-006dbbe15e0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -497,6 +500,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Render\Pass\ParticlePass.cpp">
       <Filter>Engine\Render\Pass</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Components\Player\PlayerComponent.cpp">
+      <Filter>Game\Components\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -943,6 +949,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Render\Pass\ParticlePass.h">
       <Filter>Engine\Render\Pass</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Components\Player\PlayerComponent.h">
+      <Filter>Game\Components\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

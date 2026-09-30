@@ -6,6 +6,7 @@
 #include "Engine/Scene/Component/ComponentRegistry/TypeRegistry.h"
 
 #include "Game/Components/RotatorComponent.h"
+#include "Game/Components/Player/PlayerComponent.h"
 
 namespace Game {
 
@@ -13,6 +14,7 @@ void RegisterGameComponents() {
 	Cake::TypeRegistry& registry = Cake::TypeRegistry::GetInstance();
 	// ユーザーのコンポーネントはここに追加する.
 	registry.Register<RotatorComponent>(Cake::kDefaultUpdatePriority);
+	registry.Register<PlayerComponent>(Cake::kDefaultUpdatePriority);
 }
 void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 	/*

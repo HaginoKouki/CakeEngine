@@ -39,6 +39,10 @@ struct ShaderDefinition {
 	// エンジン内部専用のシェーダー。マテリアルの選択肢に出さない.
 	bool hiddenInEditor = false;
 
+	// インスタンシング専用（VS が StructuredBuffer からインスタンスごとの行列を読む）.
+	// true のシェーダーは Renderer::DrawModel では描かず、エラーマテリアルに差し替える.
+	bool requiresInstancing = false;
+
 	// ComputeLayoutで埋まる。cbuffer全体のサイズ(16バイト切り上げ後).
 	uint32_t cbufferSize = 0;
 

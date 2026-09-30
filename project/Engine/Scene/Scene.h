@@ -28,6 +28,7 @@
 #include "Engine/Scene/Object/ComponentPool.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Object/GameObjectId.h"
+#include "Engine/Scene/Object/ParticleStorage.h"
 
 namespace Cake {
 
@@ -44,8 +45,11 @@ private:
 	// 親を持たないオブジェクト。UpdateTransforms の起点.
 	std::vector<GameObjectId> roots_;
 
+	// パーティクルの粒の状態。Clear() で一緒に空になる.
+	ParticleStorage particleStore_;
+
 public:
-	// ===== オブジェクトの生成・破棄 =====
+	/* ===== オブジェクトの生成・破棄 ===== */
 
 	// parent が無効なら root として作る.
 	GameObjectId CreateGameObject(const std::string& name = "GameObject", GameObjectId parent = {});
@@ -61,7 +65,7 @@ public:
 	GameObject* Find(GameObjectId id);
 	const GameObject* Find(GameObjectId id) const;
 
-	// ===== コンポーネント =====
+	/* ===== コンポーネント ===== */
 
 	// 同じ型を重複して持たせることはできない（既に持っていれば既存のものを返す）.
 	template <class T>
@@ -77,7 +81,7 @@ public:
 	template <class T>
 	ComponentPool<T>* GetPool();
 
-	// ===== 階層 =====
+	/* ===== 階層 ===== */
 
 	// parent が無効なら root へ移す。循環する指定は無視する.
 	// worldPositionStays が true なら、張り替え後も見た目の位置を保つ.
@@ -86,12 +90,16 @@ public:
 
 	const std::vector<GameObjectId>& GetRoots() const { return roots_; }
 
-	// ===== 更新 =====
+	/* ===== 更新 ===== */
 
 	// ルートから再帰でワールド行列を確定する.
 	void UpdateTransforms();
 
 	size_t GetObjectCount() const { return objects_.size() - freeList_.size(); }
+
+	/* ===== パーティクル ===== */
+	ParticleStorage& GetParticleStore() { return particleStore_; }
+	const ParticleStorage& GetParticleStore() const { return particleStore_; }
 
 private:
 	void DestroyRecursive(GameObjectId id);

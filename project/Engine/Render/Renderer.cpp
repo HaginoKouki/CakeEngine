@@ -28,6 +28,13 @@ namespace {
 constexpr const char* kLogCategory = "Renderer";
 }
 
+// Particle.VS.hlsl の ParticleForGPU と同じ並びにすること.
+struct ParticleForGPU {
+	Matrix4x4 WVP;
+	Matrix4x4 World;
+	Vector4 color;
+};
+
 void Renderer::Initialize(RendererInitDesc desc) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
@@ -261,7 +268,12 @@ void Renderer::DrawSprite(const Sprite& sprite) {
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList_->DrawInstanced(6, 1, 0, 0);
 }
-void Renderer::DrawModel(ModelHandle model, const Matrix4x4& world, const CameraView& cameraView, MaterialHandle materialOverride) {
+void Renderer::DrawModel(
+	ModelHandle model,
+	const Matrix4x4& world,
+	const CameraView& cameraView,
+	MaterialHandle materialOverride
+) {
 	std::span<const Mesh> meshes = modelManager_->ResolveMeshes(model);
 	if (meshes.empty()) {
 		return;
@@ -278,6 +290,11 @@ void Renderer::DrawModel(ModelHandle model, const Matrix4x4& world, const Camera
 			const MaterialHandle matHandle = materialOverride.IsValid() ? materialOverride : mesh.materialSlots[sub.materialSlot];
 			// ResolveOrError は必ず non-null を返す（エラーマテリアル＝マゼンタ）.
 			const Material* mat = materialManager_->ResolveOrError(matHandle);
+			// インスタンシング専用シェーダーは、この1個ずつ描く経路では描けない.
+			// 描くと VS が未設定のルートSRV（t0）を読みに行きデバイス削除になるため、エラーマテリアルに差し替える.
+			if (mat->GetShader() != nullptr && mat->GetShader()->requiresInstancing) {
+				mat = materialManager_->ResolveOrError(MaterialHandle{});
+			}
 
 			const ShaderDefinition* shader = mat->GetShader();
 			if (shader != nullptr && shader->pso != nullptr) {
@@ -295,9 +312,14 @@ void Renderer::DrawModel(ModelHandle model, const Matrix4x4& world, const Camera
 		}
 	}
 }
-void Renderer::DrawModelInstanced(ModelHandle model, std::span<const Matrix4x4> worlds, const CameraView& cameraView, MaterialHandle material) {
+void Renderer::DrawModelInstanced(
+	ModelHandle model,
+	std::span<const InstanceData> instances,
+	const CameraView& cameraView,
+	MaterialHandle material
+) {
 	std::span<const Mesh> meshes = modelManager_->ResolveMeshes(model);
-	if (meshes.empty() || worlds.empty()) {
+	if (meshes.empty() || instances.empty()) {
 		return;
 	}
 
@@ -307,14 +329,24 @@ void Renderer::DrawModelInstanced(ModelHandle model, std::span<const Matrix4x4> 
 		return;
 	}
 
-	// インスタンスごとの WVP / World を詰めて、フレーム内バッファへ書き込む.
-	const Matrix4x4 viewProj = cameraView.viewMatrix * cameraView.projectionMatrix;
-	std::vector<TransformationMatrix> instances;
-	instances.reserve(worlds.size());
-	for (const Matrix4x4& world : worlds) {
-		instances.push_back(TransformationMatrix{world * viewProj, world});
+	// インスタンシング非対応のシェーダーは VS の b0（CBV）から行列を読むため、
+	// ここで描くと未設定の CBV を読んでしまう。1個ずつ通常の経路で描く（粒ごとの色は反映されない）.
+	if (!shader->requiresInstancing) {
+		for (const InstanceData& instance : instances) {
+			DrawModel(model, instance.world, cameraView, material);
+		}
+		return;
 	}
-	const D3D12_GPU_VIRTUAL_ADDRESS instancesAddress = frameConstants_.Allocate(instances.data(), sizeof(TransformationMatrix) * instances.size());
+
+	// 粒ごとの WVP / World / 色を詰めて、フレーム内バッファへ書き込む.
+	const Matrix4x4 viewProj = cameraView.viewMatrix * cameraView.projectionMatrix;
+	std::vector<ParticleForGPU> gpuInstances;
+	gpuInstances.reserve(instances.size());
+	for (const InstanceData& instance : instances) {
+		gpuInstances.push_back(ParticleForGPU{instance.world * viewProj, instance.world, instance.color});
+	}
+	const D3D12_GPU_VIRTUAL_ADDRESS instancesAddress =
+		frameConstants_.Allocate(gpuInstances.data(), sizeof(ParticleForGPU) * gpuInstances.size());
 
 	commandList_->SetPipelineState(shader->pso);
 	commandList_->SetGraphicsRootConstantBufferView(0, mat->GetCB()->GetGPUVirtualAddress());
@@ -326,7 +358,7 @@ void Renderer::DrawModelInstanced(ModelHandle model, std::span<const Matrix4x4> 
 		);
 	}
 
-	const UINT instanceCount = static_cast<UINT>(worlds.size());
+	const UINT instanceCount = static_cast<UINT>(instances.size());
 	for (const Mesh& mesh : meshes) {
 		for (const SubMesh& sub : mesh.subMeshes) {
 			commandList_->IASetVertexBuffers(0, 1, &sub.vbv);

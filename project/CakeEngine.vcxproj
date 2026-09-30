@@ -86,6 +86,7 @@
     <ClCompile Include="Engine\Render\Pass\GizmoPass.cpp" />
     <ClCompile Include="Engine\Render\Pass\LightSetupPass.cpp" />
     <ClCompile Include="Engine\Render\Pass\OpaquePass.cpp" />
+    <ClCompile Include="Engine\Render\Pass\ParticlePass.cpp" />
     <ClCompile Include="Engine\Render\Pass\SkyboxPass.cpp" />
     <ClCompile Include="Engine\Render\Renderer.cpp" />
     <ClCompile Include="Engine\Render\SceneRenderer.cpp" />
@@ -100,6 +101,7 @@
     <ClCompile Include="Engine\Scene\System\ComponentUpdateSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\GizmoSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\LightSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\ParticleSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\RenderSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp" />
     <ClCompile Include="externals\imgui\GraphEditor.cpp" />
@@ -259,6 +261,7 @@
     <ClInclude Include="Engine\Render\Pass\GizmoPass.h" />
     <ClInclude Include="Engine\Render\Pass\LightSetupPass.h" />
     <ClInclude Include="Engine\Render\Pass\OpaquePass.h" />
+    <ClInclude Include="Engine\Render\Pass\ParticlePass.h" />
     <ClInclude Include="Engine\Render\Pass\RenderPass.h" />
     <ClInclude Include="Engine\Render\Pass\SkyboxPass.h" />
     <ClInclude Include="Engine\Render\Renderer.h" />
@@ -277,6 +280,7 @@
     <ClInclude Include="Engine\Scene\Object\ComponentPool.h" />
     <ClInclude Include="Engine\Scene\Object\GameObject.h" />
     <ClInclude Include="Engine\Scene\Object\GameObjectId.h" />
+    <ClInclude Include="Engine\Scene\Object\ParticleStorage.h" />
     <ClInclude Include="Engine\Scene\Scene.h" />
     <ClInclude Include="Engine\Scene\SceneManager.h" />
     <ClInclude Include="Engine\Scene\Serialize\SceneSerializer.h" />
@@ -286,6 +290,7 @@
     <ClInclude Include="Engine\Scene\System\ComponentUpdateSystem.h" />
     <ClInclude Include="Engine\Scene\System\GizmoSystem.h" />
     <ClInclude Include="Engine\Scene\System\LightSystem.h" />
+    <ClInclude Include="Engine\Scene\System\ParticleSystem.h" />
     <ClInclude Include="Engine\Scene\System\RenderSystem.h" />
     <ClInclude Include="Engine\Scene\System\UpdateContext.h" />
     <ClInclude Include="externals\imgui\GraphEditor.h" />

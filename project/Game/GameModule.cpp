@@ -67,6 +67,7 @@ void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 			.registerIndex = 0
 		}, // t0.
 	};
+	particle.requiresInstancing = true;
 	shaderLibrary.Register(particle);
 }
 

@@ -4,6 +4,7 @@
 #include "Engine/Render/Pass/LightSetupPass.h"
 #include "Engine/Render/Pass/SkyboxPass.h"
 #include "Engine/Render/Pass/OpaquePass.h"
+#include "Engine/Render/Pass/ParticlePass.h"
 #include "Engine/Render/Pass/GizmoPass.h"
 #include "Engine/Scene/System/CameraSystem.h"
 
@@ -19,6 +20,7 @@ void SceneRenderer::Initialize(Renderer* renderer) {
 	passes_.push_back(std::make_unique<LightSetupPass>());
 	passes_.push_back(std::make_unique<SkyboxPass>());
 	passes_.push_back(std::make_unique<OpaquePass>());
+	passes_.push_back(std::make_unique<ParticlePass>());
 	passes_.push_back(std::make_unique<GizmoPass>());
 }
 

@@ -8,7 +8,7 @@
 #include "Engine/Scene/Component/SphereColliderComponent.h"
 #include "Engine/Scene/Component/BoxColliderComponent.h"
 #include "Engine/Scene/Component/ParticleSystemComponent.h"
-#include "Engine/Scene/Component/ParticleSystemRendererComponent.h"
+#include "Engine/Scene/Component/ParticleRendererComponent.h"
 
 namespace Cake {
 

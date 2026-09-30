@@ -1,10 +1,12 @@
 #include "Particle.hlsli"
 
-struct TransformationMatrix {
+// Renderer.cpp の ParticleForGPU と同じ並びにすること.
+struct ParticleForGPU {
 	float32_t4x4 WVP;
 	float32_t4x4 World;
+	float32_t4 color;
 };
-StructuredBuffer<TransformationMatrix> gTransformationMatrices : register(t0);
+StructuredBuffer<ParticleForGPU> gParticles : register(t0);
 
 struct VertexShaderInput {
 	float32_t4 position : POSITION0;
@@ -12,11 +14,13 @@ struct VertexShaderInput {
 	float32_t3 normal : NORMAL0;
 };
 
-VertexShaderOutput main(VertexShaderInput input, uint32_t instancedId : SV_InstanceID) {
+VertexShaderOutput main(VertexShaderInput input, uint32_t instanceId : SV_InstanceID) {
 	VertexShaderOutput output;
-	output.position = mul(input.position, gTransformationMatrices[instancedId].WVP);
+	ParticleForGPU particle = gParticles[instanceId];
+	output.position = mul(input.position, particle.WVP);
 	output.texcoord = input.texcoord;
-	output.normal = normalize(mul(input.normal, (float32_t3x3) gTransformationMatrices[instancedId].World));
-	
+	output.normal = normalize(mul(input.normal, (float32_t3x3) particle.World));
+	output.color = particle.color;
+
 	return output;
 }

@@ -59,6 +59,11 @@ struct Model;
 class Material;
 class SceneRenderTarget;
 class GizmoDrawList;
+// インスタンシング描画の1個分.
+struct InstanceData {
+	Matrix4x4 world;
+	Vector4 color = Vector4::One;
+};
 
 class Renderer {
 private:
@@ -127,10 +132,11 @@ public:
 		const CameraView& cameraView,
 		MaterialHandle materialOverride = {}
 	);
-	// 同じモデルを worlds の数だけインスタンシングで描画する（Particle シェーダー用）.
+	// 同じモデルを instances の数だけインスタンシングで描画する（Particle シェーダー用）.
+	// インスタンシング非対応のマテリアルなら、1個ずつ DrawModel で描く（粒ごとの色は反映されない）.
 	void DrawModelInstanced(
 		ModelHandle model,
-		std::span<const Matrix4x4> worlds,
+		std::span<const InstanceData> instances,
 		const CameraView& cameraView,
 		MaterialHandle material
 	);

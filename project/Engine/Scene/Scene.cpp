@@ -71,6 +71,7 @@ void Scene::Clear() {
 		DestroyRecursive(id);
 	}
 	roots_.clear();
+	particleStore_.Clear();
 }
 
 void Scene::DestroyRecursive(GameObjectId id) {

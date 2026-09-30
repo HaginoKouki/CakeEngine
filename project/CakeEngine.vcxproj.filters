@@ -926,7 +926,7 @@
     <ClInclude Include="Engine\Scene\Component\ParticleSystemComponent.h">
       <Filter>Engine\Scene\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Scene\Component\ParticleSystemRendererComponent.h">
+    <ClInclude Include="Engine\Scene\Component\ParticleRendererComponent.h">
       <Filter>Engine\Scene\Component</Filter>
     </ClInclude>
   </ItemGroup>

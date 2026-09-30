@@ -271,7 +271,7 @@
     <ClInclude Include="Engine\Scene\Component\LightComponent.h" />
     <ClInclude Include="Engine\Scene\Component\MeshRendererComponent.h" />
     <ClInclude Include="Engine\Scene\Component\ParticleSystemComponent.h" />
-    <ClInclude Include="Engine\Scene\Component\ParticleSystemRendererComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\ParticleRendererComponent.h" />
     <ClInclude Include="Engine\Scene\Component\SphereColliderComponent.h" />
     <ClInclude Include="Engine\Scene\Component\TransformComponent.h" />
     <ClInclude Include="Engine\Scene\Object\ComponentPool.h" />

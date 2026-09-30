@@ -5,7 +5,7 @@
 #include "Engine/Render/Renderer.h"
 
 #include "Engine/Scene/Component/MeshRendererComponent.h"
-#include "Engine/Scene/Component/ParticleSystemComponent.h"
+#include "Engine/Scene/Component/ParticleSystemRendererComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Scene.h"
 
@@ -47,15 +47,15 @@ void ResolveSceneAssets(Scene& scene, AssetDatabase& assetDatabase) {
 		}
 	);
 
-	scene.GetPool<ParticleSystemComponent>()->ForEach(
-		[&](GameObjectId, ParticleSystemComponent& particleSystem) {
+	scene.GetPool<ParticleRendererComponent>()->ForEach(
+		[&](GameObjectId, ParticleRendererComponent& particleRenderer) {
 			// 未設定（GUIDなし）は解決しようがないので飛ばす.
-			if (!particleSystem.mesh.IsEmpty() && !particleSystem.mesh.IsResolved()) {
-				particleSystem.mesh.Resolve(assetDatabase);
+			if (!particleRenderer.mesh.IsEmpty() && !particleRenderer.mesh.IsResolved()) {
+				particleRenderer.mesh.Resolve(assetDatabase);
 			}
 			// 未設定（GUIDなし）は解決しようがないので飛ばす.
-			if (!particleSystem.material.IsEmpty() && !particleSystem.material.IsResolved()) {
-				particleSystem.material.Resolve(assetDatabase);
+			if (!particleRenderer.material.IsEmpty() && !particleRenderer.material.IsResolved()) {
+				particleRenderer.material.Resolve(assetDatabase);
 			}
 		}
 	);

@@ -47,7 +47,7 @@ struct LogEntry {
 	LogLevel level;         // ログの重要度.
 	std::string timeString; // ログが出力された時間.
 	std::string threadName; // Log を呼んだスレッド（"Main"、"Worker03" など）.
-	std::string category;   // ログを出力した機能（"Editor", "SceneManger"など）.
+	std::string category;   // ログを出力した機能（"Editor", "SceneManager"など）.
 	std::string message;    // ログの内容.
 };
 
@@ -106,7 +106,7 @@ public:
 	void PumpMainThread();
 
 	// メインスレッド専用.
-	// LogWindos に表示する用のログ一覧を取得する.
+	// LogWindow に表示する用のログ一覧を取得する.
 	const std::vector<LogEntry>& GetLogEntry() const;
 };
 

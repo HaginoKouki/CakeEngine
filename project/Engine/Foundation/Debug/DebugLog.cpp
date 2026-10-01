@@ -64,8 +64,10 @@ DebugLog::~DebugLog() {
 std::string DebugLog::GetCurrentTimeString() const {
 	// 現在時刻を取得.
 	auto now = std::chrono::system_clock::now();
+	// ミリ秒に丸める（丸めないと、MSVC では秒の小数が7桁になる）.
+	auto nowMs = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	// ローカル時間に変換.
-	std::chrono::zoned_time localTime{std::chrono::current_zone(), now};
+	std::chrono::zoned_time localTime{std::chrono::current_zone(), nowMs};
 	return std::format("{:%Y-%m-%d %T}", localTime);
 }
 

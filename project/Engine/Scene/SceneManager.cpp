@@ -45,7 +45,7 @@ void SceneManager::Update(float deltaTime, float unscaledDeltaTime) {
 	// インスペクタでの編集を反映するため、こちらは常に走らせる.
 	scene_.UpdateTransforms();
 
-	// 停止中（dt=0）も呼ぶ。粒の生成と片付けはエディタ上でも行い、移動だけが止まる.
+	// 停止中（dt=0）も呼ぶ。外した・破棄した分の片付けはエディタ上でも行い、生成・移動・消滅は止まる.
 	UpdateParticleSystems(scene_, deltaTime);
 
 	if (deltaTime > 0.0f) {

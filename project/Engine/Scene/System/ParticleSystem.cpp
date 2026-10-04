@@ -1,5 +1,6 @@
 #include "ParticleSystem.h"
 
+#include <algorithm>
 #include <random>
 #include <vector>
 
@@ -10,9 +11,6 @@
 
 namespace Cake {
 namespace {
-
-// エミッター1つあたりの粒の数.
-constexpr size_t kParticleCount = 10;
 
 // 生成時の位置・速度の範囲（各軸）.
 constexpr float kSpawnRange = 1.0f;
@@ -30,6 +28,8 @@ Particle SpawnParticle(const ParticleSystemComponent& particleSystem, std::mt199
 	particle.transform.translate = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
 	particle.velocity = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
 	particle.color = particleSystem.color;
+	particle.lifeTime = particleSystem.lifeTime;
+	particle.currentTime = 0.0f;
 	return particle;
 }
 
@@ -52,16 +52,27 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 				return;
 			}
 
-			std::vector<Particle>& particles = store.GetOrCreate(owner);
+			EmitterState& emitter = store.GetOrCreate(owner);
+			std::vector<Particle>& particles = emitter.particles;
 
-			// 足りない分を補充する.
-			while (particles.size() < kParticleCount) {
-				particles.push_back(SpawnParticle(particleSystem, randomEngine));
+			// 経過時間を進めて移動する.
+			for (Particle& particle : particles) {
+				particle.currentTime += deltaTime;
+				particle.transform.translate += particle.velocity * deltaTime;
 			}
 
-			// 移動.
-			for (Particle& particle : particles) {
-				particle.transform.translate += particle.velocity * deltaTime;
+			// 寿命に達した粒を消す.
+			std::erase_if(particles, [](const Particle& particle) {
+				return particle.currentTime >= particle.lifeTime;
+			});
+
+			// 一定間隔で粒を出す.
+		    // 間隔が 0 以下だと while が終わらないので、下限を設けて使う.
+			const float interval = (std::max)(particleSystem.emitInterval, ParticleSystemComponent::kMinEmitInterval);
+			emitter.emitTimer += deltaTime;
+			while (emitter.emitTimer >= interval) {
+				emitter.emitTimer -= interval;
+				particles.push_back(SpawnParticle(particleSystem, randomEngine));
 			}
 		}
 	);

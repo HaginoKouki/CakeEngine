@@ -30,16 +30,16 @@ void ParticlePass::Execute(RenderContext& ctx) {
 			if (particleRenderer == nullptr || !particleRenderer->mesh.IsResolved()) {
 				return;
 			}
-			const std::vector<Particle>* particles = store.Find(owner);
-			if (particles == nullptr || particles->empty()) {
+			const EmitterState* emitter = store.Find(owner);
+			if (emitter == nullptr || emitter->particles.empty()) {
 				return;
 			}
 
 			// 粒の transform はエミッターからの相対なので、エミッターのワールド行列を掛ける.
 			const Matrix4x4& emitterWorld = object->GetTransform().GetWorldMatrix();
 			instances.clear();
-			instances.reserve(particles->size());
-			for (const Particle& particle : *particles) {
+			instances.reserve(emitter->particles.size());
+			for (const Particle& particle : emitter->particles) {
 				const Matrix4x4 local = Matrix4x4::MakeAffineMatrix(
 					particle.transform.scale, particle.transform.rotate, particle.transform.translate
 				);

@@ -345,8 +345,7 @@ void Renderer::DrawModelInstanced(
 	for (const InstanceData& instance : instances) {
 		gpuInstances.push_back(ParticleForGPU{instance.world * viewProj, instance.world, instance.color});
 	}
-	const D3D12_GPU_VIRTUAL_ADDRESS instancesAddress =
-		frameConstants_.Allocate(gpuInstances.data(), sizeof(ParticleForGPU) * gpuInstances.size());
+	const D3D12_GPU_VIRTUAL_ADDRESS instancesAddress = frameConstants_.Allocate(gpuInstances.data(), sizeof(ParticleForGPU) * gpuInstances.size());
 
 	commandList_->SetPipelineState(shader->pso);
 	commandList_->SetGraphicsRootConstantBufferView(0, mat->GetCB()->GetGPUVirtualAddress());

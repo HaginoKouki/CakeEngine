@@ -8,7 +8,7 @@ GameObject とコンポーネントを所有するシーン、その更新・保
 <br>
 ## 構成
 - Scene / SceneManager … Scene は GameObject と型ごとのコンポーネントプール、親子階層（roots_）、ParticleStorage を所有。SceneManager は現在のシーンを1つ所有し、生成・読込・保存・更新を管理する。編集中か実行中かは知らず、deltaTime が 0 ならコンポーネントを走らせない。
-- Object/ … GameObject（識別子・名前・TransformComponent・ComponentRef の一覧を持つ器）、GameObjectId（index + generation）、ComponentPool<T>（型ごとの連続配置プール。持ち主IDを並行配列で持つ）、ParticleStorage（エミッターごとの粒の状態）。
+- Object/ … GameObject（識別子・名前・TransformComponent・ComponentRef の一覧を持つ器）、GameObjectId（index + generation）、ComponentPool\<T>（型ごとの連続配置プール。持ち主IDを並行配列で持つ）、ParticleStorage（エミッターごとの粒の状態と発生タイマー）。
 - Component/ … データのみの素の構造体。Transform / Light / Camera / MeshRenderer / SphereCollider / BoxCollider / ParticleSystem / ParticleRenderer。TransformComponent だけは GameObject の組み込みフィールドで、プールにも登録簿にも入らない（インスペクタとシリアライザが個別に扱う）。
 - Component/ComponentRegistry/ … TypeRegistry（型名・型IDから TypeInfo と ComponentOps（add / get / remove / copy / update）を引く登録簿）、RequireComponent（依存宣言。CAKE_REQUIRE_COMPONENTS）。
 - Component/ComponentRegistration … RegisterAllComponents（エンジン側コンポーネントの登録。1行足す方式）。
@@ -16,7 +16,7 @@ GameObject とコンポーネントを所有するシーン、その更新・保
 - Serialize/SceneSerializer … シーンのJSON保存・復元（ファイル版と、Play/Stop のスナップショット用の文字列版）。
 
 SceneManager::Update の順序:
-- 1. deltaTime > 0 のとき RunComponentUpdates（優先度順）→ 2. UpdateTransforms（常に実行）→ 3. UpdateParticleSystems（常に実行。停止中は生成のみで移動しない）→ 4. deltaTime > 0 のとき RunCollisionDetection
+- 1. deltaTime > 0 のとき RunComponentUpdates（優先度順）→ 2. UpdateTransforms（常に実行）→ 3. 3. UpdateParticleSystems（常に実行。停止中は片付けのみで、生成・移動・消滅はしない）→ 4. deltaTime > 0 のとき RunCollisionDetection
 
 ## 依存関係
 規則（Overview.mdの階層）:

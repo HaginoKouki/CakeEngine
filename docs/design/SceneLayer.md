@@ -16,7 +16,7 @@ GameObject とコンポーネントを所有するシーン、その更新・保
 - Serialize/SceneSerializer … シーンのJSON保存・復元（ファイル版と、Play/Stop のスナップショット用の文字列版）。
 
 SceneManager::Update の順序:
-- 1. deltaTime > 0 のとき RunComponentUpdates（優先度順）→ 2. UpdateTransforms（常に実行）→ 3. 3. UpdateParticleSystems（常に実行。停止中は片付けのみで、生成・移動・消滅はしない）→ 4. deltaTime > 0 のとき RunCollisionDetection
+- 1. deltaTime > 0 のとき RunComponentUpdates（優先度順）→ 2. UpdateTransforms（常に実行）→ 3. UpdateParticleSystems（常に実行。停止中は片付けのみで、生成・移動・消滅はしない）→ 4. deltaTime > 0 のとき RunCollisionDetection
 
 ## 依存関係
 規則（Overview.mdの階層）:

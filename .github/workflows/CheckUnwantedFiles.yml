@@ -17,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリをチェックアウト
-        uses: action/checkout@4
+        uses: actions/checkout@v4
+        
       - name: 不要なファイルとディレクトリを検索(bash)
         run: |
           # ディレクトリ条件を構築（最初の不要な -o を後で削除）

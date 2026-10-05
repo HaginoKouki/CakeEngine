@@ -1,4 +1,6 @@
 [![.github/workflows/DebugBuild.yml](https://github.com/HaginoKouki/CakeEngine/actions/workflows/DebugBuild.yml/badge.svg)](https://github.com/HaginoKouki/CakeEngine/actions/workflows/DebugBuild.yml)
+[![DevelopmentBuild](https://github.com/HaginoKouki/CakeEngine/actions/workflows/Development.yml/badge.svg)](https://github.com/HaginoKouki/CakeEngine/actions/workflows/Development.yml)
+[![ReleaseBuild](https://github.com/HaginoKouki/CakeEngine/actions/workflows/ReleaseBuild.yml/badge.svg)](https://github.com/HaginoKouki/CakeEngine/actions/workflows/ReleaseBuild.yml)
 # CakeEngine
 *It's a piece of cake!*
 

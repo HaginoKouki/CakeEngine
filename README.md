@@ -1,3 +1,4 @@
+[![.github/workflows/DebugBuild.yml](https://github.com/HaginoKouki/CakeEngine/actions/workflows/DebugBuild.yml/badge.svg)](https://github.com/HaginoKouki/CakeEngine/actions/workflows/DebugBuild.yml)
 # CakeEngine
 *It's a piece of cake!*
 

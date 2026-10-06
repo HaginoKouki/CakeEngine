@@ -1,7 +1,7 @@
 #include "OpaquePass.h"
 
 #include "Engine/Render/Renderer.h"
-#include "Engine/Scene/System/RenderSystem.h"
+#include "Engine/Scene/System/Render/RenderSystem.h"
 
 namespace Cake {
 

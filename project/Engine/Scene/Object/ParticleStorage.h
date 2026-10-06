@@ -28,9 +28,12 @@
 namespace Cake {
 
 // 粒1つ分の状態.
+// 位置・回転・スケール。常にカメラを向く板（ビルボード）として描く前提.
 struct Particle {
-	Transform transform;              // エミッター（GameObject）からの相対.
-	Vector3 velocity = Vector3::Zero; // 1秒あたりの移動量.
+	Vector3 translate = Vector3::Zero; // 位置。エミッター（GameObject）からの相対.
+	float rotate = 0.0f;               // 画面内での回転（ラジアン）。視線方向を軸に回る.
+	Vector2 scale = Vector2::One;      // 板の幅と高さ.
+	Vector3 velocity = Vector3::Zero;  // 1秒あたりの移動量.
 	Vector4 color = Vector4::One;
 	float lifeTime = 0.0f;    // 寿命（秒）。生成時に ParticleSystemComponent::lifeTime を写す.
 	float currentTime = 0.0f; // 生成されてからの経過時間（秒）。lifeTime 以上になったら消す.

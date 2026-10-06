@@ -5,7 +5,7 @@
  * ParticleSystemComponent と組で使う。
  *
  * mesh は粒1つ分の形、material は粒の描き方（Particle シェーダーのマテリアルを想定）。
- * どちらも AssetRef で参照し、保存されるのは GUID だけ（MeshRendererComponent と同じ）。
+ * ビルボード前提なので、−Z 向きの板（Builtin/Quad など）を想定。
  *
  * データのみを持つ。描画は描画パス側で行う方針。
  *

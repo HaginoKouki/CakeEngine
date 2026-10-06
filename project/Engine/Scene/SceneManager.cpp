@@ -5,9 +5,9 @@
 #include "Engine/Platform/Platform.h"
 #include "Engine/Scene/Serialize/SceneSerializer.h"
 #include "Engine/Scene/System/ComponentUpdateSystem.h"
-#include "Engine/Scene/System/RenderSystem.h"
-#include "Engine/Scene/System/CollisionSystem.h"
-#include "Engine/Scene/System/ParticleSystem.h"
+#include "Engine/Scene/System/Render/RenderSystem.h"
+#include "Engine/Scene/System/Collision/CollisionSystem.h"
+#include "Engine/Scene/System/Particle/ParticleSystem.h"
 #include "Engine/Scene/System/UpdateContext.h"
 
 namespace Cake {

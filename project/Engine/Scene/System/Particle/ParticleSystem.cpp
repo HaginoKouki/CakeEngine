@@ -25,7 +25,7 @@ Particle SpawnParticle(const ParticleSystemComponent& particleSystem, std::mt199
 	std::uniform_real_distribution<float> distribution(-kSpawnRange, kSpawnRange);
 
 	Particle particle;
-	particle.transform.translate = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
+	particle.translate = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
 	particle.velocity = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
 	particle.color = particleSystem.color;
 	particle.lifeTime = particleSystem.lifeTime;
@@ -58,7 +58,7 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 			// 経過時間を進めて移動する.
 			for (Particle& particle : particles) {
 				particle.currentTime += deltaTime;
-				particle.transform.translate += particle.velocity * deltaTime;
+				particle.translate += particle.velocity * deltaTime;
 			}
 
 			// 寿命に達した粒を消す.

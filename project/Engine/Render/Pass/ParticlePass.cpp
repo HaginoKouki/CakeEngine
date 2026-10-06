@@ -35,16 +35,25 @@ void ParticlePass::Execute(RenderContext& ctx) {
 				return;
 			}
 
-			// 粒の transform はエミッターからの相対なので、エミッターのワールド行列を掛ける.
+			// ビルボード用の回転。平行移動とスケールを除いたカメラの回転そのもの.
+			// 視点（ゲームビュー／シーンビュー）ごとに違うので、毎回 ctx.view から取る.
+			const Matrix4x4& billboard = ctx.view->rotationMatrix;
+			// 粒の位置はエミッターからの相対なので、位置だけエミッターのワールド行列で動かす.
+			// 向きと大きさはエミッターの回転・スケールの影響を受けない.
 			const Matrix4x4& emitterWorld = object->GetTransform().GetWorldMatrix();
 			instances.clear();
 			instances.reserve(emitter->particles.size());
 			for (const Particle& particle : emitter->particles) {
-				const Matrix4x4 local = Matrix4x4::MakeAffineMatrix(
-					particle.transform.scale, particle.transform.rotate, particle.transform.translate
-				);
-				instances.push_back(InstanceData{local * emitterWorld, particle.color});
+				const Vector3 worldPosition = Vector3::Transform(particle.translate, emitterWorld);
+				// スケール → 画面内の回転 → カメラへ向ける → 位置へ移動.
+				const Matrix4x4 world =
+					Matrix4x4::MakeScalingMatrix({particle.scale.x, particle.scale.y, 1.0f}) *
+					Matrix4x4::MakeZRotationMatrix(particle.rotate) *
+					billboard *
+					Matrix4x4::MakeTranslateMatrix(worldPosition);
+				instances.push_back(InstanceData{world, particle.color});
 			}
+
 
 			ctx.renderer->DrawModelInstanced(
 				particleRenderer->mesh.handle, instances, *ctx.view, particleRenderer->material.handle

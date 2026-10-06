@@ -184,6 +184,21 @@
     <Filter Include="Game\Components\Player">
       <UniqueIdentifier>{58d9ee75-a3b4-4cfe-a6a2-006dbbe15e0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Scene\Component\Particle">
+      <UniqueIdentifier>{8a0bc6ee-5068-4f34-8e29-bc1517779f1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\Component\Collider">
+      <UniqueIdentifier>{c33d7df7-4710-4968-86f0-09c113f4422b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\System\Collision">
+      <UniqueIdentifier>{f8bbc294-cb3f-4244-a93f-9f2d9907665c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\System\Particle">
+      <UniqueIdentifier>{0818dd4b-327c-4cf0-8571-460683d054d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\System\Render">
+      <UniqueIdentifier>{c6e5ca3c-3954-4f76-9d60-eb8b2c277afb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -429,9 +444,6 @@
     <ClCompile Include="Engine\Scene\System\CloneSystem.cpp">
       <Filter>Engine\Scene\System</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Scene\System\CollisionSystem.cpp">
-      <Filter>Engine\Scene\System</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Scene\System\ComponentUpdateSystem.cpp">
       <Filter>Engine\Scene\System</Filter>
     </ClCompile>
@@ -439,9 +451,6 @@
       <Filter>Engine\Scene\System</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Scene\System\LightSystem.cpp">
-      <Filter>Engine\Scene\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Scene\System\RenderSystem.cpp">
       <Filter>Engine\Scene\System</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp">
@@ -495,14 +504,20 @@
     <ClCompile Include="externals\imgui\ImVectorEditor.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Scene\System\ParticleSystem.cpp">
-      <Filter>Engine\Scene\System</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Render\Pass\ParticlePass.cpp">
       <Filter>Engine\Render\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Game\Components\Player\PlayerComponent.cpp">
       <Filter>Game\Components\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Scene\System\Collision\CollisionSystem.cpp">
+      <Filter>Engine\Scene\System\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Scene\System\Render\RenderSystem.cpp">
+      <Filter>Engine\Scene\System\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Scene\System\Particle\ParticleSystem.cpp">
+      <Filter>Engine\Scene\System\Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -803,9 +818,6 @@
     <ClInclude Include="Engine\Render\SceneRenderer.h">
       <Filter>Engine\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Scene\Component\BoxColliderComponent.h">
-      <Filter>Engine\Scene\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Scene\Component\CameraComponent.h">
       <Filter>Engine\Scene\Component</Filter>
     </ClInclude>
@@ -822,9 +834,6 @@
       <Filter>Engine\Scene\Component</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\Component\MeshRendererComponent.h">
-      <Filter>Engine\Scene\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Scene\Component\SphereColliderComponent.h">
       <Filter>Engine\Scene\Component</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\Component\TransformComponent.h">
@@ -854,9 +863,6 @@
     <ClInclude Include="Engine\Scene\System\CloneSystem.h">
       <Filter>Engine\Scene\System</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Scene\System\CollisionSystem.h">
-      <Filter>Engine\Scene\System</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Scene\System\ComponentUpdateSystem.h">
       <Filter>Engine\Scene\System</Filter>
     </ClInclude>
@@ -864,9 +870,6 @@
       <Filter>Engine\Scene\System</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\System\LightSystem.h">
-      <Filter>Engine\Scene\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Scene\System\RenderSystem.h">
       <Filter>Engine\Scene\System</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\System\UpdateContext.h">
@@ -935,23 +938,35 @@
     <ClInclude Include="Engine\Foundation\Identity\AssetId.h">
       <Filter>Engine\Foundation\Identity</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Scene\Component\ParticleSystemComponent.h">
-      <Filter>Engine\Scene\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Scene\Component\ParticleRendererComponent.h">
-      <Filter>Engine\Scene\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Scene\Object\ParticleStorage.h">
       <Filter>Engine\Scene\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Scene\System\ParticleSystem.h">
-      <Filter>Engine\Scene\System</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Render\Pass\ParticlePass.h">
       <Filter>Engine\Render\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Game\Components\Player\PlayerComponent.h">
       <Filter>Game\Components\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\Component\Collider\BoxColliderComponent.h">
+      <Filter>Engine\Scene\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\Component\Collider\SphereColliderComponent.h">
+      <Filter>Engine\Scene\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\Component\Particle\ParticleRendererComponent.h">
+      <Filter>Engine\Scene\Component\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\Component\Particle\ParticleSystemComponent.h">
+      <Filter>Engine\Scene\Component\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\System\Collision\CollisionSystem.h">
+      <Filter>Engine\Scene\System\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\System\Render\RenderSystem.h">
+      <Filter>Engine\Scene\System\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\System\Particle\ParticleSystem.h">
+      <Filter>Engine\Scene\System\Particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

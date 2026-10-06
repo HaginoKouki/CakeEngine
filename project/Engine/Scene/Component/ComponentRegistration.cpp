@@ -5,10 +5,10 @@
 #include "Engine/Scene/Component/LightComponent.h"
 #include "Engine/Scene/Component/CameraComponent.h"
 #include "Engine/Scene/Component/MeshRendererComponent.h"
-#include "Engine/Scene/Component/SphereColliderComponent.h"
-#include "Engine/Scene/Component/BoxColliderComponent.h"
-#include "Engine/Scene/Component/ParticleSystemComponent.h"
-#include "Engine/Scene/Component/ParticleRendererComponent.h"
+#include "Engine/Scene/Component/Collider/SphereColliderComponent.h"
+#include "Engine/Scene/Component/Collider/BoxColliderComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleSystemComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleRendererComponent.h"
 
 namespace Cake {
 

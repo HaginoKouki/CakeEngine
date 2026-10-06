@@ -5,7 +5,7 @@
 #include "Engine/Render/Renderer.h"
 
 #include "Engine/Scene/Component/MeshRendererComponent.h"
-#include "Engine/Scene/Component/ParticleRendererComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleRendererComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Scene.h"
 

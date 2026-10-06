@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 
-#include "Engine/Scene/Component/ParticleSystemComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleSystemComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Object/ParticleStorage.h"
 #include "Engine/Scene/Scene.h"

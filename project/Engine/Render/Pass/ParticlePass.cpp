@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "Engine/Render/Renderer.h"
-#include "Engine/Scene/Component/ParticleSystemComponent.h"
-#include "Engine/Scene/Component/ParticleRendererComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleSystemComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleRendererComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Object/ParticleStorage.h"
 #include "Engine/Scene/Scene.h"

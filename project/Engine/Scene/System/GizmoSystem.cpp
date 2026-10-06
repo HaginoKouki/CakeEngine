@@ -5,10 +5,10 @@
 #include "Engine/Render/CameraView.h"
 #include "Engine/Render/Gizmo/GizmoDrawList.h"
 
-#include "Engine/Scene/Component/BoxColliderComponent.h"
+#include "Engine/Scene/Component/Collider/BoxColliderComponent.h"
 #include "Engine/Scene/Component/CameraComponent.h"
 #include "Engine/Scene/Component/LightComponent.h"
-#include "Engine/Scene/Component/SphereColliderComponent.h"
+#include "Engine/Scene/Component/Collider/SphereColliderComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Scene.h"
 

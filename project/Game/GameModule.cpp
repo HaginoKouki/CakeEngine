@@ -70,6 +70,9 @@ void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 		}, // t0.
 	};
 	particle.requiresInstancing = true;
+	particle.blendMode = Cake::BlendMode::kBlendModeNormal;
+	// 半透明の粒が、後ろにある粒を深度で隠さないようにする（深度テストは有効のまま）.
+	particle.depthWrite = false;
 	shaderLibrary.Register(particle);
 }
 

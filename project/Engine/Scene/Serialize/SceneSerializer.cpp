@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <algorithm>
 #include <vector>
 
 #include "externals/nlohmann/json.hpp"
@@ -62,7 +63,6 @@ json WriteTransform(const Transform& transform) {
 	result["scale"] = WriteVector3(transform.scale);
 	return result;
 }
-
 void ReadTransform(const json& value, Transform& out) {
 	if (!value.is_object()) {
 		return;
@@ -75,6 +75,82 @@ void ReadTransform(const json& value, Transform& out) {
 	}
 	if (value.contains("scale")) {
 		ReadVector3(value["scale"], out.scale);
+	}
+}
+
+// グラデーションは {"colorKeys": [{time, color}...], "alphaKeys": [{time, alpha}...]} で保存する.
+// 個数は保存しない（配列の要素数がそのまま個数になる）.
+json WriteGradient(const Gradient& gradient) {
+	json colorKeys = json::array();
+	for (int i = 0; i < Gradient::ClampKeyCount(gradient.colorKeyCount); ++i) {
+		json key;
+		key["time"] = gradient.colorKeys[i].time;
+		key["color"] = WriteVector3(gradient.colorKeys[i].color);
+		colorKeys.push_back(key);
+	}
+	json alphaKeys = json::array();
+	for (int i = 0; i < Gradient::ClampKeyCount(gradient.alphaKeyCount); ++i) {
+		json key;
+		key["time"] = gradient.alphaKeys[i].time;
+		key["alpha"] = gradient.alphaKeys[i].alpha;
+		alphaKeys.push_back(key);
+	}
+
+	json result;
+	result["colorKeys"] = colorKeys;
+	result["alphaKeys"] = alphaKeys;
+	return result;
+}
+// 9個目以降は捨てる。キーが1つも読めなかった列は既定値のまま（壊れたファイルで落とさない）.
+void ReadGradient(const json& value, Gradient& out) {
+	if (!value.is_object()) {
+		return;
+	}
+
+	if (value.contains("colorKeys") && value["colorKeys"].is_array()) {
+		int count = 0;
+		for (const json& keyJson : value["colorKeys"]) {
+			if (count >= Gradient::kMaxKeys) {
+				break;
+			}
+			if (!keyJson.is_object()) {
+				continue;
+			}
+			ColorKey key;
+			if (keyJson.contains("time") && keyJson["time"].is_number()) {
+				key.time = keyJson["time"].get<float>();
+			}
+			if (keyJson.contains("color")) {
+				ReadVector3(keyJson["color"], key.color);
+			}
+			out.colorKeys[count++] = key;
+		}
+		if (count > 0) {
+			out.colorKeyCount = count;
+		}
+	}
+
+	if (value.contains("alphaKeys") && value["alphaKeys"].is_array()) {
+		int count = 0;
+		for (const json& keyJson : value["alphaKeys"]) {
+			if (count >= Gradient::kMaxKeys) {
+				break;
+			}
+			if (!keyJson.is_object()) {
+				continue;
+			}
+			AlphaKey key;
+			if (keyJson.contains("time") && keyJson["time"].is_number()) {
+				key.time = keyJson["time"].get<float>();
+			}
+			if (keyJson.contains("alpha") && keyJson["alpha"].is_number()) {
+				key.alpha = keyJson["alpha"].get<float>();
+			}
+			out.alphaKeys[count++] = key;
+		}
+		if (count > 0) {
+			out.alphaKeyCount = count;
+		}
 	}
 }
 
@@ -139,6 +215,8 @@ json WriteProperty(const void* instance, const PropertyDesc& desc) {
 			return *static_cast<const std::string*>(value);
 		case PropertyType::Transform:
 			return WriteTransform(*static_cast<const Transform*>(value));
+		case PropertyType::Gradient:
+			return WriteGradient(*static_cast<const Gradient*>(value));
 
 		case PropertyType::AssetRefModel:
 			return WriteAssetRef(*static_cast<const AssetRef<ModelHandle>*>(value));

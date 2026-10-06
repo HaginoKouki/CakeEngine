@@ -39,6 +39,7 @@ bool DrawVector4Property(const char* label, float* value, float minValue, float 
 
 bool DrawTransformProperty(const char* label, Transform* value);
 bool DrawColorProperty(const char* label, float* value);
+bool DrawGradientProperty(const char* label, Gradient* value);
 
 template <class HandleT>
 bool DrawAssetRefProperty(const char* label, AssetRef<HandleT>* value, AssetDatabase& assetDatabase);

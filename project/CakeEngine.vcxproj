@@ -50,6 +50,7 @@
     <ClCompile Include="Engine\Foundation\Debug\DebugLog.cpp" />
     <ClCompile Include="Engine\Foundation\Identity\Guid.cpp" />
     <ClCompile Include="Engine\Foundation\Math\Geometry.cpp" />
+    <ClCompile Include="Engine\Foundation\Math\Gradient.cpp" />
     <ClCompile Include="Engine\Foundation\Math\IsCollision.cpp" />
     <ClCompile Include="Engine\Foundation\Math\Matrix.cpp" />
     <ClCompile Include="Engine\Foundation\Math\Quaternion.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="Engine\Foundation\Identity\LocalId.h" />
     <ClInclude Include="Engine\Foundation\Math\Easing.h" />
     <ClInclude Include="Engine\Foundation\Math\Geometry.h" />
+    <ClInclude Include="Engine\Foundation\Math\Gradient.h" />
     <ClInclude Include="Engine\Foundation\Math\IsCollision.h" />
     <ClInclude Include="Engine\Foundation\Math\Matrix.h" />
     <ClInclude Include="Engine\Foundation\Math\Quaternion.h" />

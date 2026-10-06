@@ -34,7 +34,10 @@ struct Particle {
 	float rotate = 0.0f;               // 画面内での回転（ラジアン）。視線方向を軸に回る.
 	Vector2 scale = Vector2::One;      // 板の幅と高さ.
 	Vector3 velocity = Vector3::Zero;  // 1秒あたりの移動量.
-	Vector4 color = Vector4::One;
+
+	Vector4 startColor = Vector4::One; // 生成時の色。ParticleSystemComponent::color を写す.
+	Vector4 color = Vector4::One;      // 今の色。描画に使う。毎フレーム startColor から計算し直す.
+
 	float lifeTime = 0.0f;    // 寿命（秒）。生成時に ParticleSystemComponent::lifeTime を写す.
 	float currentTime = 0.0f; // 生成されてからの経過時間（秒）。lifeTime 以上になったら消す.
 };

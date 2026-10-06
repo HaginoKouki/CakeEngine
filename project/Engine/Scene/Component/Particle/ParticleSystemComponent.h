@@ -20,6 +20,11 @@
  * 粒の寿命（秒）（Unity の startLifetime 相当）。生成時に各粒へコピーするので、
  * 途中で値を変えても、既に出ている粒の寿命は変わらない。
  *
+ *  * 【colorOverLifetimeEnabled / colorOverLifetime】
+ * 寿命に合わせて色を変える（Unity の Color over Lifetime 相当）。
+ * 粒の年齢（生成時 0 〜 消える直前 1）で colorOverLifetime を引き、生成時の色に掛け合わせる。
+ * 無効のときは生成時の色のまま。
+ *
  * 【依存】
  * このコンポーネントを付けると、ParticleRendererComponent も自動で付く
  * （TypeRegistry::AddComponent 経由の場合のみ。RequireComponent.h を参照）。
@@ -29,6 +34,7 @@
  * ====================================*/
 #include "Engine/Foundation/Math/Vector.h"
 
+#include "Engine/Foundation/Math/Gradient.h"
 #include "Engine/Foundation/Reflection/ReflectMacros.h"
 #include "Engine/Scene/Component/ComponentRegistry/RequireComponent.h"
 
@@ -46,12 +52,19 @@ struct ParticleSystemComponent {
 	float emitInterval = 0.3f;
 	// 粒の寿命（秒）.
 	float lifeTime = 3.0f;
+
+	// 寿命に合わせて色を変えるか.
+	bool colorOverLifetimeEnabled = false;
+	// 粒の年齢（0〜1）に対する色。生成時の色に掛け合わせる.
+	Gradient colorOverLifetime;
 };
 
 CAKE_REFLECT(ParticleSystemComponent)
 CAKE_PROPERTY_COLOR(color, "Color")
 CAKE_PROPERTY_MIN(emitInterval, "Emit Interval", ParticleSystemComponent::kMinEmitInterval)
 CAKE_PROPERTY_MIN(lifeTime, "Life Time", 0.0f)
+CAKE_PROPERTY(colorOverLifetimeEnabled, "Color over Lifetime")
+CAKE_PROPERTY(colorOverLifetime, "Gradient")
 CAKE_REFLECT_END()
 CAKE_REQUIRE_COMPONENTS(ParticleSystemComponent, ParticleRendererComponent)
 

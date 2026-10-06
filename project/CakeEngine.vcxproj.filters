@@ -519,6 +519,9 @@
     <ClCompile Include="Engine\Scene\System\Particle\ParticleSystem.cpp">
       <Filter>Engine\Scene\System\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Foundation\Math\Gradient.cpp">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Application\Application.h">
@@ -967,6 +970,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Scene\System\Particle\ParticleSystem.h">
       <Filter>Engine\Scene\System\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Foundation\Math\Gradient.h">
+      <Filter>Engine\Foundation\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

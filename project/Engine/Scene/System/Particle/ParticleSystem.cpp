@@ -27,6 +27,7 @@ Particle SpawnParticle(const ParticleSystemComponent& particleSystem, std::mt199
 	Particle particle;
 	particle.translate = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
 	particle.velocity = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
+	particle.startColor = particleSystem.color;
 	particle.color = particleSystem.color;
 	particle.lifeTime = particleSystem.lifeTime;
 	particle.currentTime = 0.0f;
@@ -73,6 +74,22 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 			while (emitter.emitTimer >= interval) {
 				emitter.emitTimer -= interval;
 				particles.push_back(SpawnParticle(particleSystem, randomEngine));
+			}
+
+			// 寿命に合わせて色を変える.
+			if (particleSystem.colorOverLifetimeEnabled) {
+				// キーの並びは保存順のままなので、エミッターごとに1回だけ並べ替えてから使う.
+				const Gradient gradient = particleSystem.colorOverLifetime.Sorted();
+				for (Particle& particle : particles) {
+					// 年齢（0〜1）。寿命 0 の粒は割り算せずに終端の色にする.
+					const float age = (particle.lifeTime > 0.0f) ? particle.currentTime / particle.lifeTime : 1.0f;
+					particle.color = Vector4::Multiply(particle.startColor, gradient.Evaluate(age));
+				}
+			} else {
+				// 途中で無効にしたときに元の色へ戻すため、無効でも毎フレーム書き戻す.
+				for (Particle& particle : particles) {
+					particle.color = particle.startColor;
+				}
 			}
 		}
 	);

@@ -25,8 +25,9 @@
 #include <string>
 #include <vector>
 
-#include "Engine/Foundation/Math/Transform.h"
 #include "Engine/Foundation/Math/Vector.h"
+#include "Engine/Foundation/Math/Transform.h"
+#include "Engine/Foundation/Math/Gradient.h"
 
 #include "Engine/Asset/Database/AssetRef.h"
 #include "Engine/Asset/Material/MaterialHandle.h"
@@ -53,6 +54,7 @@ enum class PropertyType : uint8_t {
 
 	String,
 	Transform,
+	Gradient, // 色と透明度のキー列（Foundation/Math/Gradient.h）.
 
 	AssetRefModel,
 	AssetRefTexture,
@@ -71,9 +73,7 @@ enum class NumericWidget {
 // C++ の型から PropertyType を引く。CAKE_PROPERTY が型を自動判別するのに使う.
 // 未対応の型はここに特殊化が無いため Unknown となり、マクロ側の static_assert で弾かれる.
 template <class T>
-struct PropertyTypeOf {
-	static constexpr PropertyType value = PropertyType::Unknown;
-};
+struct PropertyTypeOf {	static constexpr PropertyType value = PropertyType::Unknown; };
 
 template <> struct PropertyTypeOf<bool> { static constexpr PropertyType value = PropertyType::Bool; };
 template <> struct PropertyTypeOf<int> { static constexpr PropertyType value = PropertyType::Int; };
@@ -83,6 +83,7 @@ template <> struct PropertyTypeOf<Vector3> { static constexpr PropertyType value
 template <> struct PropertyTypeOf<Vector4> { static constexpr PropertyType value = PropertyType::Vector4; };
 template <> struct PropertyTypeOf<std::string> { static constexpr PropertyType value = PropertyType::String; };
 template <> struct PropertyTypeOf<Transform> { static constexpr PropertyType value = PropertyType::Transform; };
+template <> struct PropertyTypeOf<Gradient> { static constexpr PropertyType value = PropertyType::Gradient; };
 template <> struct PropertyTypeOf<GameObjectId> { static constexpr PropertyType value = PropertyType::EntityRef; };
 template <> struct PropertyTypeOf<AssetRef<ModelHandle>> { static constexpr PropertyType value = PropertyType::AssetRefModel; };
 template <> struct PropertyTypeOf<AssetRef<TextureHandle>> { static constexpr PropertyType value = PropertyType::AssetRefTexture; };

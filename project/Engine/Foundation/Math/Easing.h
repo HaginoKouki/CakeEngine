@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Vector.h"
 #include <numbers>
 #include <cmath>
@@ -199,13 +199,9 @@ T Ease(const T& start, const T& end, const float& time, EaseType type) {
 
 template <typename T>
 T Lerp(const T& start, const T& end, const float& time) {
-	float result;
-
-	result = (float)(end - start) * time;
-
-	result += start;
-	return (T)result;
+	return start + (end - start) * time;
 }
+
 #pragma region EaseSine
 template <typename T>
 T EaseInSine(const T& start, const T& end, const float& time) {
@@ -605,6 +601,22 @@ T QuadraticFunctions(const T& start, const T& end, const float& time, float a, f
 	return (T)result;
 }
 
+template <typename T>
+T Bezier(const T& start, const T& control, const T& end, const float& time) {
+	T p1 = Lerp<T>(start, control, time);
+	T p2 = Lerp<T>(control, end, time);
+	return Lerp<T>(p1, p2, time);
+}
+template <typename T>
+T CatmullRom(const T& p0, const T& p1, const T& p2, const T& p3, const float& time) {
+	float t2 = time * time;
+	float t3 = t2 * time;
+	T temp1 = (-p0 + (3 * p1) - (3 * p2) + p3) * t3;
+	T temp2 = ((2 * p0) - (5 * p1) + (4 * p2) - p3) * t2;
+	T temp3 = (-p0 + p2) * time;
+	return (temp1 + temp2 + temp3 + (2 * p1)) * 0.5f;
+}
+
 /*
 * Vector2.
 ———————————————*/
@@ -727,6 +739,19 @@ inline Vector2 EaseInOutBounce(const Vector2& start, const Vector2& end, const f
 }
 #pragma endregion
 
+inline Vector2 Bezier(const Vector2& start, const Vector2& control, const Vector2& end, const float& time) {
+	Vector2 result;
+	result.x = Bezier<float>(start.x, control.x, end.x, time);
+	result.y = Bezier<float>(start.y, control.y, end.y, time);
+	return result;
+}
+inline Vector2 CatmullRom(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Vector2& p3, const float& time) {
+	Vector2 result;
+	result.x = CatmullRom<float>(p0.x, p1.x, p2.x, p3.x, time);
+	result.y = CatmullRom<float>(p0.y, p1.y, p2.y, p3.y, time);
+	return result;
+}
+
 /*
 * Vector3.
 ———————————————*/
@@ -847,6 +872,21 @@ inline Vector3 EaseInOutBounce(const Vector3& start, const Vector3& end, const f
 	return ApplyComponentWise(start, end, time, Cake::Easing::EaseInOutBounce<float>);
 }
 #pragma endregion
+
+inline Vector3 Bezier(const Vector3& start, const Vector3& control, const Vector3& end, const float& time) {
+	Vector3 result;
+	result.x = Bezier<float>(start.x, control.x, end.x, time);
+	result.y = Bezier<float>(start.y, control.y, end.y, time);
+	result.z = Bezier<float>(start.z, control.z, end.z, time);
+	return result;
+}
+inline Vector3 CatmullRom(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, const float& time) {
+	Vector3 result;
+	result.x = CatmullRom<float>(p0.x, p1.x, p2.x, p3.x, time);
+	result.y = CatmullRom<float>(p0.y, p1.y, p2.y, p3.y, time);
+	result.z = CatmullRom<float>(p0.z, p1.z, p2.z, p3.z, time);
+	return result;
+}
 
 // 球面線形補間.
 inline Vector3 Slerp(const Vector3& start, const Vector3& end, const float& time) {
@@ -1008,6 +1048,23 @@ inline Vector4 EaseInOutBounce(const Vector4& start, const Vector4& end, const f
 	return ApplyComponentWise(start, end, time, Cake::Easing::EaseInOutBounce<float>);
 }
 #pragma endregion
+
+inline Vector4 Bezier(const Vector4& start, const Vector4& control, const Vector4& end, const float& time) {
+	Vector4 result;
+	result.x = Bezier<float>(start.x, control.x, end.x, time);
+	result.y = Bezier<float>(start.y, control.y, end.y, time);
+	result.z = Bezier<float>(start.z, control.z, end.z, time);
+	result.w = Bezier<float>(start.w, control.w, end.w, time);
+	return result;
+}
+inline Vector4 CatmullRom(const Vector4& start, const Vector4& control1, const Vector4& control2, const Vector4& end, const float& time) {
+	Vector4 result;
+	result.x = CatmullRom<float>(start.x, control1.x, control2.x, end.x, time);
+	result.y = CatmullRom<float>(start.y, control1.y, control2.y, end.y, time);
+	result.z = CatmullRom<float>(start.z, control1.z, control2.z, end.z, time);
+	result.w = CatmullRom<float>(start.w, control1.w, control2.w, end.w, time);
+	return result;
+}
 
 } // namespace Easing
 

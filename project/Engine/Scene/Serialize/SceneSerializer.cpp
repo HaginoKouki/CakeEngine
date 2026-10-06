@@ -284,6 +284,9 @@ void ReadProperty(void* instance, const PropertyDesc& desc, const json& value, A
 		case PropertyType::Transform:
 			ReadTransform(value, *static_cast<Transform*>(target));
 			break;
+		case PropertyType::Gradient:
+			ReadGradient(value, *static_cast<Gradient*>(target));
+			break;
 
 		case PropertyType::AssetRefModel:
 			ReadAssetRef(value, *static_cast<AssetRef<ModelHandle>*>(target), database);

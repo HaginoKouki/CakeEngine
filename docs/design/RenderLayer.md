@@ -1,11 +1,17 @@
 # Render層
-*画面を描画するための機能*<br>
-<br>
-描画命令の発行（Renderer）と、シーンを1枚の絵にする工程（SceneRenderer とパス列）を担当します。<br>
-<br>
+*画面を描画するための機能*
+
+
+
+描画命令の発行（Renderer）と、シーンを1枚の絵にする工程（SceneRenderer とパス列）を担当します。
+
+
+
 ## 場所
-`project/Engine/Render/`<br>
-<br>
+`project/Engine/Render/`
+
+
+
 ## 構成
 - Renderer … GPU描画命令の発行と描画状態の管理。BeginFrame / EndFrame（EndFrameで ExecuteAndWait と Present）、BeginScene / EndScene（オフスクリーンRT）、PrepareBackbufferToEditor / PrepareBackbufferToGame（16:9レターボックス）、DrawModel、DrawModelInstanced（Particle用）、DrawSprite、DrawSkybox、DrawGizmos。PSOとマテリアルの直前値をキャッシュして切替を減らす。
 - LightManager / Light.h … DirectionalLight の定数バッファを持つ。値を書くだけで、バインドは Renderer が行う。
@@ -29,14 +35,34 @@
 - RenderPass.h は Scene と GizmoSettings を前方宣言で受けるため、ヘッダ単位の循環は避けているが、.cpp 単位では相互に参照している。
 
 ## 規則
-- Renderer は視点として CameraView だけを受け取る。CameraComponent も GameObject も知らない。
-- SceneRenderer は視点も描画先も持たない。視点の選択と描画先の決定（Renderer::BeginScene など）は呼び出し側が行う。パス列の並びがそのまま絵の順序になり、描画機能の追加は「RenderPass を1つ作って列へ挿す」だけで済ませる（SceneRenderer 自体は書き換えない）。
-- パスの順序: LightSetup は必ず先頭（後続が使うライトを用意する）。Skybox は Opaque より前。Gizmo は実体の上に描くため最後。Particle は半透明想定のため Opaque の後。
-- パスは「今バインドされている描画先」へ描くだけで、描画先を持たない。
-- パスは DX12 の型（ID3D12GraphicsCommandList など）を RenderContext へ持ち込まない。低レベルな描画は必ず Renderer 経由で行う（将来RHIを挟むときの書き換えを増やさないため）。
-- ParticlePass は粒の状態を読むだけで変えない。1フレームでゲームビューとシーンビューの2回実行されるため。更新は UpdateParticleSystems が行う。
-- GizmoPass は options->gizmos が nullptr のとき何もしない。ゲームビューは常に nullptr なのでギズモは出ない。DrawList はメンバで持ち、毎フレーム Clear して確保を避ける。
-- OpaquePass の実行前に Scene::UpdateTransforms でワールド行列が確定していること（SceneManager::Update が毎フレーム呼ぶ）。
-- DrawModel の materialOverride は描画時だけの上書きで、モデルの materialSlots を書き換えない。
-- ギズモの形はコライダーの判定と揃える。箱は回転もスケールも効かせ、球は中心だけ動かして半径は素のまま使う。
-- ギズモの頂点はワールド空間で積む。Gizmo.VS.hlsl の入力と GizmoVertex（32バイト）は一致させる。
+
+### 責務の境界
+
+- `Renderer` は視点として `CameraView` だけを受け取る。`CameraComponent` や `GameObject` には依存しない。
+- `SceneRenderer` は視点や描画先を選ばない。呼び出し側が視点を選び、`Renderer::BeginScene` などで描画先を決める。
+- 各パスは現在バインドされている描画先へ描き、自分では描画先を保持しない。
+- `RenderContext` に DirectX 12 の型（例: `ID3D12GraphicsCommandList`）を持ち込まない。低レベル描画も必ず `Renderer` 経由で行う。
+
+### パスの追加と実行順
+
+`SceneRenderer` はパス列を順番に実行します。新しい描画機能は `RenderPass` を作って列に追加します。通常、機能追加のために `SceneRenderer` 本体を変更する必要はありません。
+
+実行順には次の制約があります。
+
+- `LightSetup` は先頭に置く。後続のパスが使うライトを準備する。
+- `Skybox` は `Opaque` より前に置く。
+- `Particle` は半透明描画を想定し、`Opaque` の後に置く。
+- `Gizmo` は実体の上に表示するため、最後に置く。
+
+### シーン状態と描画データ
+
+- `OpaquePass` の前に `Scene::UpdateTransforms` を実行し、ワールド行列を確定させる。これは毎フレームの `SceneManager::Update` が担当する。
+- `ParticlePass` は粒の状態を読むだけで、変更しない。同じフレームにゲームビューとシーンビューから実行されるため、更新は `UpdateParticleSystems` が担当する。
+- `DrawModel` の `materialOverride` はその描画だけに適用する。モデルの `materialSlots` は変更しない。
+
+### ギズモ
+
+- `options->gizmos` が `nullptr` なら `GizmoPass` は何もしない。ゲームビューでは常に `nullptr` のため、ギズモを表示しない。
+- `DrawList` はメンバとして保持し、毎フレーム `Clear` して再利用する。
+- 形状はコライダーの判定形状に合わせる。箱には回転とスケールを適用し、球は中心だけを移動して半径はそのまま使う。
+- 頂点はワールド空間で作る。`Gizmo.VS.hlsl` の入力と、32バイトの `GizmoVertex` のレイアウトを一致させる。

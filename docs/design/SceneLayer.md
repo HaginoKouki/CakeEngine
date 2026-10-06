@@ -1,11 +1,17 @@
 # Scene層
-*ゲームの内容が詰まってる*<br>
-<br>
-GameObject とコンポーネントを所有するシーン、その更新・保存、コンポーネントに対する処理（System）を担当します。<br>
-<br>
+*ゲームの内容が詰まってる*
+
+
+
+GameObject とコンポーネントを所有するシーン、その更新・保存、コンポーネントに対する処理（System）を担当します。
+
+
+
 ## 場所
-`project/Engine/Scene/`<br>
-<br>
+`project/Engine/Scene/`
+
+
+
 ## 構成
 - Scene / SceneManager … Scene は GameObject と型ごとのコンポーネントプール、親子階層（roots_）、ParticleStorage を所有。SceneManager は現在のシーンを1つ所有し、生成・読込・保存・更新を管理する。編集中か実行中かは知らず、deltaTime が 0 ならコンポーネントを走らせない。
 - Object/ … GameObject（識別子・名前・TransformComponent・ComponentRef の一覧を持つ器）、GameObjectId（index + generation）、ComponentPool\<T>（型ごとの連続配置プール。持ち主IDを並行配列で持つ）、ParticleStorage（エミッターごとの粒の状態と発生タイマー）。
@@ -35,20 +41,42 @@ SceneManager::Update の順序:
 - Foundation/Reflection/TypeInfo.h が GameObjectId をincludeしている（Foundationの逆依存）。
 
 ## 規則
-- コンポーネントは仮想関数を持たない素の構造体（standard-layout）を保つ。継承させない。offsetof によるリフレクションと memcpy スナップショットの前提のため。粒の配列のように増減するデータはコンポーネントに持たせず、ParticleStorage のように Scene 側へ置く。
-- コンポーネントの追加手順: 構造体を作り、同じヘッダに CAKE_REFLECT ブロックを書き、RegisterAllComponents（ゲーム側は GameModule.cpp）に1行足す。書き忘れるとインスペクタに出ず、シーンにも保存されない。
-- Update は継承やインターフェースではなく、`void Update(const UpdateContext& ctx, GameObjectId self)` を書いた型だけが自動で呼ばれる。実行順は Register の優先度（小さいほど先。kEarlyUpdatePriority = -100、kDefaultUpdatePriority = 0、kLateUpdatePriority = 100）。同値は登録順。
-- Update の中でコンポーネントの追加・削除をしない（走査中のプールが再確保されて参照が壊れる）。
-- 型IDは初回使用順で採番され、実行のたびに変わりうる。シリアライズしない。保存に使うのは型名。
-- 参照の寿命: Find / GetComponent / ComponentPool::Get が返すポインタは次の追加までしか有効でない。フレームをまたいで持つのは GameObjectId。
-- 同じ型のコンポーネントを1つの GameObject に重複して持たせない（AddComponent は既存を返す）。
-- System はコンポーネントの処理を持つ場所で、Scene と Scene::UpdateTransforms を前提とする。行列を計算する System はなく、TransformComponent がキャッシュした world を使う。CollisionSystem・GizmoSystem・CameraSystem・LightSystem・RenderSystem は UpdateTransforms の後に呼ぶ。
-- 依存宣言（CAKE_REQUIRE_COMPONENTS）が効くのは TypeRegistry::AddComponent / FindDependent 経由だけ。Scene::AddComponent / RemoveComponent を直接呼ぶと素通りするため、依存先を使う System は依存先が無くても落ちないように書く。
-- 登録は明示的に行い、静的オブジェクトによる自己登録はしない。エンジン側とゲーム側の登録が終わったら Application が FinalizeRegistration を1回呼ぶ。以後の Register は拒否される。
-- 衝突判定: 球（SphereCollider）は radius をワールド単位のまま使い、スケールが効かない。箱（BoxCollider）は OBB でスケールも回転も効く。結果は毎フレーム hits に上書きされ、押し戻しはしない。判定は移動の後に走るため、hits は1フレーム遅れる。SetActive(false) のオブジェクトは参加しない。総当たり（O(n²)）で、箱同士は包む球で早期棄却する。CollisionSystem.cpp の CollectBoxes / CollectSpheres はコライダーのメンバを直接読み書きするため、メンバを増減したら一緒に直す。
-- Collider の hits と hitCount はリフレクションに載せない（保存もインスペクタ表示もされない）。
-- CameraSystem / LightSystem は有効なもののうち priority が最小の1つだけを採用する（同値はプール順）。ライトは現状1灯のみ。
-- CloneSystem は EntityRef を張り替えない。複製した部分木の中で閉じた参照も、元の相手を指したままになる。
-- SceneSerializer は GameObjectId のうち index だけを保存し、読込時に新しいIDへ読み替える。階層はフラットで、親の index を各オブジェクトが持つ。ワールド行列・ダーティフラグ・AssetRef の handle は保存しない。PropertyType を増やしたら SceneSerializer と PropertyDrawer の両方の switch に追加する。
-- Play/Stop はシーンを JSON 文字列でスナップショットして復元する。リフレクションに載っていない状態は復元されない。Stop 後は既存の GameObjectId がすべて無効になる。
-- UpdateContext はそのフレームの Update の間だけ有効で、メンバに保持しない。ゲーム側の入力は GetKey 系（ゲーム入力経路）を使う。
+
+### コンポーネント
+
+- コンポーネントは仮想関数を持たない素の構造体（standard-layout）にする。継承は使わない。`offsetof` によるリフレクションと `memcpy` スナップショットが前提。
+- 粒の配列のように増減するデータはコンポーネントに置かず、`ParticleStorage` のように `Scene` 側で管理する。
+- 追加時は、構造体と同じヘッダに `CAKE_REFLECT` ブロックを書き、`RegisterAllComponents`（ゲーム側は `GameModule.cpp`）に登録する。登録しないとインスペクタ表示もシーン保存もされない。
+- 同じ型のコンポーネントを1つの `GameObject` に重複して追加しない。`AddComponent` は既存のものを返す。
+- `CAKE_REQUIRE_COMPONENTS` の依存宣言は `TypeRegistry::AddComponent` / `FindDependent` 経由でのみ適用される。`Scene::AddComponent` / `RemoveComponent` の直接呼び出しでは適用されない。依存コンポーネントを使うSystemは、依存先がなくても安全に動くようにする。
+
+### 更新と登録
+
+- `void Update(const UpdateContext& ctx, GameObjectId self)` を持つ型だけが自動更新される。継承やインターフェースは使わない。
+- 更新順は登録優先度の小さい順。標準値は早期 `-100`、通常 `0`、後期 `100`。同じ優先度なら登録順。
+- `Update` 中にコンポーネントを追加・削除しない。プールの再確保で走査中の参照が無効になる。
+- 型IDは初回使用順で採番され、実行ごとに変わる可能性があるため保存しない。保存には型名を使う。
+- 登録は明示的に行い、静的オブジェクトによる自己登録はしない。エンジンとゲームの登録後に `Application` が `FinalizeRegistration` を1回呼ぶ。それ以降の登録は拒否される。
+
+### 参照とSystem
+
+- `Find` / `GetComponent` / `ComponentPool::Get` が返すポインタは、次の追加まで有効。フレームをまたいで保持する識別子は `GameObjectId`。
+- System はコンポーネントを処理する場所。`Scene` と `Scene::UpdateTransforms` を前提にする。
+- 行列を計算するSystemは作らず、`TransformComponent` がキャッシュした `world` を使う。
+- `CollisionSystem`、`GizmoSystem`、`CameraSystem`、`LightSystem`、`RenderSystem` は `UpdateTransforms` の後に呼ぶ。
+- `UpdateContext` はそのフレームの `Update` 中だけ有効。メンバに保持しない。ゲーム入力にはゲーム入力経路の `GetKey` 系を使う。
+- `CameraSystem` / `LightSystem` は有効なものから最小priorityの1つを選ぶ。同値ならプール順。ライトは現状1灯のみ。
+
+### 衝突と複製
+
+- 球（`SphereCollider`）は `radius` をワールド単位のまま使い、スケールを反映しない。箱（`BoxCollider`）は OBB とし、回転とスケールを反映する。
+- 衝突結果は毎フレーム `hits` に上書きし、押し戻しはしない。判定は移動後なので結果は1フレーム遅れる。`SetActive(false)` のオブジェクトは対象外。
+- 判定は総当たり（O(n²)）。箱同士は外接球で早期棄却する。`CollisionSystem.cpp` の `CollectBoxes` / `CollectSpheres` はメンバを直接扱うため、コライダーのメンバ変更時に合わせて更新する。
+- `Collider` の `hits` / `hitCount` はリフレクションに載せない。保存もインスペクタ表示もしない。
+- `CloneSystem` は `EntityRef` を張り替えない。複製した部分木の内部参照も元の相手を指したままになる。
+
+### シリアライズとPlay/Stop
+
+- `SceneSerializer` は `GameObjectId` のindexだけを保存し、読込時に新しいIDへ置き換える。階層はフラットで、各オブジェクトが親のindexを持つ。
+- ワールド行列、ダーティフラグ、`AssetRef` のhandleは保存しない。`PropertyType` を追加したら `SceneSerializer` と `PropertyDrawer` の両方のswitchを更新する。
+- Play/Stop はシーンをJSON文字列でスナップショットして復元する。リフレクションに載っていない状態は復元されない。Stop後は既存の `GameObjectId` がすべて無効になる。

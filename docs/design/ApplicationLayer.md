@@ -1,11 +1,17 @@
 # Application層
-*アプリをアプリたらしめるところ*<br>
-<br>
-最上位の層。各層を生成・初期化・破棄し、メインループを回します。ゲーム固有のコード（Game/）との接点もここです。<br>
-<br>
+*アプリをアプリたらしめるところ*
+
+
+
+最上位の層。各層を生成・初期化・破棄し、メインループを回します。ゲーム固有のコード（Game/）との接点もここです。
+
+
+
 ## 場所
-`project/Engine/Application/`（エントリポイントは `project/main.cpp`、ゲーム側は `project/Game/`）<br>
-<br>
+`project/Engine/Application/`（エントリポイントは `project/main.cpp`、ゲーム側は `project/Game/`）
+
+
+
 ## 構成
 - Application … 全層の所有者。COM初期化、D3Dリソースリークチェック、クラッシュダンプ（`./Dumps/`）、初期化、メインループ（Run / RunFrame）、リサイズ検知。
 - WindowApp … Win32ウィンドウの生成、メッセージ処理、WndProc から InputManager への入力転送、ボーダレス全画面、ウィンドウ矩形の控え（WM_DESTROY 後も終了時に使える）。
@@ -47,11 +53,20 @@ Game/（ユーザーのゲームコード。Engine の外）:
 - Graphics層の SwapChain.h と Editor層の各ヘッダが BuildConfig.h をincludeしている。Editor層は ProjectSettings.h も使っている。これらは Application フォルダにあるが、実質は下位層と共有する設定・ビルド定義。
 
 ## 規則
+
+### 初期化と依存
+
 - メンバの宣言順が初期化順で、破棄は逆順（Application.h に明記）。Editor は graphics_ より後に宣言する。
 - 実際に開いたクライアント領域を、Application が唯一の基準サイズとして確定する。0 のままではスワップチェーンを作れない。
 - フルスクリーンはゲーム本番（Release）のみ。エディタビルドでは無視される。
 - 各層への依存は Desc 構造体（AssetInitializeDesc、RendererInitDesc）で渡す。必須項目は IsValid で初期化時に検査する。
 - ユーザー定義のシェーダーは Asset 初期化より前、ユーザー定義のコンポーネントはシーン読込より前に登録する。締め切り（FinalizeRegistration）の後は Register が拒否される。
+
+### 設定と終了
+
 - ProjectSettings は共有データなので、個人ごとの値（テーマ、前回の状態）を混ぜない。描画実装の都合（PSO、バッファサイズなど）も入れない。
 - 終了時は GPU の完了を待ってから、エディタの状態（EditorCache）と個人設定（EditorPreferences）を書き出す。
+
+### ゲームコードの追加
+
 - Game/ のコンポーネントを追加する手順: 構造体と CAKE_REFLECT を書き、GameModule.cpp の RegisterGameComponents に1行足す（Update の優先度は第1引数）。

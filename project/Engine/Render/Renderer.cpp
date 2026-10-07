@@ -75,7 +75,7 @@ void Renderer::Initialize(RendererInitDesc desc) {
 	skyboxMaterialHandle_ = materialManager_->CreateMaterial("__Skybox", "Skybox/Panoramic");
 	{
 		Material& mat = *materialManager_->Resolve(skyboxMaterialHandle_);
-		mat.SetTexture(mat.GetShader()->textures[0].name, desc.textureManager->Load("EngineResources/textures/Sky.png"));
+		mat.SetTexture(mat.GetShader()->textures[0].name, desc.textureManager->Load("EngineResources/textures/Skybox.png"));
 		mat.Apply();
 	}
 

@@ -25,11 +25,11 @@ Particle SpawnParticle(const ParticleSystemComponent& particleSystem, std::mt199
 	std::uniform_real_distribution<float> distribution(-kSpawnRange, kSpawnRange);
 
 	Particle particle;
-	particle.translate = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
-	particle.velocity = {distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
-	particle.startColor = particleSystem.color;
-	particle.color = particleSystem.color;
-	particle.lifeTime = particleSystem.lifeTime;
+	particle.translate = Vector3{distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)};
+	particle.velocity = Vector3{distribution(randomEngine), distribution(randomEngine), distribution(randomEngine)} * particleSystem.startSpeed;
+	particle.startColor = particleSystem.startColor;
+	particle.drawColor = particleSystem.startColor;
+	particle.lifeTime = particleSystem.startLifeTime;
 	particle.currentTime = 0.0f;
 	return particle;
 }
@@ -69,26 +69,30 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 
 			// 一定間隔で粒を出す.
 		    // 間隔が 0 以下だと while が終わらないので、下限を設けて使う.
-			const float interval = (std::max)(particleSystem.emitInterval, ParticleSystemComponent::kMinEmitInterval);
+			const float interval = particleSystem.burstCount / particleSystem.rateOverTime;
 			emitter.emitTimer += deltaTime;
-			while (emitter.emitTimer >= interval) {
-				emitter.emitTimer -= interval;
-				particles.push_back(SpawnParticle(particleSystem, randomEngine));
+			if (particleSystem.isEnableEmission) {
+				while (emitter.emitTimer >= interval) {
+					emitter.emitTimer -= interval;
+					for (int i = 0; i < static_cast<int>(particleSystem.burstCount); ++i) {
+						particles.push_back(SpawnParticle(particleSystem, randomEngine));
+					}
+				}
 			}
 
 			// 寿命に合わせて色を変える.
-			if (particleSystem.colorOverLifetimeEnabled) {
+			if (particleSystem.isEnableColorOverLifetime) {
 				// キーの並びは保存順のままなので、エミッターごとに1回だけ並べ替えてから使う.
 				const Gradient gradient = particleSystem.colorOverLifetime.Sorted();
 				for (Particle& particle : particles) {
 					// 年齢（0〜1）。寿命 0 の粒は割り算せずに終端の色にする.
 					const float age = (particle.lifeTime > 0.0f) ? particle.currentTime / particle.lifeTime : 1.0f;
-					particle.color = Vector4::Multiply(particle.startColor, gradient.Evaluate(age));
+					particle.drawColor = Vector4::Multiply(particle.startColor, gradient.Evaluate(age));
 				}
 			} else {
 				// 途中で無効にしたときに元の色へ戻すため、無効でも毎フレーム書き戻す.
 				for (Particle& particle : particles) {
-					particle.color = particle.startColor;
+					particle.drawColor = particle.startColor;
 				}
 			}
 		}

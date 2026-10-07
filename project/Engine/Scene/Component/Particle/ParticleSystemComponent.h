@@ -43,27 +43,35 @@ namespace Cake {
 struct ParticleRendererComponent;
 
 struct ParticleSystemComponent {
-	// 発生間隔の下限（秒）。インスペクタの下限と System 側の安全策の両方で使う.
-	static constexpr float kMinEmitInterval = 0.01f;
-
 	// 粒が生成されたときの色.
-	Vector4 color = Vector4::One;
-	// 粒を1つ出す間隔（秒）.
-	float emitInterval = 0.3f;
+	Vector4 startColor = Vector4::One;
 	// 粒の寿命（秒）.
-	float lifeTime = 3.0f;
+	float startLifeTime = 5.0f;
+	// 粒の初速（単位: m/s）. 方向は System 側で決める.
+	float startSpeed = 5.0f;
+
+	// パーティクルを発生させるか.
+	// 途中で false にしても、既に出ている粒は消えない。true に戻すと再び発生し始める.
+	bool isEnableEmission = true;
+	// 1秒あたりの発生数.
+	float rateOverTime = 10.0f;
+	// 1回の発生で出す粒の数.
+	float burstCount = 5.0f;
 
 	// 寿命に合わせて色を変えるか.
-	bool colorOverLifetimeEnabled = false;
+	bool isEnableColorOverLifetime = false;
 	// 粒の年齢（0〜1）に対する色。生成時の色に掛け合わせる.
 	Gradient colorOverLifetime;
 };
 
 CAKE_REFLECT(ParticleSystemComponent)
-CAKE_PROPERTY_COLOR(color, "Color")
-CAKE_PROPERTY_MIN(emitInterval, "Emit Interval", ParticleSystemComponent::kMinEmitInterval)
-CAKE_PROPERTY_MIN(lifeTime, "Life Time", 0.0f)
-CAKE_PROPERTY(colorOverLifetimeEnabled, "Color over Lifetime")
+CAKE_PROPERTY_COLOR(startColor, "Start Color")
+CAKE_PROPERTY_MIN(startLifeTime, "Start Life Time", 0.0f)
+CAKE_PROPERTY(startSpeed, "Start Speed")
+CAKE_PROPERTY(isEnableEmission, "Emission")
+CAKE_PROPERTY_MIN(rateOverTime, "Rate Over Time", 0.0f)
+CAKE_PROPERTY(burstCount, "Burst Count")
+CAKE_PROPERTY(isEnableColorOverLifetime, "Color over Lifetime")
 CAKE_PROPERTY(colorOverLifetime, "Gradient")
 CAKE_REFLECT_END()
 CAKE_REQUIRE_COMPONENTS(ParticleSystemComponent, ParticleRendererComponent)

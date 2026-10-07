@@ -12,7 +12,7 @@
           "type": "CameraComponent"
         }
       ],
-      "id": 7,
+      "id": 8,
       "name": "MainCamera",
       "transform": {
         "rotate": [
@@ -48,7 +48,7 @@
           "type": "LightComponent"
         }
       ],
-      "id": 8,
+      "id": 7,
       "name": "DirectionalLight",
       "transform": {
         "rotate": [
@@ -70,7 +70,12 @@
     },
     {
       "active": true,
-      "components": [],
+      "components": [
+        {
+          "moveSpeed": 1.0,
+          "type": "PlayerComponent"
+        }
+      ],
       "id": 5,
       "name": "Player",
       "transform": {
@@ -143,12 +148,7 @@
           "type": "ParticleRendererComponent"
         },
         {
-          "color": [
-            1.0,
-            0.9998999834060669,
-            0.9998999834060669,
-            1.0
-          ],
+          "burstCount": 5.0,
           "colorOverLifetime": {
             "alphaKeys": [
               {
@@ -164,24 +164,32 @@
               {
                 "color": [
                   1.0,
-                  0.0,
-                  0.0
+                  1.0,
+                  1.0
                 ],
                 "time": 0.0
               },
               {
                 "color": [
-                  0.020618677139282227,
                   1.0,
+                  0.0,
                   0.0
                 ],
                 "time": 1.0
               }
             ]
           },
-          "colorOverLifetimeEnabled": false,
-          "emitInterval": 0.30000001192092896,
-          "lifeTime": 3.0,
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 10.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 5.0,
+          "startSpeed": 1.0,
           "type": "ParticleSystemComponent"
         }
       ],
@@ -268,7 +276,7 @@
     {
       "active": true,
       "components": [],
-      "id": 1,
+      "id": 0,
       "name": "Boss",
       "transform": {
         "rotate": [
@@ -304,9 +312,9 @@
           "visible": true
         }
       ],
-      "id": 0,
+      "id": 1,
       "name": "BossModel",
-      "parent": 1,
+      "parent": 0,
       "transform": {
         "rotate": [
           0.23000000417232513,

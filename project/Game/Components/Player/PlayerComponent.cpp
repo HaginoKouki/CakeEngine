@@ -9,11 +9,11 @@ void PlayerComponent::Update(const Cake::UpdateContext& ctx, Cake::GameObjectId 
 	if (object == nullptr) {
 		return;
 	}
-	if (ctx.IsKeyHeld(Cake::KeyCode::Left)) {
+	if (ctx.IsKeyHeld(Cake::KeyCode::A)) {
 		Cake::Transform& local = object->GetTransform().GetLocalMutable();
 		local.translate.x -= moveSpeed * ctx.deltaTime;
 	}
-	if (ctx.IsKeyHeld(Cake::KeyCode::Right)) {
+	if (ctx.IsKeyHeld(Cake::KeyCode::D)) {
 		Cake::Transform& local = object->GetTransform().GetLocalMutable();
 		local.translate.x += moveSpeed * ctx.deltaTime;
 	}

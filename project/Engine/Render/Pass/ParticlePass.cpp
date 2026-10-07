@@ -51,7 +51,7 @@ void ParticlePass::Execute(RenderContext& ctx) {
 					Matrix4x4::MakeZRotationMatrix(particle.rotate) *
 					billboard *
 					Matrix4x4::MakeTranslateMatrix(worldPosition);
-				instances.push_back(InstanceData{world, particle.color});
+				instances.push_back(InstanceData{world, particle.drawColor});
 			}
 
 

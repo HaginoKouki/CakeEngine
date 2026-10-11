@@ -66,4 +66,5 @@ Graphics::Initialize の初期化順:
 - ShaderDefinition::ComputeLayout でcbufferのHLSLパッキングを計算する。リフレクションが取れる場合は実レイアウトで上書きする（ApplyReflection）。
 - requiresInstancing のシェーダーは Renderer::DrawModel では描かず、エラーマテリアルへ差し替える（Renderer 側の規則）。
 - 頂点レイアウトは None / Mesh（POSITION, TEXCOORD, NORMAL）/ Line（POSITION, COLOR）の3種。
+- ブレンド（`PipelineState::GetBlendDesc`）: 色の式はモードごとに異なるが、透明度の列は全モード共通で「重ね塗り」（SrcAlpha×1 + DestAlpha×(1−SrcAlpha)）にする（2026-10-06）。`kBlendModeNone` だけはブレンド自体を無効にする。シェーダーごとのブレンドと深度書き込みは `ShaderDefinition` の `blendMode` / `depthWrite` で指定する。
 - HLSL側の構造体と C++ 側は1バイトも違ってはいけない（GizmoVertex、SpriteTransform など。static_assert で固定）。

@@ -13,11 +13,11 @@
 
 
 ## 構成
-- Math/ … Vector2/3/4、Matrix2x2/3x3/4x4、Quaternion、Transform、Geometry（Line/Ray/Segment/Sphere/AABB/OBB/Plane など）、IsCollision（図形同士の衝突判定）、Easing
+- Math/ … Vector2/3/4、Matrix2x2/3x3/4x4、Quaternion、Transform、Geometry（Line/Ray/Segment/Sphere/AABB/OBB/Plane など）、IsCollision（図形同士の衝突判定）、Easing（イージング関数群、Lerp、Bezier、CatmullRom）、Gradient（0〜1 の位置に対して色と透明度を返す。ColorKey / AlphaKey を各 kMaxKeys=8 個まで固定長配列で持つ。パーティクルの Color over Lifetime 用）
 - Identity/ … Guid（128bit、インポート時に1度だけ生成し.metaへ保存）、LocalId（ファイル内サブオブジェクトの識別子。名前と種別タグのFNV-1aから導出）、AssetId（{Guid, LocalId}の24バイト値型）
 - Debug/ … DebugLog（シングルトン。日時別ログファイル出力、画面表示用一覧、HRESULT解析）
 - Serialize/ … JsonFile（読み書きの定型を1本化）、BinaryStream（BinaryWriter/BinaryReader。アーティファクト用の生バイナリ）
-- Reflection/ … TypeInfo（メンバ構成を実行時データ化）、ReflectMacros（CAKE_REFLECT / CAKE_PROPERTY 系マクロ）
+- Reflection/ … TypeInfo（メンバ構成を実行時データ化。PropertyType は Bool / Int / Float / Vector2 / Vector3 / Vector4 / Color / String / Transform / Gradient / AssetRefModel / AssetRefTexture / AssetRefMaterial / EntityRef）、ReflectMacros（CAKE_REFLECT / CAKE_PROPERTY 系マクロ）
 - Utility/ … Convert（std::string と std::wstring の相互変換）
 
 ## 依存関係
@@ -47,6 +47,13 @@
 - `name` はシリアライズのキーなので変更すると既存ファイルを読めなくなる。`label` は表示名なので変更できる。
 - `CAKE_REFLECT` ブロックは構造体定義と同じヘッダに置く。
 - `PropertyType` を追加したら、インスペクタ（`PropertyDrawer`）とシリアライザ（`SceneSerializer`）のswitchにも追加する。
+
+### グラデーション（Gradient）
+
+- キー列は保存順のままで、time の昇順とは限らない（エディタでドラッグ中に並べ替えると、触っているキーが入れ替わるため）。`Evaluate` は昇順を前提にするので、使う側が `Sorted()` のコピーを作ってから呼ぶ。粒ごとではなく、エミッターごとに1フレーム1回だけ並べ替える。
+- キー数は 1〜kMaxKeys（8）。範囲外の個数は `ClampKeyCount` で収め、配列の外を読まない。`std::vector` ではなく固定長配列なのは、コンポーネントに直接持たせる（standard-layout を保つ）ため。
+- 最初のキーより前は最初の値、最後のキーより後は最後の値、間は前後2キーの線形補間。
+- JSON には `{"colorKeys": [{time, color}], "alphaKeys": [{time, alpha}]}` で保存し、個数は配列長から決める（`SceneSerializer`）。9個目以降は読み捨て、1つも読めなかった列は既定値（白・不透明の2キー）のまま。
 
 ### バイナリとJSON
 

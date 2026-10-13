@@ -264,6 +264,7 @@
     <ClInclude Include="Engine\Scene\Component\ComponentRegistry\TypeRegistry.h" />
     <ClInclude Include="Engine\Scene\Component\LightComponent.h" />
     <ClInclude Include="Engine\Scene\Component\MeshRendererComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\Particle\ParticleForceFieldComponent.h" />
     <ClInclude Include="Engine\Scene\Component\Particle\ParticleRendererComponent.h" />
     <ClInclude Include="Engine\Scene\Component\Particle\ParticleSystemComponent.h" />
     <ClInclude Include="Engine\Scene\Component\TransformComponent.h" />

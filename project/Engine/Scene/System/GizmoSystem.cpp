@@ -9,6 +9,7 @@
 #include "Engine/Scene/Component/CameraComponent.h"
 #include "Engine/Scene/Component/LightComponent.h"
 #include "Engine/Scene/Component/Collider/SphereColliderComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleForceFieldComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Scene.h"
 
@@ -117,6 +118,28 @@ void CollectSceneGizmos(Scene& scene, const GizmoSettings& settings, GizmoDrawLi
 				const Vector4 color = PickColor(settings, owner, GizmoColor::kLight);
 				out.AddWireSphere(Matrix4x4::MakeTranslateMatrix(origin), Vector3::Zero, 0.25f, color, 12);
 				out.AddRay(origin, forward * 2.0f, color);
+			}
+		);
+	}
+
+	// --- パーティクルの Field（範囲と風の向き）---
+	if (settings.showForceFields) {
+		scene.GetPool<ParticleForceFieldComponent>()->ForEach(
+			[&](GameObjectId owner, ParticleForceFieldComponent& field) {
+				const GameObject* object = FindActive(scene, owner);
+				if (object == nullptr) {
+					return;
+				}
+				const Matrix4x4& world = object->GetTransform().GetWorldMatrix();
+				const Vector4 color = PickColor(settings, owner, GizmoColor::kForceField);
+				out.AddWireBox(world, field.center, field.size, color);
+
+				// 風の向き。強さに関係なく長さ 2 で出す（強いと画面の外まで伸びてしまうため）.
+				const float strength = Vector3::Length(field.acceleration);
+				if (strength > 0.0f) {
+					const Vector3 origin = Vector3::Transform(field.center, world);
+					out.AddRay(origin, field.acceleration / strength * 2.0f, color);
+				}
 			}
 		);
 	}

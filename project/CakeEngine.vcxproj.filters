@@ -974,6 +974,9 @@
     <ClInclude Include="Engine\Foundation\Math\Gradient.h">
       <Filter>Engine\Foundation\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Scene\Component\Particle\ParticleForceFieldComponent.h">
+      <Filter>Engine\Scene\Component\Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

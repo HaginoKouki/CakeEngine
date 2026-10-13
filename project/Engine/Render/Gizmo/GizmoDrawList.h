@@ -47,6 +47,7 @@ inline const Vector4 kCollider{0.0f, 1.0f, 0.0f, 1.0f}; // 緑.
 inline const Vector4 kCamera{1.0f, 1.0f, 1.0f, 1.0f};
 inline const Vector4 kLight{1.0f, 0.84f, 0.0f, 1.0f};    // 黄.
 inline const Vector4 kSelected{0.0f, 0.0f, 0.50f, 1.0f}; // 青.
+inline const Vector4 kForceField{0.0f, 0.8f, 1.0f, 1.0f}; // 水色.
 inline const Vector4 kGrid{0.44f, 0.44f, 0.44f, 1.0f};
 } // namespace GizmoColor
 

@@ -165,6 +165,7 @@ void SceneWindow::DrawGizmoOptions(const ImVec2& imageMin, const ImVec2& imageMa
 		ImGui::Checkbox("Colliders", &gizmoSettings_.showColliders);
 		ImGui::Checkbox("Cameras", &gizmoSettings_.showCameras);
 		ImGui::Checkbox("Lights", &gizmoSettings_.showLights);
+		ImGui::Checkbox("Force Fields", &gizmoSettings_.showForceFields);
 		ImGui::EndPopup();
 	}
 }

@@ -9,6 +9,7 @@
 #include "Engine/Scene/Component/Collider/BoxColliderComponent.h"
 #include "Engine/Scene/Component/Particle/ParticleSystemComponent.h"
 #include "Engine/Scene/Component/Particle/ParticleRendererComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleForceFieldComponent.h"
 
 namespace Cake {
 
@@ -24,6 +25,7 @@ void RegisterAllComponents() {
 	registry.Register<BoxColliderComponent>();
 	registry.Register<ParticleSystemComponent>();
 	registry.Register<ParticleRendererComponent>();
+	registry.Register<ParticleForceFieldComponent>();
 
 	// TransformComponent は GameObject の組み込みフィールドでプールに入らないため、ここでは登録しない.
 	// インスペクタとシリアライザが個別に扱う.

@@ -1,8 +1,5 @@
 <Solution>
   <Configurations>
-    <BuildType Name="Debug" />
-    <BuildType Name="Development" />
-    <BuildType Name="Release" />
     <Platform Name="x64" />
   </Configurations>
   <Folder Name="/ソリューション項目/">
@@ -10,12 +7,6 @@
     <File Path=".editorconfig" />
     <File Path="exclusion.dic" />
   </Folder>
-  <Project Path="CakeEngine.vcxproj" Id="a702f300-e9e8-4841-b195-1006a251d9d8">
-    <BuildType Solution="Debug|*" Project="Release" />
-    <Build Solution="Development|*" Project="false" />
-  </Project>
-  <Project Path="externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj" Id="371b9fa9-4c90-4ac6-a123-aced756d6c77">
-    <BuildType Solution="Debug|*" Project="Release" />
-    <Build Solution="Development|*" Project="false" />
-  </Project>
+  <Project Path="CakeEngine.vcxproj" Id="a702f300-e9e8-4841-b195-1006a251d9d8" />
+  <Project Path="externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj" Id="371b9fa9-4c90-4ac6-a123-aced756d6c77" />
 </Solution>

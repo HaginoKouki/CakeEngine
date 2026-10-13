@@ -53,10 +53,12 @@ struct ParticleSystemComponent {
 	// パーティクルを発生させるか.
 	// 途中で false にしても、既に出ている粒は消えない。true に戻すと再び発生し始める.
 	bool isEnableEmission = true;
+	// パーティクルの最低発生周期;
+	static constexpr float kMinEmitInterval = 0.01f;
 	// 1秒あたりの発生数.
 	float rateOverTime = 10.0f;
 	// 1回の発生で出す粒の数.
-	float burstCount = 5.0f;
+	int burstCount = 5;
 
 	// 寿命に合わせて色を変えるか.
 	bool isEnableColorOverLifetime = false;
@@ -69,8 +71,8 @@ CAKE_PROPERTY_COLOR(startColor, "Start Color")
 CAKE_PROPERTY_MIN(startLifeTime, "Start Life Time", 0.0f)
 CAKE_PROPERTY(startSpeed, "Start Speed")
 CAKE_PROPERTY(isEnableEmission, "Emission")
-CAKE_PROPERTY_MIN(rateOverTime, "Rate Over Time", 0.0f)
-CAKE_PROPERTY(burstCount, "Burst Count")
+CAKE_PROPERTY_MIN(rateOverTime, "Rate Over Time", 0.01f)
+CAKE_PROPERTY_MIN(burstCount, "Burst Count", 1)
 CAKE_PROPERTY(isEnableColorOverLifetime, "Color over Lifetime")
 CAKE_PROPERTY(colorOverLifetime, "Gradient")
 CAKE_REFLECT_END()

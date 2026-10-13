@@ -29,6 +29,7 @@ struct GizmoSettings {
 	bool showColliders = true;
 	bool showCameras = true;
 	bool showLights = true;
+	bool showForceFields = true;
 	bool highlightSelected = true;
 
 	ImGuizmo::MODE gizmoMode = ImGuizmo::LOCAL;

@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <random>
 #include <vector>
+#include <cmath>
 
 #include "Engine/Scene/Component/Particle/ParticleSystemComponent.h"
+#include "Engine/Scene/Component/Particle/ParticleForceFieldComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Object/ParticleStorage.h"
 #include "Engine/Scene/Scene.h"
@@ -34,6 +36,63 @@ Particle SpawnParticle(const ParticleSystemComponent& particleSystem, std::mt199
 	return particle;
 }
 
+// 変換が潰れていると見なす軸の長さ。これ以下だと逆行列が作れない.
+constexpr float kMinAxisScale = 1.0e-6f;
+
+// 拡大率が 0 の軸があるか（逆行列が作れないか）.
+bool IsDegenerate(const Matrix4x4& world) {
+	for (int i = 0; i < 3; ++i) {
+		const Vector3 row{world.m[i][0], world.m[i][1], world.m[i][2]};
+		if (Vector3::Length(row) <= kMinAxisScale) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// 1フレーム分の Field の情報。毎フレーム集め直す.
+struct FieldEntry {
+	Matrix4x4 inverseWorld; // 粒の位置を Field のローカルへ直すため.
+	Vector3 center;
+	Vector3 halfSize;
+	Vector3 acceleration; // ワールド空間.
+};
+
+// 有効な Field を集める。粒ごとに Field のプールを舐め直さないよう、フレームの最初に1回だけ行う.
+std::vector<FieldEntry> CollectForceFields(Scene& scene) {
+	std::vector<FieldEntry> fields;
+	scene.GetPool<ParticleForceFieldComponent>()->ForEach(
+		[&](GameObjectId owner, ParticleForceFieldComponent& field) {
+			if (!field.enabled) {
+				return;
+			}
+			const GameObject* object = scene.Find(owner);
+			if (object == nullptr || !object->IsActive()) {
+				return;
+			}
+			const Matrix4x4& world = object->GetTransform().GetWorldMatrix();
+			if (IsDegenerate(world)) {
+				return; // 拡大率 0 では範囲が無く、逆行列も作れない.
+			}
+
+			FieldEntry entry;
+			entry.inverseWorld = Matrix4x4::Inverse(world);
+			entry.center = field.center;
+			// 負の size を入れられても壊れないよう絶対値で受ける（BoxCollider と同じ）.
+			entry.halfSize = {std::fabs(field.size.x) * 0.5f, std::fabs(field.size.y) * 0.5f, std::fabs(field.size.z) * 0.5f};
+			entry.acceleration = field.acceleration;
+			fields.push_back(entry);
+		}
+	);
+	return fields;
+}
+
+// 箱の中にいるか。Field のローカルに直せば、回転・拡大した箱でも軸ごとの比較で済む.
+bool IsInside(const FieldEntry& field, const Vector3& worldPosition) {
+	const Vector3 local = Vector3::Transform(worldPosition, field.inverseWorld) - field.center;
+	return std::fabs(local.x) <= field.halfSize.x && std::fabs(local.y) <= field.halfSize.y && std::fabs(local.z) <= field.halfSize.z;
+}
+
 } // namespace
 
 void UpdateParticleSystems(Scene& scene, float deltaTime) {
@@ -46,6 +105,9 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 
 	std::mt19937& randomEngine = GetRandomEngine();
 
+	// Field はエミッターの数に関係なく、フレームに1回だけ集める.
+	const std::vector<FieldEntry> fields = CollectForceFields(scene);
+
 	scene.GetPool<ParticleSystemComponent>()->ForEach(
 		[&](GameObjectId owner, ParticleSystemComponent& particleSystem) {
 			const GameObject* object = scene.Find(owner);
@@ -56,8 +118,26 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 			EmitterState& emitter = store.GetOrCreate(owner);
 			std::vector<Particle>& particles = emitter.particles;
 
-			// 経過時間を進めて移動する.
+			// 粒の位置・速度はエミッターから見た値なので、Field（ワールド）との行き来にエミッターの行列を使う.
+			const Matrix4x4& emitterWorld = object->GetTransform().GetWorldMatrix();
+			// エミッターが潰れている（拡大率 0）と逆行列が作れないので、そのときは Field を効かせない.
+			const bool applyFields = !fields.empty() && !IsDegenerate(emitterWorld);
+			const Matrix4x4 emitterInverse = applyFields ? Matrix4x4::Inverse(emitterWorld) : Matrix4x4::Identity;
+
+			// Field の加速度を足し、経過時間を進めて移動する.
+		    // 速度を先に変えてから位置を動かすので、加速度はそのフレームのうちに位置へ反映される.
 			for (Particle& particle : particles) {
+				if (applyFields) {
+					const Vector3 worldPosition = Vector3::Transform(particle.translate, emitterWorld);
+					Vector3 worldAcceleration = Vector3::Zero;
+					for (const FieldEntry& field : fields) {
+						if (IsInside(field, worldPosition)) {
+							worldAcceleration += field.acceleration;
+						}
+					}
+					// 粒の速度はエミッターから見た向きなので、ワールドの加速度を変換してから足す.
+					particle.velocity += Vector3::TransformNormal(worldAcceleration, emitterInverse) * deltaTime;
+				}
 				particle.currentTime += deltaTime;
 				particle.translate += particle.velocity * deltaTime;
 			}
@@ -68,13 +148,16 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 			});
 
 			// 一定間隔で粒を出す.
-		    // 間隔が 0 以下だと while が終わらないので、下限を設けて使う.
-			const float interval = particleSystem.burstCount / particleSystem.rateOverTime;
-			emitter.emitTimer += deltaTime;
-			if (particleSystem.isEnableEmission) {
+		    // 間隔 = 1回に出す数 ÷ 1秒あたりの数。発生が止まっている間はタイマーも進めない
+		    // （止めている間に溜まった分が、再開した瞬間にまとめて出てしまうため）.
+			if (particleSystem.isEnableEmission && particleSystem.rateOverTime > 0.0f) {
+				const int burstCount = (std::max)(particleSystem.burstCount, 1);
+				// 間隔が 0 以下や極端に短いと while が終わらないので、下限を設けて使う.
+				const float interval = (std::max)(static_cast<float>(burstCount) / particleSystem.rateOverTime, particleSystem.kMinEmitInterval);
+				emitter.emitTimer += deltaTime;
 				while (emitter.emitTimer >= interval) {
 					emitter.emitTimer -= interval;
-					for (int i = 0; i < static_cast<int>(particleSystem.burstCount); ++i) {
+					for (int i = 0; i < burstCount; ++i) {
 						particles.push_back(SpawnParticle(particleSystem, randomEngine));
 					}
 				}

@@ -1,47 +1,62 @@
-# 不要ファイルが含まれていないか調べるためのGitHub Action.
+# 不要ファイルが含まれていないか調べるためのGitHub Action。
 name: CheckUnwantedFiles
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
   push:
     branches:
-     - "main"
+      - "main"
 
 env:
   UNWANTED_NAME_PATTERNS: "*.pdb *.ilk *.ncd *.suo *.log *.dmp *.zip desktop.ini dxcompiler.dll dxil.dll"
-  UNWANTED_DTR_PATTERNS: "generated x64 win32 arm64 .vs bin ipch logs Dump"
+  UNWANTED_DIR_PATTERNS: "generated x64 win32 arm64 .vs bin ipch logs Dump"
 
 jobs:
   check-files:
     name: 不要なファイルを検索
     runs-on: ubuntu-latest
+
     steps:
       - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
-        
-      - name: 不要なファイルとディレクトリを検索(bash)
+
+      - name: 不要なファイルとディレクトリを検索
+        shell: bash
         run: |
-          # ディレクトリ条件を構築（最初の不要な -o を後で削除）
+          # パターンを配列に変換（パス名展開を防ぐ）
+          read -r -a NAME_PATTERNS <<< "$UNWANTED_NAME_PATTERNS"
+          read -r -a DIR_PATTERNS <<< "$UNWANTED_DIR_PATTERNS"
+
+          # ディレクトリ条件を構築
           DIR_CONDITIONS=()
-          for pattern in SUNWANTED_DIR_PATTERNS; do
-            DIR_CONDITIONS+=(-o -iname "$pattern")
+          for pattern in "${DIR_PATTERNS[@]}"; do
+            if [ "${#DIR_CONDITIONS[@]}" -gt 0 ]; then
+              DIR_CONDITIONS+=(-o)
+            fi
+            DIR_CONDITIONS+=(-iname "$pattern")
           done
-          unset NAME_CONDITIONS[0]
 
-          # 1回の find 実行で全件を検索
-          # 1. .git を除外
-          # 2. 不要なディレクトリを検索(-type d)し、見つけたらパスを出力(-print)し、その中身を枝刈り(-prune)
-          # 3. または ( -o ) 不要なファイルを検索(-type f)し、パスを出力(-print)
-          UNWANTED_LIST=$(find . -path "./git" - prune -o \
-            \( \( "${DIR_CONDITIONS[@]}" \) -a -type d -print - prune \) -o \
-            \( \( "$NAME_CONDITIONS[@]}" \) -a -type f -print \) \
-          )
+          # ファイル条件を構築
+          NAME_CONDITIONS=()
+          for pattern in "${NAME_PATTERNS[@]}"; do
+            if [ "${#NAME_CONDITIONS[@]}" -gt 0 ]; then
+              NAME_CONDITIONS+=(-o)
+            fi
+            NAME_CONDITIONS+=(-iname "$pattern")
+          done
 
-          # 検出結果があればエラーとして出力し、失敗させる.
+          # 不要なファイルとディレクトリを検索
+          UNWANTED_LIST=$(find . \
+            -path "./.git" -prune -o \
+            \( \( "${DIR_CONDITIONS[@]}" \) -type d -print -prune \) -o \
+            \( \( "${NAME_CONDITIONS[@]}" \) -type f -print \))
+
+          # 検出結果があれば失敗
           if [ -n "$UNWANTED_LIST" ]; then
             echo "::error::不要なファイルまたはディレクトリが見つかりました。"
-            echo "$UNWANTED_LIST"
+            printf '%s\n' "$UNWANTED_LIST"
             exit 1
           fi
 
           echo "リポジトリはクリーンです。"
+```

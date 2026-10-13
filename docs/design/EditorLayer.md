@@ -16,6 +16,10 @@ ImGuiによるエディタUIを提供する層です。ENABLE_EDITOR が定義�
 - Debug と Development: `ENABLE_EDITOR` + `USE_IMGUI`（Debugは加えて `_DEBUG`）。Release: `_WINDOWS` と NDEBUG のみで、Editor は含まれない。
 - BuildConfig.h（Application層）が定義の関係を検査する。ENABLE_EDITOR には USE_IMGUI が必須で、崩れるとコンパイルエラー。
 - ImGui API を叩くだけの箇所は `#ifdef USE_IMGUI`、エディタ機能そのものは `#ifdef ENABLE_EDITOR`。
+- Release 構成では externals/imgui の .cpp を `ExcludedFromBuild` で除外している（2026-10-05）。
+
+規則との食い違い（現状の実装、要確認）:
+- `CakeEngine.vcxproj` の Development 構成は 2026-10-05（ab0631f）以降 `_WINDOWS;USE_IMGUI` のみで、`ENABLE_EDITOR` が外れている。Editor/Inspector 系は `#ifdef USE_IMGUI` でコンパイルされるが `EditorDrawContext` は `#ifdef ENABLE_EDITOR` の中で定義されるため、この組み合わせはコンパイルできず、CI の DevelopmentBuild が失敗し続けている。意図した構成かは要確認（docs/review/2026-10-11.md）。上の「Debug と Development: ENABLE_EDITOR + USE_IMGUI」は従来の方針のまま残している。
 
 ## 構成
 Editor（Editor.h/.cpp）が統括します。ウィンドウをまたぐ判断だけを持ち、UIは各クラスへ委譲します。
@@ -28,7 +32,7 @@ Editor（Editor.h/.cpp）が統括します。ウィンドウをまたぐ判断�
 - Camera/ … EditorCamera（右ドラッグ中のWASD+QEで移動。シーンには属さない）。
 - PlayMode/ … PlayModeController（Edit / Play / Paused、JSONスナップショット、コマ送り）。
 - ToolBar/ MenuBar/ … 再生操作、File / Edit メニュー、確認ダイアログ、Ctrl+S、設定ウィンドウの起動。
-- Inspector/ … SceneInspector（Hierarchy と Inspector。型を知らず、TypeRegistry から引く）、PropertyDrawer（PropertyType ごとの描画switchはここだけ）、MaterialEditor、ModelEditor、InspectorMaterialSection。
+- Inspector/ … SceneInspector（Hierarchy と Inspector。型を知らず、TypeRegistry から引く）、PropertyDrawer（PropertyType ごとの描画switchはここだけ。Gradient は帯のプレビュー（上半分が色、下半分が透明度）と Color Keys / Alpha Keys のツリーで、キーの追加・削除・time・値を編集する。プレビューは `Sorted()` のコピーで描き、編集は保存順の配列に対して行う）、MaterialEditor、ModelEditor、InspectorMaterialSection。
 - Settings/ … EditorPreferences（個人設定。UserSettings/EditorPreferences.json）、EditorCache（前回終了時の状態。UserSettings/EditorCache.json）、SettingsWindow（ProjectSettings と Preferences のウィンドウ）。
 - Log/ … LogWindow。Input/ … InputVisualizerWindow。
 - EditorDrawContext … 描画関数が共通で使う参照の束（device、shaderLibrary、各マネージャ、assetDatabase、allowAssetEditing）。

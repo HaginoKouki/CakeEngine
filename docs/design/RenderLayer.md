@@ -13,11 +13,11 @@
 
 
 ## 構成
-- Renderer … GPU描画命令の発行と描画状態の管理。BeginFrame / EndFrame（EndFrameで ExecuteAndWait と Present）、BeginScene / EndScene（オフスクリーンRT）、PrepareBackbufferToEditor / PrepareBackbufferToGame（16:9レターボックス）、DrawModel、DrawModelInstanced（Particle用）、DrawSprite、DrawSkybox、DrawGizmos。PSOとマテリアルの直前値をキャッシュして切替を減らす。
+- Renderer … GPU描画命令の発行と描画状態の管理。BeginFrame / EndFrame（EndFrameで ExecuteAndWait と Present）、BeginScene / EndScene（オフスクリーンRT）、PrepareBackbufferToEditor / PrepareBackbufferToGame（16:9レターボックス）、DrawModel、DrawModelInstanced（Particle用）、DrawSprite、DrawSkybox、DrawGizmos。PSOとマテリアルの直前値をキャッシュして切替を減らす。起動時に `__Skybox` マテリアル（Skybox/Panoramic）を作り、`EngineResources/textures/Skybox.png` を貼る（実ファイル名は小文字の skybox.png）。
 - LightManager / Light.h … DirectionalLight の定数バッファを持つ。値を書くだけで、バインドは Renderer が行う。
 - CameraView … 1回の描画で使う視点（view / projection / rotation / position）。MakeCameraView で world 行列と射影パラメータと出力解像度から作る。ゲームカメラもエディタカメラも同じ経路。
 - SceneRenderer … パス列を保持して順に Execute する。Initialize で LightSetup → Skybox → Opaque → Particle → Gizmo の順に組み立てる。
-- Pass/ … RenderPass（基底。RenderContext = scene / view / renderer / options を受け取る）、LightSetupPass、SkyboxPass、OpaquePass、ParticlePass、GizmoPass。
+- Pass/ … RenderPass（基底。RenderContext = scene / view / renderer / options を受け取る）、LightSetupPass、SkyboxPass、OpaquePass、ParticlePass（粒をカメラ正面向きの板＝ビルボードとしてインスタンシング描画）、GizmoPass。
 - Gizmo/GizmoDrawList … ギズモを線分へ分解して1本の LINELIST 頂点列に貯める入れ物。形は Add～ で足し、色は GizmoColor に集約。
 
 ## 依存関係
@@ -59,6 +59,8 @@
 - `OpaquePass` の前に `Scene::UpdateTransforms` を実行し、ワールド行列を確定させる。これは毎フレームの `SceneManager::Update` が担当する。
 - `ParticlePass` は粒の状態を読むだけで、変更しない。同じフレームにゲームビューとシーンビューから実行されるため、更新は `UpdateParticleSystems` が担当する。
 - `DrawModel` の `materialOverride` はその描画だけに適用する。モデルの `materialSlots` は変更しない。
+- `ParticlePass` のビルボードは `CameraView::rotationMatrix` から作る。粒のワールド行列は「スケール → 画面内回転（Z） → カメラ回転 → 平行移動」の順で、位置だけをエミッターのワールド行列で変換する。インスタンスの色には `Particle::drawColor` を渡す。
+- 粒のマテリアルは `requiresInstancing` のシェーダー（ゲーム側の `Particle`）を想定する。非対応シェーダーだと `DrawModelInstanced` が1個ずつ `DrawModel` で描き、粒ごとの色は反映されない。
 
 ### ギズモ
 

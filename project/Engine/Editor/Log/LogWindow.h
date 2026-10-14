@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "externals/imgui/imgui.h"
+
 #include "Engine/Foundation/Debug/DebugLog.h"
 
 namespace Cake {
@@ -34,7 +36,7 @@ public:
 		return instance;
 	}
 
-	void DrawLogWindow(const char* title = "Debug Log", bool* open = nullptr);
+	void DrawLogWindow(const char* title = "Debug Log", bool* open = nullptr, ImFont* font = nullptr);
 };
 
 } // namespace Cake

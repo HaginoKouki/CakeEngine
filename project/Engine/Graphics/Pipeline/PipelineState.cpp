@@ -92,7 +92,7 @@ ID3D12PipelineState* PipelineState::GetPSO(const std::string& name) const {
 
 void PipelineState::BuildRootSignature(ID3D12Device* device) {
 	// RootParameter.
-	D3D12_ROOT_PARAMETER rootParameters[kInstancingRootParam + 1] = {};
+	D3D12_ROOT_PARAMETER rootParameters[kCameraRootParam + 1] = {};
 
 	// 0: material CBV (b0, PIXEL).
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -131,6 +131,11 @@ void PipelineState::BuildRootSignature(ID3D12Device* device) {
 	rootParameters[kInstancingRootParam].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameters[kInstancingRootParam].Descriptor.ShaderRegister = 0; // t0.
 	rootParameters[kInstancingRootParam].Descriptor.RegisterSpace = 0;
+
+	// 8: camera CBV (b2, PIXEL).
+	rootParameters[kCameraRootParam].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kCameraRootParam].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[kCameraRootParam].Descriptor.ShaderRegister = 2; // b2.
 
 	// StaticSampler.
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};

@@ -38,7 +38,21 @@ void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 			.defaultValue = {1, 0, 0, 0},
 			.uiMin = 0.0f,
 			.uiMax = 1.0f
-		}
+		},
+		Cake::ShaderParamDesc{
+			.name = "shininess",
+			.type = Cake::ShaderParamType::Float,
+			.defaultValue = {1, 0, 0, 0},
+			.uiMin = 0.0f,
+			.uiMax = 1.0f
+		},
+		Cake::ShaderParamDesc{
+			.name = "reflectionColor",
+			.type = Cake::ShaderParamType::Color,
+			.defaultValue = {1, 1, 1, 1},
+			.uiMin = 0.0f,
+			.uiMax = 1.0f
+		},
 	};
 	object3d.textures = {
 		Cake::TextureSlotDesc{
@@ -52,8 +66,8 @@ void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 	———————————————*/
 	Cake::ShaderDefinition particle;
 	particle.name = "Particle";
-	particle.vsPath = L"Assets/Shaders/Object3D/Particle.VS.hlsl";
-	particle.psPath = L"Assets/Shaders/Object3D/Particle.PS.hlsl";
+	particle.vsPath = L"Assets/Shaders/Particle/Particle.VS.hlsl";
+	particle.psPath = L"Assets/Shaders/Particle/Particle.PS.hlsl";
 	particle.params = {
 		Cake::ShaderParamDesc{
 			.name = "color",

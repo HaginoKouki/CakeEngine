@@ -50,7 +50,7 @@ void ImGuiManager::Initialize(
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	// 英語用フォント（Inter）を追加.
-	io.Fonts->AddFontFromFileTTF(kEnFont, kLoadFontSize, nullptr, io.Fonts->GetGlyphRangesDefault());
+	mainFont_ = io.Fonts->AddFontFromFileTTF(kEnFont, kLoadFontSize, nullptr, io.Fonts->GetGlyphRangesDefault());
 
 	// 日本語用フォント（NotoSansJP）をマージ.
 	ImFontConfig jpConfig;
@@ -64,6 +64,10 @@ void ImGuiManager::Initialize(
 	iconConfig.MergeMode = true;                 // 直前のフォントに合成する.
 	iconConfig.PixelSnapH = true;                // 横位置をピクセルに吸着させる.
 	iconConfig.GlyphMinAdvanceX = kBaseFontSize; // アイコンを等幅化（ツールバーの桁揃え用）.
+	io.Fonts->AddFontFromFileTTF(kIconFont, kLoadFontSize, &iconConfig, kIconRanges);
+
+	// ログ用のフォント（HackGenConsole）を読み込み.
+	consoleFont_ = io.Fonts->AddFontFromFileTTF(kLogFont, kLoadFontSize, nullptr, io.Fonts->GetGlyphRangesJapanese());
 	io.Fonts->AddFontFromFileTTF(kIconFont, kLoadFontSize, &iconConfig, kIconRanges);
 
 	// フォントを確定.

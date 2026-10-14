@@ -4,8 +4,6 @@
 #include <cassert>
 #include <format>
 
-#include "externals/imgui/imgui.h"
-
 #include "Engine/Editor/imgui/Icons.h"
 
 namespace Cake {
@@ -29,7 +27,7 @@ ImVec4 LevelToColor(const LogLevel& level) {
 
 LogWindow::LogWindow() {}
 LogWindow::~LogWindow() {}
-void LogWindow::DrawLogWindow(const char* title, bool* open) {
+void LogWindow::DrawLogWindow(const char* title, bool* open, ImFont* font) {
 	auto& logEntries = DebugLog::GetInstance().GetLogEntry();
 
 	// open が渡されていて閉じられているなら何もしない.
@@ -52,7 +50,7 @@ void LogWindow::DrawLogWindow(const char* title, bool* open) {
 	ImGui::SameLine();
 	filterChanged |= ImGui::Checkbox(std::format("{} Error", kErrorIcon).c_str(), &showError_);
 	ImGui::SameLine();
-	ImGui::Checkbox(ICON_FA_ANGLES_DOWN"Auto-scroll", &autoScroll_);
+	ImGui::Checkbox(ICON_FA_ANGLES_DOWN "Auto-scroll", &autoScroll_);
 	ImGui::SameLine();
 	// 件数表示（全体 / 表示中）.
 	ImGui::TextDisabled("(%zu / %zu)", filteredIndices_.size(), logEntries.size());
@@ -88,6 +86,9 @@ void LogWindow::DrawLogWindow(const char* title, bool* open) {
 
 	// --- ログ本体（スクロール領域）---
 	ImGui::BeginChild("LogScroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+	if (font) {
+		ImGui::PushFont(font);
+	}
 
 	// 表示行だけを処理するクリッパ（全ログ保持でも軽い）.
 	ImGuiListClipper clipper;
@@ -130,6 +131,9 @@ void LogWindow::DrawLogWindow(const char* title, bool* open) {
 		ImGui::SetScrollHereY(1.0f);
 	}
 
+	if (font) {
+		ImGui::PopFont();
+	}
 	ImGui::EndChild();
 	ImGui::End();
 }

@@ -26,7 +26,9 @@ void SceneRenderer::Initialize(Renderer* renderer) {
 
 void SceneRenderer::Render(Scene& scene, const CameraView& view, const RenderViewOptions& options) {
 	RenderContext ctx{&scene, &view, renderer_, &options};
-	
+
+	renderer_->SetCamera(view);
+
 	for (auto& pass : passes_) {
 		pass->Execute(ctx);
 	}

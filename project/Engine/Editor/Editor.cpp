@@ -149,7 +149,7 @@ void Editor::DrawEditorUI() {
 	DrawInspectorWindow(sceneManager_->GetScene(), selected_, ctx_);
 	DrawEnvironmentTab();
 
-	LogWindow::GetInstance().DrawLogWindow();
+	LogWindow::GetInstance().DrawLogWindow("DebugLog", nullptr, imguiManager_.GetConsoleFont());
 
 	DrawMaterialList(ctx_);
 

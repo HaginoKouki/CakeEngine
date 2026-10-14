@@ -48,8 +48,12 @@ private:
 	const char* kEnFont = "EngineResources/fonts/Inter/Inter_18pt-Regular.ttf";
 	const char* kJpFont = "EngineResources/fonts/NotoSansJP/NotoSansJP-Regular.ttf";
 	const char* kIconFont = "EngineResources/fonts/FontAwesome7Free-Solid-900.otf";
+	const char* kLogFont = "EngineResources/fonts/HackGen/HackGenConsole-Regular.ttf";
 
 	ImGuiStyle defaultStyle_;
+
+	ImFont* mainFont_ = nullptr;
+	ImFont* consoleFont_ = nullptr;
 
 public:
 	~ImGuiManager();
@@ -77,6 +81,8 @@ public:
 
 	float GetUIScale() const { return uiScale_; }
 	float GetSystemDpiScale() const { return systemDpiScale_; }
+	ImFont* GetMainFont() { return mainFont_; }
+	ImFont* GetConsoleFont() { return consoleFont_; }
 
 	// 配色を切り替える。現在のUIスケールは内部で再適用される.
 	void ApplyTheme(EditorTheme theme);

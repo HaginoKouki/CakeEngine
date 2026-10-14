@@ -12,7 +12,7 @@
           "type": "CameraComponent"
         }
       ],
-      "id": 8,
+      "id": 0,
       "name": "MainCamera",
       "transform": {
         "rotate": [
@@ -48,7 +48,7 @@
           "type": "LightComponent"
         }
       ],
-      "id": 7,
+      "id": 1,
       "name": "DirectionalLight",
       "transform": {
         "rotate": [
@@ -72,71 +72,6 @@
       "active": true,
       "components": [
         {
-          "moveSpeed": 1.0,
-          "type": "PlayerComponent"
-        }
-      ],
-      "id": 5,
-      "name": "Player",
-      "transform": {
-        "rotate": [
-          0.0,
-          1.5700000524520874,
-          0.0
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ],
-        "translate": [
-          -5.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "active": true,
-      "components": [
-        {
-          "material": {
-            "guid": "45abec8985638c4e45fb09a562226ea2",
-            "localId": 0
-          },
-          "model": {
-            "guid": "4ca5e50108469280c00f74f6aa1763b6",
-            "localId": 0
-          },
-          "type": "MeshRendererComponent",
-          "visible": true
-        }
-      ],
-      "id": 6,
-      "name": "PlayerModel",
-      "parent": 5,
-      "transform": {
-        "rotate": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scale": [
-          1.0000001192092896,
-          1.000000238418579,
-          1.0000001192092896
-        ],
-        "translate": [
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "active": true,
-      "components": [
-        {
           "material": {
             "guid": "48c8d98ee0eb31d77b7167bce08bc8a4",
             "localId": 0
@@ -148,7 +83,7 @@
           "type": "ParticleRendererComponent"
         },
         {
-          "burstCount": 5.0,
+          "burstCount": 5,
           "colorOverLifetime": {
             "alphaKeys": [
               {
@@ -193,7 +128,7 @@
           "type": "ParticleSystemComponent"
         }
       ],
-      "id": 4,
+      "id": 2,
       "name": "ParticleTest",
       "transform": {
         "rotate": [
@@ -215,37 +150,14 @@
     },
     {
       "active": true,
-      "components": [],
-      "id": 2,
-      "name": "Terrain",
-      "transform": {
-        "rotate": [
-          0.0,
-          -0.0,
-          0.0
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ],
-        "translate": [
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "active": true,
       "components": [
         {
           "material": {
-            "guid": "46aff090c373b5d8024abb88cd63aabf",
+            "guid": "48350a407941d2e3be596e6b987a5394",
             "localId": 0
           },
           "model": {
-            "guid": "4bf116a4590b2b16f92fc7420c7e20ba",
+            "guid": "b0117100000000000000000000000004",
             "localId": 0
           },
           "type": "MeshRendererComponent",
@@ -253,35 +165,11 @@
         }
       ],
       "id": 3,
-      "name": "Platform (1)",
-      "parent": 2,
+      "name": "GameObject",
       "transform": {
         "rotate": [
           0.0,
           -0.0,
-          0.0
-        ],
-        "scale": [
-          10.0,
-          10.0,
-          10.0
-        ],
-        "translate": [
-          0.0,
-          -5.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "active": true,
-      "components": [],
-      "id": 0,
-      "name": "Boss",
-      "transform": {
-        "rotate": [
-          -0.0,
-          -1.5700242519378662,
           0.0
         ],
         "scale": [
@@ -290,45 +178,8 @@
           1.0
         ],
         "translate": [
-          5.0,
-          2.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "active": true,
-      "components": [
-        {
-          "material": {
-            "guid": "45abec8985638c4e45fb09a562226ea2",
-            "localId": 0
-          },
-          "model": {
-            "guid": "487148d434120e2a271a390887bccb88",
-            "localId": 0
-          },
-          "type": "MeshRendererComponent",
-          "visible": true
-        }
-      ],
-      "id": 1,
-      "name": "BossModel",
-      "parent": 0,
-      "transform": {
-        "rotate": [
-          0.23000000417232513,
-          -0.0,
-          -4.361306888550631e-12
-        ],
-        "scale": [
+          0.0,
           3.0,
-          2.999999761581421,
-          2.9999988079071045
-        ],
-        "translate": [
-          0.0,
-          0.0,
           0.0
         ]
       }

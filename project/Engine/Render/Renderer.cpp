@@ -34,6 +34,12 @@ struct ParticleForGPU {
 	Matrix4x4 World;
 	Vector4 color;
 };
+// Standard.PS.hlsl の Camera と同じ並びにすること.
+struct CameraForGPU {
+	Vector3 worldPosition;
+	float padding = 0.0f; // cbufferは16バイト単位。明示しておく.
+};
+static_assert(sizeof(CameraForGPU) == 16, "CameraForGPU のレイアウトが HLSL と一致しません");
 
 void Renderer::Initialize(RendererInitDesc desc) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
@@ -374,6 +380,15 @@ void Renderer::SetPSO(const std::string& name) {
 void Renderer::SetLight(const DirectionalLight& light) {
 	lightManager_.SetDirectional(light);
 	commandList_->SetGraphicsRootConstantBufferView(2, lightManager_.GetDirectionalResource()->GetGPUVirtualAddress());
+}
+
+void Renderer::SetCamera(const CameraView& cameraView) {
+	CameraForGPU camera{cameraView.position};
+	// ビューごとに別アドレスへ書くので、Game/Sceneの2ビューで上書きし合わない.
+	commandList_->SetGraphicsRootConstantBufferView(
+		PipelineState::kCameraRootParam,
+		frameConstants_.Allocate(&camera, sizeof(camera))
+	);
 }
 
 } // namespace Cake

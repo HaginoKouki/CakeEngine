@@ -143,6 +143,7 @@ public:
 
 	void SetPSO(const std::string& name);
 	void SetLight(const DirectionalLight& light);
+	void SetCamera(const CameraView& cameraView);
 
 	MaterialHandle GetSkyboxMaterial() { return skyboxMaterialHandle_; }
 	uint32_t GetClientWidth() const { return clientWidth_; }

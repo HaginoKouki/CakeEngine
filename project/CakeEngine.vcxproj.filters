@@ -199,6 +199,9 @@
     <Filter Include="Engine\Scene\System\Render">
       <UniqueIdentifier>{c6e5ca3c-3954-4f76-9d60-eb8b2c277afb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="externals\imgradient">
+      <UniqueIdentifier>{d96ad2dd-0d0b-4b15-a093-047bce56f132}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -495,9 +498,6 @@
     <ClCompile Include="externals\imgui\ImCurveEdit.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\ImGradient.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="externals\imgui\ImSequencer.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
@@ -521,6 +521,12 @@
     </ClCompile>
     <ClCompile Include="Engine\Foundation\Math\Gradient.cpp">
       <Filter>Engine\Foundation\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="externals\imgradient\imgradient.cpp">
+      <Filter>externals\imgradient</Filter>
+    </ClCompile>
+    <ClCompile Include="externals\imgui\ImGradient.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -923,9 +929,6 @@
     <ClInclude Include="externals\imgui\ImCurveEdit.h">
       <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\ImGradient.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="externals\imgui\ImLightRig.h">
       <Filter>externals\imgui</Filter>
     </ClInclude>
@@ -976,6 +979,15 @@
     </ClInclude>
     <ClInclude Include="Engine\Scene\Component\Particle\ParticleForceFieldComponent.h">
       <Filter>Engine\Scene\Component\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="externals\imgradient\imgradient_internal.h">
+      <Filter>externals\imgradient</Filter>
+    </ClInclude>
+    <ClInclude Include="externals\imgradient\imgradient.h">
+      <Filter>externals\imgradient</Filter>
+    </ClInclude>
+    <ClInclude Include="externals\imgui\ImGradient.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

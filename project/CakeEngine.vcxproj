@@ -101,6 +101,11 @@
     <ClCompile Include="Engine\Scene\System\Particle\ParticleSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\Render\RenderSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp" />
+    <ClCompile Include="externals\imgradient\imgradient.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)imgradient_picker.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)imgradient_picker.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="externals\imgui\GraphEditor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -284,6 +289,8 @@
     <ClInclude Include="Engine\Scene\System\Particle\ParticleSystem.h" />
     <ClInclude Include="Engine\Scene\System\Render\RenderSystem.h" />
     <ClInclude Include="Engine\Scene\System\UpdateContext.h" />
+    <ClInclude Include="externals\imgradient\imgradient.h" />
+    <ClInclude Include="externals\imgradient\imgradient_internal.h" />
     <ClInclude Include="externals\imgui\GraphEditor.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\ImCurveEdit.h" />

@@ -1,4 +1,4 @@
-#include "Object3D.hlsli"
+#include "Object3d.hlsli"
 
 struct TransformationMatrix {
 	float32_t4x4 WVP;
@@ -16,7 +16,8 @@ VertexShaderOutput main(VertexShaderInput input) {
 	VertexShaderOutput output;
 	output.position = mul(input.position, gTransformationMatrix.WVP);
 	output.texcoord = input.texcoord;
-	output.normal = normalize(mul(input.normal, (float32_t3x3) gTransformationMatrix.World));
+	float32_t3x3 normalMatrix = transpose(inverse((float32_t3x3)gTransformationMatrix.World));
+	output.normal = normalize(mul(input.normal, normalMatrix));
 	output.worldPosition = mul(input.position, gTransformationMatrix.World).xyz;
 	
 	return output;

@@ -1,4 +1,4 @@
-#include "Object3D.hlsli"
+#include "Object3d.hlsli"
 
 struct MaterialForGPU {
 	float32_t4 color;
@@ -40,19 +40,30 @@ PixelShaderOutput main(VertexShaderOutput input) {
 	float32_t3 toEye = normalize(gCamera.worldPosition - input.worldPosition);
 
 	if (gMaterial.enableLighting != 0) {
-		// half lambert.
+		/* half lambert. */
 		float NdoL = dot(normalize(input.normal), -gDirectionalLight.direction);
 		float cos = pow(NdoL * 0.5f + 0.5f, 2.0f);
 
-		// Phong.
-		float32_t3 reflectLight = reflect(gDirectionalLight.direction, normalize(input.normal));
-		float RdotE = dot(reflectLight, toEye);
-		float specularPow = pow(saturate(RdotE), gMaterial.shininess); // 反射強度.
+		/* Phong */
+		// float32_t3 reflectLight = reflect(gDirectionalLight.direction, normalize(input.normal));
+		// float RdotE = dot(reflectLight, toEye);
+		// float specularPow = pow(saturate(RdotE), gMaterial.shininess); // 反射強度.
 
-		// 拡散反射.
+		/* Blinn-Phong */
+		float32_t3 halfVector = normalize(-gDirectionalLight.direction + toEye);
+		float NdotL = dot(normalize(input.normal), lightDirection);
+		float specularPow = 0.0f;
+		if (NdotL > 0.0f) {
+			float NDotH = dot(normalize(input.normal), halfVector);
+			specularPow = pow(saturate(NDotH), gMaterial.shininess);
+		}
+
+		/* 拡散反射. */
 		float32_t3 diffuse = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-		// 鏡面反射.
+
+		/* 鏡面反射 */
 		float32_t3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * gMaterial.reflectionColor.rgb;
+
 		output.color.rgb = diffuse + specular;
 		output.color.a = gMaterial.color.a * textureColor.a;
 	} else {

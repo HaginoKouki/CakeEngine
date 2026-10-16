@@ -62,7 +62,8 @@ Graphics::Initialize の初期化順:
 
 ### シェーダーと頂点データ
 
-- ルートシグネチャは1つを全シェーダーで共有する。0=PS b0（マテリアル）、1=VS b0（変換）、2=PS b1（ライト）、3〜6=PS テクスチャ t0〜t3（kMaxTextureSlots=4）、7=VS t0（インスタンシング用 StructuredBuffer）。
+- ルートシグネチャは1つを全シェーダーで共有する。0=PS b0（マテリアル）、1=VS b0（変換）、2=PS b1（ライト）、3〜6=PS テクスチャ t0〜t3（kMaxTextureSlots=4）、7=VS t0（インスタンシング用 StructuredBuffer）、8=PS b2（カメラ。`kCameraRootParam`。2026-10-14）。
+- b2 のレイアウトは `Renderer.cpp` の `CameraForGPU`（float3 worldPosition + float padding の16バイト）で固定する。シェーダー側で b2 を宣言するときはこの並びに合わせる（現状読んでいるのはゲーム側の Object3D のみ。エンジンの Standard は宣言していない）。
 - ShaderDefinition::ComputeLayout でcbufferのHLSLパッキングを計算する。リフレクションが取れる場合は実レイアウトで上書きする（ApplyReflection）。
 - requiresInstancing のシェーダーは Renderer::DrawModel では描かず、エラーマテリアルへ差し替える（Renderer 側の規則）。
 - 頂点レイアウトは None / Mesh（POSITION, TEXCOORD, NORMAL）/ Line（POSITION, COLOR）の3種。

@@ -28,7 +28,7 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 
 | 分類 | 関数 | 内容 |
 | --- | --- | --- |
-| フレーム | `BeginFrame` / `EndFrame` | コマンドリストの取得とバックバッファのバリア。`EndFrame` で `ExecuteAndWait` と Present を行う |
+| フレーム | `BeginFrame` / `EndFrame` | フレーム内バッファの `Reset`、コマンドリストの取得とバックバッファのバリア。`EndFrame` で `ExecuteAndWait` と Present を行う |
 | 描画先 | `BeginScene` / `EndScene` | オフスクリーンの `SceneRenderTarget` を描画先にし、終わったら ImGui が読める状態へ戻す。エディタの 2 ビューが使う |
 | 描画先 | `PrepareBackbufferToEditor` | ImGui だけを描くためにバックバッファを用意する（深度無し） |
 | 描画先 | `PrepareBackbufferToGame` | ゲームをバックバッファへ直接描く。黒でクリアし、設計アスペクト比を保つビューポートを置く（レターボックス） |
@@ -56,12 +56,16 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 
 ### 視点の作り方
 
-`CameraView` は world 行列、画角、near と far、出力先の解像度から `MakeCameraView` で作ります。アスペクト比は出力先の解像度から毎回計算するため、どこにも保存しません。
+`CameraView` は world 行列、画角、near と far、出力先の解像度から `MakeCameraView` で作ります。world からスケールを打ち消すために各軸を正規化し、`viewMatrix` は回転と平行移動の合成の逆行列です。アスペクト比は出力先の解像度から毎回計算するため、どこにも保存しません。
 
 | 視点 | 作る場所 | 描画先 |
 | --- | --- | --- |
 | ゲームカメラ | `CameraSystem::CollectMainCamera`（Scene 層）。有効な `CameraComponent` のうち `priority` が最小のものを採用する | リリースではバックバッファ、エディタでは Game ウィンドウの描画先 |
 | エディタカメラ | `EditorCamera::GetCameraView`（Editor 層） | Scene ウィンドウの描画先 |
+
+### Skybox
+
+`DrawSkybox` は頂点バッファ無しの 1 枚の大きな三角形で画面全体を覆い、PS で「平行移動を除いたビュー射影の逆行列」からピクセルごとのワールド方向を復元してパノラマ画像をサンプリングします。逆行列は `b0`（ルートパラメータ 0）に流します。
 
 ### ギズモ
 
@@ -76,6 +80,8 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | `kForceField`（水色） | パーティクルの Field の範囲と加速度方向 |
 | `kGrid`（灰） | 地面のグリッド |
 
+`DrawGizmos` は `FrameVertexBuffer` に頂点を書き、`Debug/Gizmo` の PSO と LINELIST で 1 回描きます。描いた後はトポロジを三角形へ戻します。
+
 ## 他の層との関係
 
 | 項目 | 内容 |
@@ -83,7 +89,7 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | 規則 | Asset 層以下にのみ依存する。Scene 層はこの層の上 |
 | 実装上の依存 | Graphics（`FrameConstantBuffer`、`FrameVertexBuffer`、`SwapChain`、`DepthBuffer`、`DescriptorHeap`、`PipelineState`、`ShaderDefinition`、`SceneRenderTarget`、`CommandManager`）、Asset（各 Handle と Manager、`Material`、`Mesh`、`Sprite`）、Foundation（Math、`DebugLog`） |
 | 規則との食い違い | 各パスと `SceneRenderer` が Scene 層の System を呼ぶ。`ParticlePass` は `Scene`、`GameObject`、`ParticleStorage`、Particle 系コンポーネントを直接 include する |
-| 相互参照 | Scene 層の System も Render 層のヘッダ（`CameraView`、`Light.h`、`GizmoDrawList`、`Renderer`）を使う。ヘッダ単位では前方宣言で循環を避けているが、`.cpp` 単位では相互に参照している。詳細は [Overview.md](Overview.md) を参照 |
+| 相互参照 | Scene 層の System も Render 層のヘッダ（`CameraView`、`Light.h`、`GizmoDrawList`、`Renderer`）を使う。ヘッダ単位では前方宣言で循環を避けているが、`.cpp` 単位では相互に参照している。詳細は [InternalDesign.md](../InternalDesign.md) を参照 |
 
 ## 守るべき規則
 
@@ -123,4 +129,5 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 
 - `ParticlePass` は不透明の後にエミッター順で描くだけで、粒やエミッター間のソートはありません。
 - `Renderer.cpp` の `CameraForGPU` のコメントは「Standard.PS.hlsl の Camera と同じ並びにすること」と書いていますが、`Standard.PS.hlsl` に `Camera` は無く、`b2` を読むのはゲーム側の `Object3d.PS.hlsl` だけです。
-- `DrawSprite` を呼んでいる箇所はエンジン内にありません。
+- `DrawSprite` と `SetPSO` を呼んでいる箇所はエンジン内にありません。
+- `Renderer` の `lastPSO_` と `lastMat_` は PSO キャッシュ用のメンバですが、`DrawGizmos` で `nullptr` に戻す以外に使われていません。

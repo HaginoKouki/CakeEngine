@@ -18,8 +18,8 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 | `Time/` | `Time` | エンジン内で唯一、経過時間を測る場所。scaled と unscaled の 2 系統、`timeScale`、一時停止、フレーム数 |
 | `Input/` | `InputManager` | キーボード、マウス、ゲームパッドを束ね、ゲーム用とエディタ用の問い合わせ口を分ける |
 | `Input/` | `KeyBoard` | Win32 メッセージによるキーボード入力。添字はスキャンコード |
-| `Input/` | `Mouse` | ボタン、ホイール、カーソル位置は WndProc から、相対移動量は Raw Input から取る |
-| `Input/` | `GamePad` | XInput。最大 4 台。デッドゾーン処理と振動の時間管理 |
+| `Input/` | `Mouse` | ボタン、ホイール、カーソル位置は WndProc から、相対移動量は Raw Input から取る。押下中はウィンドウ外でも離した通知が届くようキャプチャする |
+| `Input/` | `GamePad` | XInput。最大 4 台。円形デッドゾーン処理と振動の時間管理。未接続スロットは 1 秒おきにだけ再検索する |
 | `Input/` | `KeyCode`、`KeyState`、`MouseButton`、`PadButton` | 入力の列挙と、押下状態の共通表現 |
 | `Sound/` | `SoundManager` | XAudio2 と MediaFoundation による読み込みと再生（`SoundLoad`、`SoundPlay`、`SoundUnload`） |
 | `File/` | `OpenFileDialog`、`SaveFileDialog` | OS のファイル選択ダイアログ。エディタがファイルパスをユーザーに決めさせる唯一の手段 |
@@ -28,7 +28,7 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 
 ### 時間
 
-`Time::Tick` はフレームの先頭で 1 回だけ呼ばれ、以降その フレーム中の処理はすべて同じ経過時間を見ます。呼び出しは `Platform::BeginFrame` が担当し、`Application::RunFrame` から呼ばれます。
+`Time::Tick` はフレームの先頭で 1 回だけ呼ばれ、以降そのフレーム中の処理はすべて同じ経過時間を見ます。呼び出しは `Platform::BeginFrame` が担当し、`Application::RunFrame` から呼ばれます。
 
 経過時間には 2 系統があります。
 
@@ -43,6 +43,8 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 
 入力は 2 段階で扱います。WndProc が非同期に書き込む「生の状態」と、`Update` で取り込むフレーム内で変わらない「スナップショット」です。ゲームループは常にスナップショットだけを見るため、フレームの途中で押下状態が変わることはありません。
 
+`KeyCode` の値は PC のスキャンコード（Set 1）で、拡張キーは最上位ビットを立てた形です。仮想キーコードと違い物理的なキー位置を表すため、JIS と US で配列が変わっても WASD の位置関係が崩れません。
+
 `KeyState` は bit0 が今フレーム、bit1 が前フレームの押下状態を表し、`None`、`Pressed`（押した瞬間）、`Release`（離した瞬間）、`Held`（押し続けている）の 4 値になります。
 
 問い合わせ口は 2 つあります。
@@ -52,7 +54,7 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 | `GetGameKeyState` | ゲームロジック | `SetGameInputEnabled(false)` の間は常に `None` を返す。エディタで Game ウィンドウが非フォーカスのときに使う |
 | `GetRawKeyState` | エディタ専用 | 常に実際の状態を返す。`EditorCamera` が使う |
 
-フォーカスを失ったときは各デバイスの `Clear` を呼び、押しっぱなしの張り付きを防ぎます。
+フォーカスを失ったとき（`WM_KILLFOCUS`）は各デバイスの `Clear` を呼び、押しっぱなしの張り付きを防ぎます。
 
 ### ファイルダイアログ
 
@@ -64,7 +66,7 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 | --- | --- |
 | 規則 | 下は Foundation 層のみ。上位層（Graphics、Asset、Render、Scene、Editor）を知らない |
 | 実装上の依存 | Foundation（`DebugLog`、`Vector`、`Convert`）と Platform 内部のみ。規則どおり |
-| 外部 | Windows API、XInput、XAudio2、MediaFoundation |
+| 外部 | Windows API、XInput、XAudio2、MediaFoundation、comdlg32 |
 | 使われ方 | `Application` が所有し、`SceneManager` が `UpdateContext` 経由でコンポーネントへ `InputManager`、`Time`、`SoundManager` を渡す |
 
 ## 守るべき規則
@@ -88,4 +90,5 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 
 ## 未実装・要確認
 
-- `SoundManager` は `SoundData` を生ポインタで返し、解放は呼び出し側が `SoundUnload` で行います。エンジン内で `SoundManager` を使っている箇所は、`UpdateContext` へ参照を載せている部分のみです。
+- `SoundManager` は `SoundData` を生ポインタで返し、解放は呼び出し側が `SoundUnload` で行います。エンジン内で `SoundManager` を使っている箇所は、`UpdateContext` へ参照を載せている部分のみです。`SoundPlay` が作る `IXAudio2SourceVoice` は破棄されません。
+- `SoundManager` はコンストラクタで MediaFoundation と XAudio2 を初期化します。ほかの部品のように `Initialize` を持たないため、`Platform` のメンバとして構築された時点で動き始めます。

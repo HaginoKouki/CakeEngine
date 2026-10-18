@@ -14,32 +14,33 @@ Foundation 層は、ほかのすべての層が使う値型と小さな道具を
 
 | フォルダ | 主な型 | 役割 |
 | --- | --- | --- |
-| `Math/` | `Vector2/3/4`、`Matrix2x2/3x3/4x4`、`Quaternion`、`Transform` | ベクトル、行列、姿勢の計算 |
-| `Math/` | `Geometry.h`（`Line`、`Ray`、`Segment`、`Sphere`、`AABB`、`OBB`、`Plane` など） | 当たり判定や可視化に使う基本図形 |
-| `Math/` | `IsCollision` | 図形同士の衝突判定 |
-| `Math/` | `Easing.h` | イージング関数群、`Lerp`、`Bezier`、`CatmullRom` |
+| `Math/` | `Vector2/3/4`、`Matrix2x2/3x3/4x4`、`Quaternion`、`Transform` | ベクトル、行列、姿勢の計算。行列は行ベクトル規約で、`Vector3::Transform` は `v * M` の順に掛ける |
+| `Math/` | `Geometry.h`（`Line`、`Ray`、`Segment`、`Triangle`、`Quad`、`Plane`、`Sphere`、`Capsule`、`AABB`、`OBB`） | 当たり判定や可視化に使う基本図形 |
+| `Math/` | `IsCollision` | 図形同士の衝突判定（球、平面、三角形、AABB、OBB の組み合わせ） |
+| `Math/` | `Easing.h` | イージング関数群と `Lerp` |
 | `Math/` | `Gradient` | 0 から 1 の位置に対して色と透明度を返す。パーティクルの Color over Lifetime 用 |
+| `Math/` | `Math::DecomposeAffine` | アフィン行列を scale / rotate / translate へ分解する。親の張り替えとギズモ操作で使う |
 | `Identity/` | `Guid` | 128 ビットの識別子。アセットのファイルごとに 1 つ |
 | `Identity/` | `LocalId` | ファイル内のサブオブジェクトを指す 64 ビット値。名前と種別タグから導出する |
 | `Identity/` | `AssetId` | `Guid` と `LocalId` の組。24 バイトの値型 |
-| `Debug/` | `DebugLog` | シングルトンのログ。日時別のファイル出力、画面表示用の一覧、HRESULT の解析 |
+| `Debug/` | `DebugLog`、`AssertHRESULT` | シングルトンのログ。日時別のファイル出力、画面表示用の一覧、HRESULT の解析 |
 | `Serialize/` | `JsonFile` | JSON ファイルの読み書きの定型を 1 本化したもの |
 | `Serialize/` | `BinaryWriter`、`BinaryReader` | インポート結果を生のバイナリで読み書きする最小のストリーム |
-| `Reflection/` | `TypeInfo`、`PropertyDesc`、`PropertyType` | 構造体のメンバ構成を実行時に読めるデータにしたもの |
+| `Reflection/` | `TypeInfo`、`PropertyDesc`、`PropertyType`、`NumericWidget` | 構造体のメンバ構成を実行時に読めるデータにしたもの |
 | `Reflection/` | `ReflectMacros.h`（`CAKE_REFLECT`、`CAKE_PROPERTY` 系） | 構造体定義の隣に書いて `TypeInfo` を作るマクロ |
-| `Utility/` | `Convert` | `std::string` と `std::wstring` の相互変換 |
+| `Utility/` | `Convert` | `std::string` と `std::wstring` の相互変換（UTF-8） |
 
 ## 主要な仕組み
 
 ### 識別子
 
-アセットの参照は `Guid` と `LocalId` の組で表します。`Guid` はインポート時に 1 回だけ乱数で生成し、`.meta` ファイルに保存します。パスや内容から計算しないため、ファイルを移動したり名前を変えたりしても参照が切れません。全ビットが 0 の値は無効を表します。
+アセットの参照は `Guid` と `LocalId` の組で表します。`Guid` はインポート時に 1 回だけ `CoCreateGuid` で生成し、`.meta` ファイルに保存します。パスや内容から計算しないため、ファイルを移動したり名前を変えたりしても参照が切れません。全ビットが 0 の値は無効を表します。文字列化は区切りなし 32 桁の小文字 16 進で、UUID 標準のバイト順とは一致しません（`TryParse` と対で使います）。
 
 `LocalId` は 1 つのファイルの中にある複数のオブジェクト（OBJ に埋め込まれたマテリアルなど）を区別します。値はファイルに書かれている名前と 4 文字の種別タグから FNV-1a で導出します。連番にしないのは、再インポートで順序が変わったときに参照が別のものを指すのを避けるためです。0 は本体を指す予約値です。
 
 ### リフレクション
 
-`TypeInfo` は型名と、メンバごとの `PropertyDesc`（シリアライズ用の `name`、表示用の `label`、`PropertyType`、バイトオフセット、UI の範囲）を持ちます。インスペクタの描画、JSON への保存、JSON からの復元は、この一覧を回すだけの汎用コードで書かれています。コンポーネントを 1 つ足すときに触る場所が、その型の定義だけで済むのはこの仕組みのためです。
+`TypeInfo` は型名と、メンバごとの `PropertyDesc`（シリアライズ用の `name`、表示用の `label`、`PropertyType`、バイトオフセット、UI のウィジェット種別と範囲、ドラッグ速度）を持ちます。インスペクタの描画、JSON への保存、JSON からの復元は、この一覧を回すだけの汎用コードで書かれています。コンポーネントを 1 つ足すときに触る場所が、その型の定義だけで済むのはこの仕組みのためです。
 
 メンバへは「インスタンスの先頭アドレス + offset」で到達します。これが成立するのは、対象が仮想関数を持たない素の構造体だからです。
 
@@ -53,11 +54,25 @@ Foundation 層は、ほかのすべての層が使う値型と小さな道具を
 
 C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。対応表に無い型を `CAKE_PROPERTY` に渡すと、`static_assert` でコンパイルエラーになります。
 
+`CAKE_PROPERTY` 系のマクロは次のとおりです。
+
+| マクロ | 用途 |
+| --- | --- |
+| `CAKE_PROPERTY(member, "Label")` | 型を自動判別して登録する。通常はこれを使う |
+| `CAKE_PROPERTY_MIN(member, "Label", min)` | 下限だけを縛る Drag |
+| `CAKE_PROPERTY_MAX(member, "Label", max)` | 上限だけを縛る Drag |
+| `CAKE_PROPERTY_CLAMP(member, "Label", min, max)` | 両側を縛る Drag |
+| `CAKE_PROPERTY_RANGE(member, "Label", min, max)` | Slider。範囲が狭く端から端まで動かしたい値に使う |
+| `CAKE_PROPERTY_DRAG(member, "Label", min, max, speed)` | ドラッグ速度まで指定する。桁が大きい値に使う |
+| `CAKE_PROPERTY_COLOR(member, "Label")` | `Vector4` をカラーピッカーとして扱う |
+
 ### ログ
 
 `DebugLog` はファイルとデバッグ出力には `Log` の中ですぐ書き、画面表示用の一覧には保留キューに積むだけにします。メインスレッドが毎フレーム `PumpMainThread` を呼んで、保留キューの中身を表示用一覧へ移します。表示用一覧をメインスレッドだけが触る形にしているのは、`LogWindow` が一覧を参照で受け取って描画している間に、別スレッドの追加で配列が再確保されるのを防ぐためです。
 
-最初に `GetInstance` を呼んだスレッドをメインスレッドとみなします。`Application::Initialize` の先頭でログを出すので、ワーカースレッドを起動する前に必ず決まります。ログファイルは実行ディレクトリの `logs/<日付>/` に出力されます。
+最初に `GetInstance` を呼んだスレッドをメインスレッドとみなします。`Application::Initialize` の先頭でログを出すので、ワーカースレッドを起動する前に必ず決まります。ログファイルは実行ディレクトリの `logs/<日付>/<時刻>.log` に出力され、1 行ごとに flush します。
+
+`AssertHRESULT(hr, message)` は失敗した HRESULT をログへ出し（名前と説明の対応表を内蔵）、`assert(false)` で止めます。
 
 ### Gradient
 
@@ -70,7 +85,7 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 | 項目 | 内容 |
 | --- | --- |
 | 規則 | ほかの層にも OS にも依存しない |
-| 実装上の外部依存 | nlohmann/json（`JsonFile.h`） |
+| 実装上の外部依存 | nlohmann/json（`JsonFile.h`）、Win32（`DebugLog.h`、`Guid.cpp`、`Convert.cpp`） |
 | 規則との食い違い | `Reflection/TypeInfo.h` が Asset 層の `AssetRef.h`、`MaterialHandle.h`、`ModelHandle.h`、`TextureHandle.h` と、Scene 層の `GameObjectId.h` を include している。`PropertyType` の `AssetRef～` と `EntityRef` に対応する `PropertyTypeOf` の特殊化のため |
 | 規則との食い違い | `Debug/DebugLog.h` と `Utility/Convert.cpp` が `Windows.h` に依存している |
 | コメントの不一致 | `Identity/AssetId.h` のコメントに「AssetPipeline 層」という記述があるが、該当する層は存在しない |
@@ -89,7 +104,7 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 - 対象は仮想関数を持たない素の構造体にする。基底クラスを付けない。
 - `name` はシリアライズのキーなので、変更すると既存のファイルを読めなくなる。`label` は表示名なので変更してよい。
 - `CAKE_REFLECT` ブロックは構造体定義と同じヘッダに置く。
-- `PropertyType` を追加したら、`PropertyDrawer`（Editor 層）と `SceneSerializer`（Scene 層）の switch にも追加する。
+- `PropertyType` を追加したら、`PropertyTypeOf` の特殊化、`PropertyDrawer`（Editor 層）、`SceneSerializer`（Scene 層）の 3 箇所を揃える。
 
 ### Gradient
 
@@ -113,3 +128,4 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 
 - `BinaryStream` を使う Import 系の型（Asset 層）は定義のみで、まだ接続されていません。
 - `DebugLog.h` のコメントは「JobSystem の終了処理で保証する」と書いていますが、JobSystem は存在しません。
+- `Easing.h` の `Lerp` は `Gradient` が使っていますが、`Ease` 系の関数を使っている箇所はエンジン内にありません。

@@ -4,7 +4,7 @@
 
 ## この層が担当すること
 
-Application 層は「どの層を、どの順に、何を渡して初期化するか」と「1 フレームに何をどの順で呼ぶか」を決めます。起動の順序と 1 フレームの流れは [Overview.md](Overview.md) に表としてまとめています。このページでは、各クラスの役割とゲームコードとの接点を説明します。
+Application 層は「どの層を、どの順に、何を渡して初期化するか」と「1 フレームに何をどの順で呼ぶか」を決めます。起動の順序と 1 フレームの流れは [InternalDesign.md](../InternalDesign.md) に表としてまとめています。このページでは、各クラスの役割とゲームコードとの接点を説明します。
 
 ## 配置
 
@@ -29,11 +29,13 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 | 項目 | 既定値 | 意味 |
 | --- | --- | --- |
 | `referenceWidth`、`referenceHeight` | 1920、1080 | ゲーム画面の設計解像度。アスペクト比の基準 |
-| `windowWidth`、`windowHeight` | 1280、720 | 起動時のウィンドウサイズ |
+| `windowWidth`、`windowHeight` | 1280、720 | 起動時のウィンドウサイズ。読み込み時に 16 から 16384 の範囲に収め、範囲外は既定値へ倒す |
 | `fullscreen` | false | ボーダレス全画面で起動するか。エディタ構成では無視される |
-| `windowTitle` | "CakeEngine" | ウィンドウタイトル |
+| `windowTitle` | "CakeEngine" | ウィンドウタイトル。JSON と ImGui に合わせて UTF-8 で持ち、ウィンドウ生成時だけワイド文字へ直す |
 | `startupScene` | "Assets/GameScene.scene" | 起動時に読み込むシーン |
 | `version` | 1 | ファイル形式の版数 |
+
+読み込みは一旦ローカルへ読み、全部読み終えてから自分へ反映します。途中で型エラーが出た場合に「半分だけ適用された設定」で動かないようにするためです。
 
 ### Application が持つメンバの順序
 
@@ -47,6 +49,10 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 | 4 | `Platform`、`Graphics`、`Asset`、`Renderer` | 下の層から順に |
 | 5 | `SceneRenderer`、`SceneManager` | |
 | 6 | （エディタ）`Editor` | ImGui のシャットダウンと描画先の解放を、デバイス破棄より先に走らせるため `Graphics` より後 |
+
+### WindowApp のウィンドウ矩形
+
+`WindowApp` はウィンドウ矩形（枠を含む。クライアント矩形ではない）を `lastPlacement_` に控えます。`WM_DESTROY` でも控えるため、HWND が消えた後の終了処理でも `EditorCache` へ書き出せます。復元時は `ClampToMonitor` で最も近いモニタの作業領域へ収め、保存時と違うモニタ構成で起動しても画面外へ出ないようにします。フルスクリーン中の矩形は控えません。
 
 ## ゲームコードとの接点
 
@@ -66,7 +72,7 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 | `GameLayer.h` | コライダーの `layer` と `mask` に入れるビット値の一覧（`GameLayer` 名前空間） |
 | `Assets/Shaders/` | ゲーム固有の HLSL（`Object3D`、`Particle`） |
 
-追加の手順は [guides/AddingComponents.md](../guides/AddingComponents.md) と [guides/AddingShaders.md](../guides/AddingShaders.md) にあります。
+追加の手順は [SceneLayer.md](SceneLayer.md) の「コンポーネントを追加する」と [GraphicsLayer.md](GraphicsLayer.md) の「シェーダーを追加する」にあります。
 
 ## 他の層との関係
 
@@ -74,7 +80,7 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 | --- | --- |
 | 規則 | 最上位。すべての下位層に依存してよい |
 | 実装上の依存 | Foundation、Platform、Graphics、Asset、Render、Scene、Editor（`ENABLE_EDITOR` 時のみ）、`Game/GameModule.h` |
-| 外部 | ImGui（DPI 対応の 1 関数。`USE_IMGUI` 時のみ） |
+| 外部 | ImGui（DPI 対応の 1 関数と WndProc ハンドラ。`USE_IMGUI` 時のみ）、DbgHelp（ミニダンプ） |
 | 逆方向の参照 | Graphics 層の `SwapChain.h` と Editor 層の各ヘッダが `BuildConfig.h` を include している。Editor 層は `ProjectSettings.h` も使う。これらは Application フォルダにあるが、実質は下位層と共有する設定とビルド定義になっている |
 
 ## 守るべき規則
@@ -96,3 +102,4 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 - リポジトリの `ProjectSettings.json` は `fullscreen` が `true`、`windowTitle` が "CakeEngine_Game" です。Release 構成で起動するとボーダレス全画面になります。
 - `.github/workflows/Development.yml` は、対応する Development 構成が削除された後もファイルとして残っています。
+- `WindowApp::Finalize` は定義されていますが、`Application` から呼ばれていません。ウィンドウは `WM_DESTROY` と `PostQuitMessage` の経路で閉じます。

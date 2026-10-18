@@ -1,78 +1,127 @@
-# Editor層
-*ゲーム制作するための層*
+# Editor 層
 
+ImGui によるエディタ UI を提供する層です。`ENABLE_EDITOR` が定義されたビルド（Debug 構成）でのみ存在し、ゲーム固有のクラスを知りません。
 
+## この層が担当すること
 
-ImGuiによるエディタUIを提供する層です。ENABLE_EDITOR が定義されたビルド（Debug）でのみ存在し、ゲーム固有のクラスを知りません。
+Editor 層は、`SceneManager` が持つ現在のシーンを更新・描画し、その上に ImGui の UI を重ねます。シーンの中身を直接変更する処理（コンポーネントの追加や削除、保存）は、Scene 層と Asset 層の API を呼ぶ形で行います。
 
+## 配置
 
-
-## 場所
 `project/Engine/Editor/`
 
-
-
-## ビルド構成
-- 構成は Debug と Release の2つ（Development は 2026-10-13 `a0dae3e` で vcxproj / slnx から削除）。Debug: `_DEBUG` + `_WINDOWS` + `ENABLE_EDITOR` + `USE_IMGUI`。Release: `NDEBUG` + `_WINDOWS` のみで、Editor は含まれない。
-- BuildConfig.h（Application層）が定義の関係を検査する。ENABLE_EDITOR には USE_IMGUI が必須で、崩れるとコンパイルエラー。
-- ImGui API を叩くだけの箇所は `#ifdef USE_IMGUI`、エディタ機能そのものは `#ifdef ENABLE_EDITOR`。
-- Release 構成では externals/imgui と externals/imgradient の .cpp を `ExcludedFromBuild` で除外している（2026-10-05、2026-10-14）。
-- 2026-10-11 のレビューで挙げた「Development 構成（`USE_IMGUI` のみ）がコンパイルできない」問題は、Development 構成自体の削除で解消した。`USE_IMGUI` 単独の構成は現在存在しない（Inspector 系が `#ifdef USE_IMGUI`、`EditorDrawContext` が `#ifdef ENABLE_EDITOR` という guard の揺れ自体は残っている）。
-
 ## 構成
-Editor（Editor.h/.cpp）が統括します。ウィンドウをまたぐ判断だけを持ち、UIは各クラスへ委譲します。
 
+`Editor`（`Editor.h` / `.cpp`）が統括します。ウィンドウをまたぐ判断だけを持ち、UI は各クラスへ委譲します。
 
+| フォルダ | 主な型 | 役割 |
+| --- | --- | --- |
+| 直下 | `Editor` | 選択中オブジェクト、再生状態、入力先（Game / DebugCamera / None）、フレーム境界（ImGui の Begin / End、DockSpace）、描画先の作り直し |
+| 直下 | `EditorDrawContext` | 描画関数が共通で使う参照の束（device、`ShaderLibrary`、各 Manager、`AssetDatabase`、`allowAssetEditing`） |
+| `ImGui/` | `ImGuiManager` | DirectX 12 版の初期化、フレーム管理、テーマ、UI スケール、DPI 追従、フォント |
+| `ImGui/` | `ImGuiCustomWidget`、`Icons.h` | Drag、Slider、Vector、Transform、Color、AssetRef 選択などの共通ウィジェット |
+| `Viewport/` | `SceneWindow` | エディタカメラ視点のウィンドウ。描画先、`EditorCamera`、`GizmoSettings`、ImGuizmo による Transform 操作 |
+| `Viewport/` | `GameWindow` | ゲームカメラ視点のプレビュー。`ProjectSettings` のアスペクト比でレターボックスする |
+| `Camera/` | `EditorCamera` | 右ドラッグ中の WASD と QE で移動し、マウス移動で視点を回す。シーンには属さない |
+| `PlayMode/` | `PlayModeController`、`PlayModeState` | Edit / Play / Paused の状態、JSON スナップショットによる巻き戻し、コマ送り |
+| `ToolBar/` | `ToolBar` | Play、Pause、Resume、Step、Stop のボタン |
+| `MenuBar/` | `MenuBar` | File と Edit メニュー、確認ダイアログ、Ctrl+S、設定ウィンドウの起動 |
+| `Inspector/` | `SceneInspector`（`DrawHierarchyWindow`、`DrawInspectorWindow`） | Hierarchy と Inspector。コンポーネントの型を知らず、`TypeRegistry` から引く |
+| `Inspector/` | `PropertyDrawer` | `PropertyType` ごとの ImGui ウィジェット。型ごとの switch はここだけ |
+| `Inspector/` | `MaterialEditor`、`ModelEditor`、`InspectorMaterialSection` | マテリアルとモデルの編集 UI |
+| `Settings/` | `EditorPreferences` | 個人設定（テーマ、言語、UI スケール）。`UserSettings/EditorPreferences.json` |
+| `Settings/` | `EditorCache` | 前回終了時の状態（ウィンドウ矩形、開いていたシーン、エディタカメラ）。`UserSettings/EditorCache.json` |
+| `Settings/` | `SettingsWindow` | Project Settings と Preferences のウィンドウ |
+| `Log/` | `LogWindow` | `DebugLog` の一覧をレベルで絞って表示する。ログ本体だけ等幅フォントで描く |
+| `Input/` | `InputVisualizerWindow` | キーボード、パッド、マウスの入力を絵で可視化するデバッグウィンドウ |
 
-- Editor … 選択中オブジェクト、再生状態、入力先（Game / DebugCamera / None）、フレーム境界（ImGuiのBegin/End、DockSpace）、RTの作り直し。
-- ImGui/ … ImGuiManager（D3D12版の初期化、フレーム管理、テーマ、UIスケール、DPI追従、フォント）、ImGuiCustomWidget（Drag / Slider / Vector / Transform / Color / AssetRefCombo など）、Icons。フォントは 36px でロードして `FontGlobalScale` で 14px 相当に縮める。既定フォント `mainFont_` = Inter + NotoSansJP（日本語範囲）+ FontAwesome をマージしたもの。ログ用 `consoleFont_` = HackGenConsole（日本語範囲）+ FontAwesome をマージしたもの（2026-10-14）。`GetMainFont` / `GetConsoleFont` で取り出し、使う側が `PushFont` / `PopFont` する。
-- Viewport/ … SceneWindow（エディタカメラ視点。RT、EditorCamera、GizmoSettings、ImGuizmo。Gizmo オプションのポップアップで Grid / Colliders / Cameras / Lights / Force Fields の表示を切り替える）、GameWindow（ゲームカメラ視点。ProjectSettings のアスペクト比でレターボックス）。
-- Camera/ … EditorCamera（右ドラッグ中のWASD+QEで移動。シーンには属さない）。
-- PlayMode/ … PlayModeController（Edit / Play / Paused、JSONスナップショット、コマ送り）。
-- ToolBar/ MenuBar/ … 再生操作、File / Edit メニュー、確認ダイアログ、Ctrl+S、設定ウィンドウの起動。
-- Inspector/ … SceneInspector（Hierarchy と Inspector。型を知らず、TypeRegistry から引く）、PropertyDrawer（PropertyType ごとの描画switchはここだけ。Gradient は帯のプレビュー（上半分が色、下半分が透明度）と Color Keys / Alpha Keys のツリーで、キーの追加・削除・time・値を編集する。プレビューは `Sorted()` のコピーで描き、編集は保存順の配列に対して行う）、MaterialEditor、ModelEditor、InspectorMaterialSection。
-- Settings/ … EditorPreferences（個人設定。UserSettings/EditorPreferences.json）、EditorCache（前回終了時の状態。UserSettings/EditorCache.json）、SettingsWindow（ProjectSettings と Preferences のウィンドウ）。
-- Log/ … LogWindow（`DrawLogWindow(title, open, font)`。`font` が渡されるとスクロール領域のログ本体だけそのフォントで描き、ツールバーは既定フォントのまま。Editor は `consoleFont_` を渡す）。Input/ … InputVisualizerWindow。
-- EditorDrawContext … 描画関数が共通で使う参照の束（device、shaderLibrary、各マネージャ、assetDatabase、allowAssetEditing）。
+## 主要な仕組み
 
-## 依存関係
-規則（Overview.mdの階層）:
-- 自分以下の層にのみ依存する。Application層はこの層の上。
+### エディタの 1 フレーム
 
-現状の実装:
-- Platform、Graphics、Asset、Render、Scene、Foundation の各層と、ImGui / ImGuizmo / IconFontCppHeaders（externals）。
-- externals/imgradient（グラデーション編集ウィジェット。2026-10-14 に追加し vcxproj に登録済みだが、Engine / Game からはまだ使っていない。ImGuizmo 同梱の externals/imgui/ImGradient.* とは別物）。
-- ゲーム固有のクラス（Game/）は知らない。
+`Application::RunFrame` から呼ばれる順です。
 
-規則との食い違い（現状の実装）:
-- Application層への依存: ほぼすべてのヘッダが Application/BuildConfig.h をincludeしている（ビルド構成フラグ）。加えて Editor.h、MenuBar.cpp、SettingsWindow.cpp、GameWindow.cpp、SceneWindow.cpp が Application/ProjectSettings.h を使う。BuildConfig と ProjectSettings は Application フォルダにあるが、実質は共有設定の置き場になっている。
+| 順 | 関数 | 内容 |
+| --- | --- | --- |
+| 1 | `PrepareRenderTargets` | 2 枚の描画先の遅延リサイズ要求を取り出し、どちらかがあれば `WaitForGPU` を 1 回だけ行って作り直す。深度バッファは 2 ビューの最大サイズに合わせる |
+| 2 | `BeginFrame` | ImGui と ImGuizmo の NewFrame、DockSpace、DPI の追従、プロファイラの開始 |
+| 3 | `Update` | `PlayModeController::Tick` で `Time` の一時停止を更新 → 前フレームのフォーカスで決めた入力先を反映 → `SceneManager::Update` → エディタカメラの更新 → UI 一式の構築（`DrawEditorUI`） |
+| 4 | `Draw` | Game ウィンドウの描画先へゲームカメラ視点、Scene ウィンドウの描画先へエディタカメラ視点でシーンを描く |
+| 5 | `EndFrame` | バックバッファを ImGui 用に用意し、ImGui を描く。プロファイラの終了 |
 
-## 規則
+UI の構築（`Update`）が描画（`Draw`）より前にあるのは、ImGui のウィンドウサイズを今フレームのうちに描画先のリサイズ要求へ変えるためです。要求は次フレームの `PrepareRenderTargets` で適用されます。
+
+### 入力先の切り替え
+
+入力先は前フレームのフォーカスで確定します（1 フレーム遅延）。Game ウィンドウにフォーカスがあるときだけ `InputManager::SetGameInputEnabled(true)` でゲームへ入力を通し、Scene ウィンドウにフォーカスがあるときだけエディタカメラを動かします。
+
+### Play / Stop
+
+`PlayModeController` は Play を押した時点のシーンを JSON 文字列で控え、Stop でそこへ戻します。Play 中の変更（インスペクタの編集もゲームロジックによる移動も）はすべて巻き戻ります。Paused 中に Step を押すと、そのフレームだけ `Time` の一時停止を解除して 1 フレーム進めます。
+
+Stop、New、Open でシーンが作り直されるため、既存の `GameObjectId` はすべて無効になり、`Editor` は選択を解除します。Play 中はファイル操作を止めます。
+
+### 設定とキャッシュ
+
+| ファイル | 中身 | 保存のタイミング | Git |
+| --- | --- | --- | --- |
+| `ProjectSettings/ProjectSettings.json` | ゲーム 1 本ぶんの設定（Application 層） | Save ボタンを押したときだけ | コミットする |
+| `UserSettings/EditorPreferences.json` | テーマ、言語、UI スケール | 変更した瞬間 | コミットしない |
+| `UserSettings/EditorCache.json` | ウィンドウ矩形、開いていたシーン、エディタカメラ | 終了時に 1 回 | コミットしない |
+
+`EditorPreferences` と `EditorCache` はウィンドウ生成より前に読む必要があるため、`Editor` ではなく `Application` が所有します。
+
+### 操作
+
+| 操作 | 場所 | 動き |
+| --- | --- | --- |
+| 右ドラッグ + WASD、QE | Scene ウィンドウ | エディタカメラの移動と回転 |
+| W、E、R | Scene ウィンドウ | ImGuizmo の操作を移動、回転、スケールに切り替える |
+| Gizmos ボタン | Scene ウィンドウ左下 | Grid、Colliders、Cameras、Lights、Force Fields の表示を切り替える |
+| Ctrl+S | どこでも（Edit 中のみ） | シーンと未保存のマテリアルをまとめて保存する。保存先が未確定なら先にダイアログで決める |
+| Add Component | Inspector | `TypeRegistry::AddComponent` 経由で追加する。依存先も一緒に付く |
+| コンポーネントの削除 | Inspector | `FindDependent` で依存されていないことを確かめてから削除する |
+
+## 他の層との関係
+
+| 項目 | 内容 |
+| --- | --- |
+| 規則 | Scene 層以下にのみ依存する。Application 層はこの層の上 |
+| 実装上の依存 | Platform、Graphics、Asset、Render、Scene、Foundation の各層と、ImGui、ImGuizmo、IconFontCppHeaders |
+| 規則との食い違い | ほぼすべてのヘッダが Application 層の `BuildConfig.h` を include している。`Editor.h`、`MenuBar.cpp`、`SettingsWindow.cpp`、`GameWindow.cpp`、`SceneWindow.cpp` が `ProjectSettings.h` を使う。`BuildConfig` と `ProjectSettings` は Application フォルダにあるが、実質は下位層と共有する設定の置き場になっている |
+| 外部ライブラリ | `externals/imgradient`（グラデーション編集ウィジェット）は vcxproj に登録されているが、Engine と Game からは使われていない。ImGuizmo 同梱の `externals/imgui/ImGradient.*` とは別物 |
+| ゲームコード | `Game/` は知らない |
+
+## 守るべき規則
 
 ### 所有と状態
 
-- Editor は Application が所有する。破棄は宣言と逆順なので、graphics_ より後に宣言する（ImGui のシャットダウンと RT の解放をデバイス破棄より先に走らせるため）。
-- EditorPreferences と EditorCache は、ウィンドウ生成より前に読む必要があるため Application が持つ。
-- 各ウィンドウが持つのはそのウィンドウ固有の状態だけ。選択中オブジェクトと再生状態のようなウィンドウ横断の状態は Editor が持ち、引数（参照）で渡す。
+- `Editor` は `Application` が所有し、`graphics_` より後に宣言する（ImGui のシャットダウンと描画先の解放をデバイス破棄より先に走らせるため）。
+- 各ウィンドウが持つのはそのウィンドウ固有の状態だけ。選択中オブジェクトと再生状態のようなウィンドウ横断の状態は `Editor` が持ち、引数で渡す。
 
 ### 描画と入力
 
-- RT の作り直しは Editor が順番を握る。2枚のRTの遅延リサイズ要求を取り出してから、WaitForGPU を1回だけ行い、深度バッファは2ビューの最大サイズに合わせる。
-- 入力先は前フレームのフォーカスで確定する（1フレーム遅延）。Game 選択中だけゲームへ入力を通し、DebugCamera 選択中だけデバッグカメラを動かす。
+- 描画先の作り直しは `Editor` が順番を握る。2 枚の遅延リサイズ要求を取り出してから `WaitForGPU` を 1 回だけ行う。
+- 入力先は前フレームのフォーカスで確定する。
+- Scene ウィンドウのギズモは、ビューポート画像の直後に `ImGuizmo::SetDrawlist` を呼ぶ（呼ばないと別ウィンドウの上に描かれる）。
 
 ### シーンと保存
 
-- Play 中の状態は Stop で巻き戻る。Stop / New / Open でシーンが作り直されるため、既存の GameObjectId が全て無効になり、選択を解除する。Play 中はファイル操作を止める。
-- 保存の方針: ProjectSettings は Save ボタンでのみ書く（共有データ）。EditorPreferences は変更した瞬間に書く。EditorCache は終了時に1回だけ書く。UserSettings/ は gitignore 対象。
+- Play 中の状態は Stop で巻き戻る。Stop、New、Open の後は選択を解除する。Play 中はファイル操作を止める。
+- `ProjectSettings` は Save ボタンでのみ書く。`EditorPreferences` は変更した瞬間に書く。`EditorCache` は終了時に 1 回だけ書く。
 - ウィンドウ矩形は枠を含むウィンドウ矩形で保存する（クライアント矩形ではない）。
-- マテリアル編集は MarkDirty を立てるだけで、書き戻しは Ctrl+S（MaterialManager::SaveDirtyMaterials）が行う。保存先は Material の assetPath_ で、パスをUI側で組み立てない。Embedded は読み取り専用。
+- マテリアル編集は `MarkDirty` を立てるだけで、書き戻しは Ctrl+S（`MaterialManager::SaveDirtyMaterials`）が行う。保存先は `Material` の `assetPath_` で、UI 側でパスを組み立てない。
 
 ### Inspector
 
-- Inspector はコンポーネントの型を知らない。コンポーネントを追加しても SceneInspector / PropertyDrawer は触らない。PropertyType を増やしたときだけ PropertyDrawer とシリアライザの switch に追加する。
-- SceneWindow のギズモは、ビューポート画像の直後に ImGuizmo::SetDrawlist を呼ぶ（呼ばないと別ウィンドウの上に描かれる）。
+- Inspector はコンポーネントの型を知らない。コンポーネントを追加しても `SceneInspector` と `PropertyDrawer` は触らない。`PropertyType` を増やしたときだけ `PropertyDrawer` と `SceneSerializer` の switch に追加する。
+- ImGui API を叩くだけの箇所は `#ifdef USE_IMGUI`、エディタ機能そのものは `#ifdef ENABLE_EDITOR` で囲む。
 
-## 未使用・要確認
-- InputVisualizerWindow と DrawModelList は、Editor.cpp の DrawEditorUI から呼ばれていない（ウィンドウは定義のみ）。
-- EditorDrawContext のコメントは「allowAssetEditing を毎フレーム Editor が更新する」と書いているが、Editor 側でこのフラグを書き換えている箇所は見当たらない（常に true のまま）。意図した実装が未完成か、要確認。
-- Editor.cpp の DrawEditorUI で ImGui::ShowDemoWindow() を毎フレーム呼んでいる（開発用の残りの可能性）。
+## 未実装・要確認
+
+- `InputVisualizerWindow` と `DrawModelList` は定義されていますが、`Editor::DrawEditorUI` から呼ばれていません。
+- `EditorDrawContext::allowAssetEditing` のコメントは「毎フレーム Editor が更新する」と書いていますが、`Editor` 側で書き換えている箇所はなく、常に `true` のままです。
+- `Editor::DrawEditorUI` で `ImGui::ShowDemoWindow()` を毎フレーム呼んでいます。
+- `ImGuiManager::GetMainFont` は保持していますが、呼び出し元がありません。
+- Inspector 系のヘッダは `#ifdef USE_IMGUI`、`EditorDrawContext.h` は `#ifdef ENABLE_EDITOR` で囲まれており、ガードの基準が揺れています。現状 `USE_IMGUI` 単独の構成は無いため、ビルドには影響していません。
+- `EditorPreferences::language` は値を保存するだけで、UI 文字列の差し替えは実装されていません。

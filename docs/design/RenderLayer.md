@@ -13,12 +13,12 @@
 
 
 ## 構成
-- Renderer … GPU描画命令の発行と描画状態の管理。BeginFrame / EndFrame（EndFrameで ExecuteAndWait と Present）、BeginScene / EndScene（オフスクリーンRT）、PrepareBackbufferToEditor / PrepareBackbufferToGame（16:9レターボックス）、DrawModel、DrawModelInstanced（Particle用）、DrawSprite、DrawSkybox、DrawGizmos。PSOとマテリアルの直前値をキャッシュして切替を減らす。起動時に `__Skybox` マテリアル（Skybox/Panoramic）を作り、`EngineResources/textures/Skybox.png` を貼る（実ファイル名は小文字の skybox.png）。
+- Renderer … GPU描画命令の発行と描画状態の管理。BeginFrame / EndFrame（EndFrameで ExecuteAndWait と Present）、BeginScene / EndScene（オフスクリーンRT）、PrepareBackbufferToEditor / PrepareBackbufferToGame（16:9レターボックス）、DrawModel、DrawModelInstanced（Particle用）、DrawSprite、DrawSkybox、DrawGizmos、SetLight（b1）、SetCamera（b2。`CameraView::position` を `CameraForGPU` に詰めてフレーム定数バッファへ書き、ルートパラメータ 8 にバインドする。ビューごとに別アドレスへ書くのでゲームビューとシーンビューで上書きし合わない。2026-10-14）。PSOとマテリアルの直前値をキャッシュして切替を減らす。起動時に `__Skybox` マテリアル（Skybox/Panoramic）を作り、`EngineResources/textures/Skybox.png` を貼る（実ファイル名は小文字の skybox.png）。
 - LightManager / Light.h … DirectionalLight の定数バッファを持つ。値を書くだけで、バインドは Renderer が行う。
 - CameraView … 1回の描画で使う視点（view / projection / rotation / position）。MakeCameraView で world 行列と射影パラメータと出力解像度から作る。ゲームカメラもエディタカメラも同じ経路。
-- SceneRenderer … パス列を保持して順に Execute する。Initialize で LightSetup → Skybox → Opaque → Particle → Gizmo の順に組み立てる。
+- SceneRenderer … パス列を保持して順に Execute する。Initialize で LightSetup → Skybox → Opaque → Particle → Gizmo の順に組み立てる。Render は先頭で `Renderer::SetCamera(view)` を呼んでからパス列を実行する（パスは SetCamera を呼ばない）。
 - Pass/ … RenderPass（基底。RenderContext = scene / view / renderer / options を受け取る）、LightSetupPass、SkyboxPass、OpaquePass、ParticlePass（粒をカメラ正面向きの板＝ビルボードとしてインスタンシング描画）、GizmoPass。
-- Gizmo/GizmoDrawList … ギズモを線分へ分解して1本の LINELIST 頂点列に貯める入れ物。形は Add～ で足し、色は GizmoColor に集約。
+- Gizmo/GizmoDrawList … ギズモを線分へ分解して1本の LINELIST 頂点列に貯める入れ物。形は Add～（Line / Ray / Grid / WireBox / WireSphere / Frustum / Axes）で足し、色は GizmoColor（kCollider 緑 / kCamera 白 / kLight 黄 / kSelected 青 / kForceField 水色 / kGrid 灰）に集約。
 
 ## 依存関係
 規則（Overview.mdの階層）:
@@ -42,6 +42,7 @@
 - `SceneRenderer` は視点や描画先を選ばない。呼び出し側が視点を選び、`Renderer::BeginScene` などで描画先を決める。
 - 各パスは現在バインドされている描画先へ描き、自分では描画先を保持しない。
 - `RenderContext` に DirectX 12 の型（例: `ID3D12GraphicsCommandList`）を持ち込まない。低レベル描画も必ず `Renderer` 経由で行う。
+- ビュー単位の定数（ライト b1、カメラ位置 b2）はパス列の前に `Renderer` のバインド関数でセットする。`SceneRenderer::Render` が `SetCamera` を、`LightSetupPass` が `SetLight` を担当する。
 
 ### パスの追加と実行順
 

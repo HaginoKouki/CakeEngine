@@ -3,7 +3,7 @@
 
 
 
-ImGuiによるエディタUIを提供する層です。ENABLE_EDITOR が定義されたビルド（Debug / Development）でのみ存在し、ゲーム固有のクラスを知りません。
+ImGuiによるエディタUIを提供する層です。ENABLE_EDITOR が定義されたビルド（Debug）でのみ存在し、ゲーム固有のクラスを知りません。
 
 
 
@@ -13,13 +13,11 @@ ImGuiによるエディタUIを提供する層です。ENABLE_EDITOR が定義�
 
 
 ## ビルド構成
-- Debug と Development: `ENABLE_EDITOR` + `USE_IMGUI`（Debugは加えて `_DEBUG`）。Release: `_WINDOWS` と NDEBUG のみで、Editor は含まれない。
+- 構成は Debug と Release の2つ（Development は 2026-10-13 `a0dae3e` で vcxproj / slnx から削除）。Debug: `_DEBUG` + `_WINDOWS` + `ENABLE_EDITOR` + `USE_IMGUI`。Release: `NDEBUG` + `_WINDOWS` のみで、Editor は含まれない。
 - BuildConfig.h（Application層）が定義の関係を検査する。ENABLE_EDITOR には USE_IMGUI が必須で、崩れるとコンパイルエラー。
 - ImGui API を叩くだけの箇所は `#ifdef USE_IMGUI`、エディタ機能そのものは `#ifdef ENABLE_EDITOR`。
-- Release 構成では externals/imgui の .cpp を `ExcludedFromBuild` で除外している（2026-10-05）。
-
-規則との食い違い（現状の実装、要確認）:
-- `CakeEngine.vcxproj` の Development 構成は 2026-10-05（ab0631f）以降 `_WINDOWS;USE_IMGUI` のみで、`ENABLE_EDITOR` が外れている。Editor/Inspector 系は `#ifdef USE_IMGUI` でコンパイルされるが `EditorDrawContext` は `#ifdef ENABLE_EDITOR` の中で定義されるため、この組み合わせはコンパイルできず、CI の DevelopmentBuild が失敗し続けている。意図した構成かは要確認（docs/review/2026-10-11.md）。上の「Debug と Development: ENABLE_EDITOR + USE_IMGUI」は従来の方針のまま残している。
+- Release 構成では externals/imgui と externals/imgradient の .cpp を `ExcludedFromBuild` で除外している（2026-10-05、2026-10-14）。
+- 2026-10-11 のレビューで挙げた「Development 構成（`USE_IMGUI` のみ）がコンパイルできない」問題は、Development 構成自体の削除で解消した。`USE_IMGUI` 単独の構成は現在存在しない（Inspector 系が `#ifdef USE_IMGUI`、`EditorDrawContext` が `#ifdef ENABLE_EDITOR` という guard の揺れ自体は残っている）。
 
 ## 構成
 Editor（Editor.h/.cpp）が統括します。ウィンドウをまたぐ判断だけを持ち、UIは各クラスへ委譲します。
@@ -27,14 +25,14 @@ Editor（Editor.h/.cpp）が統括します。ウィンドウをまたぐ判断�
 
 
 - Editor … 選択中オブジェクト、再生状態、入力先（Game / DebugCamera / None）、フレーム境界（ImGuiのBegin/End、DockSpace）、RTの作り直し。
-- ImGui/ … ImGuiManager（D3D12版の初期化、フレーム管理、テーマ、UIスケール、DPI追従）、ImGuiCustomWidget（Drag / Slider / Vector / Transform / Color / AssetRefCombo など）、Icons。
-- Viewport/ … SceneWindow（エディタカメラ視点。RT、EditorCamera、GizmoSettings、ImGuizmo）、GameWindow（ゲームカメラ視点。ProjectSettings のアスペクト比でレターボックス）。
+- ImGui/ … ImGuiManager（D3D12版の初期化、フレーム管理、テーマ、UIスケール、DPI追従、フォント）、ImGuiCustomWidget（Drag / Slider / Vector / Transform / Color / AssetRefCombo など）、Icons。フォントは 36px でロードして `FontGlobalScale` で 14px 相当に縮める。既定フォント `mainFont_` = Inter + NotoSansJP（日本語範囲）+ FontAwesome をマージしたもの。ログ用 `consoleFont_` = HackGenConsole（日本語範囲）+ FontAwesome をマージしたもの（2026-10-14）。`GetMainFont` / `GetConsoleFont` で取り出し、使う側が `PushFont` / `PopFont` する。
+- Viewport/ … SceneWindow（エディタカメラ視点。RT、EditorCamera、GizmoSettings、ImGuizmo。Gizmo オプションのポップアップで Grid / Colliders / Cameras / Lights / Force Fields の表示を切り替える）、GameWindow（ゲームカメラ視点。ProjectSettings のアスペクト比でレターボックス）。
 - Camera/ … EditorCamera（右ドラッグ中のWASD+QEで移動。シーンには属さない）。
 - PlayMode/ … PlayModeController（Edit / Play / Paused、JSONスナップショット、コマ送り）。
 - ToolBar/ MenuBar/ … 再生操作、File / Edit メニュー、確認ダイアログ、Ctrl+S、設定ウィンドウの起動。
 - Inspector/ … SceneInspector（Hierarchy と Inspector。型を知らず、TypeRegistry から引く）、PropertyDrawer（PropertyType ごとの描画switchはここだけ。Gradient は帯のプレビュー（上半分が色、下半分が透明度）と Color Keys / Alpha Keys のツリーで、キーの追加・削除・time・値を編集する。プレビューは `Sorted()` のコピーで描き、編集は保存順の配列に対して行う）、MaterialEditor、ModelEditor、InspectorMaterialSection。
 - Settings/ … EditorPreferences（個人設定。UserSettings/EditorPreferences.json）、EditorCache（前回終了時の状態。UserSettings/EditorCache.json）、SettingsWindow（ProjectSettings と Preferences のウィンドウ）。
-- Log/ … LogWindow。Input/ … InputVisualizerWindow。
+- Log/ … LogWindow（`DrawLogWindow(title, open, font)`。`font` が渡されるとスクロール領域のログ本体だけそのフォントで描き、ツールバーは既定フォントのまま。Editor は `consoleFont_` を渡す）。Input/ … InputVisualizerWindow。
 - EditorDrawContext … 描画関数が共通で使う参照の束（device、shaderLibrary、各マネージャ、assetDatabase、allowAssetEditing）。
 
 ## 依存関係
@@ -43,6 +41,7 @@ Editor（Editor.h/.cpp）が統括します。ウィンドウをまたぐ判断�
 
 現状の実装:
 - Platform、Graphics、Asset、Render、Scene、Foundation の各層と、ImGui / ImGuizmo / IconFontCppHeaders（externals）。
+- externals/imgradient（グラデーション編集ウィジェット。2026-10-14 に追加し vcxproj に登録済みだが、Engine / Game からはまだ使っていない。ImGuizmo 同梱の externals/imgui/ImGradient.* とは別物）。
 - ゲーム固有のクラス（Game/）は知らない。
 
 規則との食い違い（現状の実装）:

@@ -16,11 +16,11 @@
 - Application … 全層の所有者。COM初期化、D3Dリソースリークチェック、クラッシュダンプ（`./Dumps/`）、初期化、メインループ（Run / RunFrame）、リサイズ検知。
 - WindowApp … Win32ウィンドウの生成、メッセージ処理、WndProc から InputManager への入力転送、ボーダレス全画面、ウィンドウ矩形の控え（WM_DESTROY 後も終了時に使える）。
 - ProjectSettings … ゲーム1本ぶんの設定（設計解像度、起動ウィンドウサイズ、全画面、タイトル、起動シーン）。`ProjectSettings/ProjectSettings.json` に保存し、Git へコミットする前提。
-- BuildConfig.h … ビルド構成フラグ（USE_IMGUI / ENABLE_EDITOR）の定義と整合チェック（ENABLE_EDITOR ⇒ USE_IMGUI のみ検査。ヘッダのコメントは Debug / Release の2構成だけを記載し、Development は書かれていない）。
+- BuildConfig.h … ビルド構成フラグ（USE_IMGUI / ENABLE_EDITOR）の定義と整合チェック（ENABLE_EDITOR ⇒ USE_IMGUI のみ検査。コメントに書かれた Debug / Release の2構成は、2026-10-13 の Development 削除後の vcxproj と一致している）。
 - main.cpp … WinMain。`Application app; app.Initialize(hInstance); app.Run();` のみ。
 
 Game/（ユーザーのゲームコード。Engine の外）:
-- GameModule … `Game::RegisterGameComponents`（RotatorComponent、PlayerComponent を登録）と `Game::RegisterGameShaders`（Object3D、Particle を登録。Particle は requiresInstancing、BlendMode Normal、depthWrite=false）。
+- GameModule … `Game::RegisterGameComponents`（RotatorComponent、PlayerComponent を登録）と `Game::RegisterGameShaders`。Object3D（`Assets/Shaders/Object3D/`。params は color / enableLighting / shininess / reflectionColor。PS は b2 のカメラ位置（`Renderer::SetCamera`）を読んで Blinn-Phong の鏡面反射を計算する。2026-10-15）、Particle（`Assets/Shaders/Particle/` に移動。requiresInstancing、BlendMode Normal、depthWrite=false）。
 - Components/ … ゲーム固有のコンポーネント（グローバル名前空間。CAKE_REFLECT は Cake 名前空間で特殊化）。
 - GameLayer.h … コライダーの layer / mask に入れるビット値の一覧（`GameLayer` 名前空間）。
 
@@ -42,8 +42,9 @@ Game/（ユーザーのゲームコード。Engine の外）:
 - リリースビルド: 中間で PrepareBackbufferToGame（ProjectSettings のアスペクト比でレターボックス）→ SceneManager::Update → メインカメラの視点を作って SceneRenderer::Render。カメラが無ければ描かない。
 
 ## ビルド構成と CI
-- 構成は Debug / Development / Release の3つ（`project/CakeEngine.vcxproj`、x64 のみ）。各構成の定義は EditorLayer.md「ビルド構成」を参照。
-- `.github/workflows/` に main への push で走るワークフローが4本ある。DebugBuild / Development / ReleaseBuild は windows-2025-vs2026 上で `msbuild project/CakeEngine.slnx` を各構成でビルドし、CheckUnwantedFiles は ubuntu 上で生成物（*.pdb、x64/、.vs/ など）の混入を検索する。README のバッジは前3本。
+- 構成は Debug / Release の2つ（`project/CakeEngine.vcxproj`、x64 のみ。Development は 2026-10-13 `a0dae3e` で削除）。各構成の定義は EditorLayer.md「ビルド構成」を参照。
+- `.github/workflows/` に main への push で走るワークフローが4本ある。DebugBuild / ReleaseBuild は windows-2025-vs2026 上で `msbuild project/CakeEngine.slnx` を各構成でビルドし、CheckUnwantedFiles は ubuntu 上で生成物（*.pdb、x64/、.vs/ など）の混入を検索する（2026-10-13 にスクリプトを修正し、10-14 に .pdb の混入を実際に検出した）。Development.yml はファイルが残っているが、対応する構成が無いため GitHub 上で手動無効化されている。README のバッジは Debug / Release の2本。
+- CI がビルドするのは C++ のみ。HLSL は実行時に DXC でコンパイルされるため、シェーダーの誤りは CI では検出されない。
 
 ## 依存関係
 規則（Overview.mdの階層）:

@@ -102,7 +102,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 
 1. Scene 層の `SceneManager::Update` がコンポーネントの `Update` を呼び、`Scene::UpdateTransforms` でワールド行列を確定し、パーティクルの粒を進め、衝突判定を行います。
 2. 描く側は視点（`CameraView`）を用意します。ゲームビューは `CameraSystem` がシーン内の `CameraComponent` から作り、エディタのシーンビューは `EditorCamera` が作ります。
-3. Render 層の `SceneRenderer::Render` が視点を `Renderer::SetCamera` で GPU へ渡し、パス列を順に実行します。パスは LightSetup → Skybox → Opaque → Particle → Gizmo の順です。
+3. Render 層の `SceneRenderer::Render` が視点を `Renderer::SetCamera` で GPU へ渡し、パス列を順に実行します。パスは LightSetup → Skybox → Opaque → Particle → Gizmo → Sprite の順です。
 4. 各パスは Scene 層の System（`DrawMeshRenderers` など）を呼び、System はコンポーネントのプールを走査して `Renderer::DrawModel` などを呼びます。
 5. `Renderer` は Asset 層のハンドルからメッシュとマテリアルを解決し、Graphics 層の PSO とルートシグネチャを使って DirectX 12 のコマンドを積みます。
 

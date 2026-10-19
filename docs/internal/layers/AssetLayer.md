@@ -28,7 +28,6 @@ Asset 層は「ファイルを読み込んで GPU リソースを作り、実行
 | `Database/` | `AssetDatabase`、`AssetEntry`、`AssetType`、`MaterialRefEntry` | `Assets/` 以下の走査、GUID とパスの相互索引、`{GUID, LocalId}` からのロード窓口 |
 | `Database/` | `AssetMeta` | `.meta`（JSON）の読み書き。GUID、インポータ種別、インポート設定を持つ |
 | `Database/` | `AssetRef<HandleT>`、`AssetTraits` | コンポーネントが持つアセット参照。保存されるのは `guid` と `localId` だけで、`handle` は実行時に `Resolve` で埋める |
-| `Sprite/` | `Sprite`、`SpriteTransform` | 画面配置の情報とマテリアルを持つ 2D 描画データ |
 | 直下 | `AssetTypes.h` | `ImporterType`（ファイル単位の分類。`.meta` に記録）、`ObjectType`（参照先の分類）、サブアセットのタグと ID 生成（`SubAssetTagOf`、`MakeSubAssetId`）、`SubAssetNameTable` |
 
 ### 型定義のみで未接続の部品
@@ -173,7 +172,6 @@ Asset 層は「ファイルを読み込んで GPU リソースを作り、実行
 
 - Importer は GPU に触れない（`ImportContext` に device を入れない）。処理を変えたら `GetVersion()` を必ず上げる。
 - `.mat` や `.scene` のようなエディタで編集するアセットは Importer を通さず、専用のシリアライザで読み書きする。
-- `SpriteTransform` は HLSL の cbuffer と 1 バイトも違ってはいけない（32 バイトを `static_assert` で固定）。
 
 ## 未実装・要確認
 

@@ -77,12 +77,12 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 | 名前 | 用途 | パラメータ | テクスチャ |
 | --- | --- | --- | --- |
 | `__error_shader__` | 読み込み失敗時のエラー表示（マゼンタ） | `color` | |
-| `Standard` | 既定のモデル描画。`lightingType` が 1 で Half Lambert、2 で Lambert、それ以外で無灯 | `color`、`tiling`、`offset`、`lightingType` | `albedo`（t0） |
+| `Standard` | 既定のモデル描画<br>`lightingType` が 1 で Half Lambert、2 で Lambert、それ以外で無灯 | `color`、`tiling`、`offset`、`lightingType` | `albedo`（t0） |
 | `Unlit/Color` | ライティング無しの単色 | `color` | |
 | `Unlit/WireFrame` | ワイヤーフレーム | `color` | |
-| `Skybox/Panoramic` | パノラマ画像の Skybox。頂点バッファ無し、深度書き込み無し | | `Spherical`（t0） |
-| `Sprite` | 2D スプライト | `color`、`uvRect` | `main`（t0） |
-| `Debug/Gizmo` | ギズモの線。LINE トポロジ、深度書き込み無し。エディタのマテリアル選択肢には出さない | | |
+| `Skybox/Panoramic` | パノラマ画像の Skybox。<br>頂点バッファ無し、深度書き込み無し | | `Spherical`（t0） |
+| `Sprite` | 2D スプライト<br>頂点バッファなし、アルファブレンド、深度テスト・書き込みなし、カリングなし<br>色と切り出し範囲は、マテリアルではなく VS の `b0`（`SpriteForGPU`）で受け取る<br>エディタのマテリアル選択肢には出さない |  | `main`（t0） |
+| `Debug/Gizmo` | ギズモの線<br>LINE トポロジ、深度書き込み無し<br>エディタのマテリアル選択肢には出さない | | |
 
 ゲーム固有のシェーダー（`Object3D`、`Particle`）は `Game::RegisterGameShaders` から同じ `Register` で登録します。
 
@@ -125,8 +125,8 @@ SRV ヒープと RTV ヒープの先頭は、エディタ固有の描画先の�
 
 | レジスタ | ステージ | 内容 |
 | --- | --- | --- |
-| `b0` | PS | マテリアルのパラメータ。`ShaderDefinition::params` の並びと一致させる |
-| `b0` | VS | 変換行列。`TransformationMatrix`（`WVP` と `World` の `float4x4` が 2 つ） |
+| `b0` | PS | マテリアルのパラメータ<br>`ShaderDefinition::params` の並びと一致させる |
+| `b0` | VS | 変換行列<br>`TransformationMatrix`（`WVP` と `World` の `float4x4` が 2 つ）<br>`Sprite` は `SpriteForGPU` |
 | `b1` | PS | 平行光源。`DirectionalLight`（`float4 color`、`float3 direction`、`float intensity`） |
 | `b2` | PS | カメラ。`float3 worldPosition` と `float` のパディング |
 | `t0` から `t3` | PS | テクスチャスロット。`TextureSlotDesc::registerIndex` と一致させる |
@@ -213,7 +213,7 @@ Debug 構成で起動し、MaterialList ウィンドウの Create ボタンか�
 - `requiresInstancing` のシェーダーは `Renderer::DrawModel` では描かず、エラーマテリアルへ差し替える。VS が未設定のルート SRV を読んでデバイス削除になるのを防ぐため。
 - 頂点レイアウトは `None`（頂点バッファ無し）、`Mesh`（POSITION、TEXCOORD、NORMAL）、`Line`（POSITION、COLOR）の 3 種。
 - ブレンド（`PipelineState::GetBlendDesc`）は、色の式はモードごとに異なり、透明度の列は全モード共通で「重ね塗り」（`ONE` と `INV_SRC_ALPHA`）にする。`kBlendModeNone` だけはブレンド自体を無効にする。
-- HLSL 側の構造体と C++ 側の構造体は 1 バイトも違ってはいけない。`GizmoVertex`（32 バイト）、`SpriteTransform`（32 バイト）、`CameraForGPU`（16 バイト）は `static_assert` で固定している。
+- HLSL 側の構造体と C++ 側の構造体は 1 バイトも違ってはいけない。`GizmoVertex`（32 バイト）、`SpriteForGPU`（128 バイト）、`CameraForGPU`（16 バイト）は `static_assert` で固定している。
 
 ## 未実装・要確認
 

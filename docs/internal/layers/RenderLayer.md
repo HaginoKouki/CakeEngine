@@ -14,12 +14,12 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 
 | ファイル | 主な型 | 役割 |
 | --- | --- | --- |
-| `Renderer.h` / `.cpp` | `Renderer`、`RendererInitDesc`、`InstanceData` | GPU 描画命令の発行と描画状態の管理。フレームとシーンの開始・終了、バックバッファの準備、`DrawModel` などの描画関数、ライトとカメラのバインド |
+| `Renderer.h` / `.cpp` | `Renderer`、`RendererInitDesc`、`InstanceData`、`SpriteDrawItem` | GPU 描画命令の発行と描画状態の管理。フレームとシーンの開始・終了、バックバッファの準備、`DrawModel` などの描画関数、ライトとカメラのバインド |
 | `SceneRenderer.h` / `.cpp` | `SceneRenderer` | パス列を保持して順に実行する。シーン内のメインカメラから視点を作る `TryMakeMainCameraView` も持つ |
 | `CameraView.h` / `.cpp` | `CameraView`、`MakeCameraView` | 1 回の描画で使う視点（view、projection、回転のみの行列、位置）。ゲームカメラもエディタカメラも同じ形になる |
 | `Light.h`、`LightManager.h` / `.cpp` | `DirectionalLight`、`LightManager` | 平行光源の値と定数バッファ。値を書くだけで、バインドは `Renderer` が行う |
 | `Pass/RenderPass.h` | `RenderPass`、`RenderContext`、`RenderViewOptions` | パスの基底。`RenderContext` は scene、view、renderer、options を束ねる |
-| `Pass/` | `LightSetupPass`、`SkyboxPass`、`OpaquePass`、`ParticlePass`、`GizmoPass` | 既定のパス 5 つ |
+| `Pass/` | `LightSetupPass`、`SkyboxPass`、`OpaquePass`、`ParticlePass`、`GizmoPass`、`SpritePass` | 既定のパス 6 つ |
 | `Gizmo/GizmoDrawList.h` / `.cpp` | `GizmoDrawList`、`GizmoVertex`、`GizmoColor`、`GizmoGrid` | ギズモを線分へ分解して 1 本の LINELIST 頂点列に貯める入れ物 |
 
 ## 主要な仕組み
@@ -34,9 +34,11 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | 描画先 | `PrepareBackbufferToGame` | ゲームをバックバッファへ直接描く。黒でクリアし、設計アスペクト比を保つビューポートを置く（レターボックス） |
 | 描画 | `DrawModel` | 共有モデルを world 行列と視点で描く。`materialOverride` が有効なら全サブメッシュをそれ 1 枚で描く |
 | 描画 | `DrawModelInstanced` | 同じモデルをインスタンシングで描く（パーティクル用）。マテリアルのシェーダーが `requiresInstancing` でなければ 1 個ずつ `DrawModel` で描く |
-| 描画 | `DrawSkybox`、`DrawSprite`、`DrawGizmos` | 専用の描き方 |
+| 描画 | `DrawSkybox`、`DrawGizmos` | 専用の描き方 |
+| 描画 | `DrawSprite` | `SpriteDrawItem` を基準解像度のピクセル座標（左上が原点、y は下向き）で描く。world と正射影を掛けた行列を `SpriteForGPU` に詰めて VS の `b0` に送り、テクスチャは `t0` に直接設定する。テクスチャが未設定なら既定テクスチャで描く |
 | バインド | `SetLight` | `b1` に平行光源をバインドする |
 | バインド | `SetCamera` | `CameraView::position` を `CameraForGPU` に詰めてフレーム定数バッファへ書き、`b2` にバインドする。ビューごとに別アドレスへ書くので、ゲームビューとシーンビューで上書きし合わない |
+| 設定 | `SetReferenceResolution` | スプライトの座標系に使う基準解像度を設定する。`Application` が毎フレーム `ProjectSettings` の値を渡す |
 
 `Renderer` は起動時に `__Skybox` という名前の `Runtime` マテリアル（`Skybox/Panoramic` シェーダー）を作り、`EngineResources/textures/Skybox.png` を貼ります。実ファイル名は小文字の `skybox.png` で、Windows では動きますが大文字小文字が一致していません。
 
@@ -51,6 +53,7 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | 3 | `OpaquePass` | 可視な `MeshRendererComponent` をすべて描く | `DrawMeshRenderers` |
 | 4 | `ParticlePass` | 粒をカメラ正面向きの板（ビルボード）としてインスタンシング描画する。半透明を想定し不透明の後に置く | `Scene::GetParticleStore` を直接読む |
 | 5 | `GizmoPass` | コライダーやカメラの視錐台など、通常は絵に出ない情報を線で重ねる。`options->gizmos` が `nullptr` なら何もしない | `CollectSceneGizmos` |
+| 6 | `SpritePass` | 画面に描くスプライトを、基準解像度のピクセル座標で重ねる。`options->drawScreenSprites` が false（Scene ビュー）なら何もしない | |
 
 `SceneRenderer::Render` は先頭で `Renderer::SetCamera(view)` を呼び、その後パス列を実行します。パスは `SetCamera` を呼びません。
 
@@ -87,7 +90,7 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | 項目 | 内容 |
 | --- | --- |
 | 規則 | Asset 層以下にのみ依存する。Scene 層はこの層の上 |
-| 実装上の依存 | Graphics（`FrameConstantBuffer`、`FrameVertexBuffer`、`SwapChain`、`DepthBuffer`、`DescriptorHeap`、`PipelineState`、`ShaderDefinition`、`SceneRenderTarget`、`CommandManager`）、Asset（各 Handle と Manager、`Material`、`Mesh`、`Sprite`）、Foundation（Math、`DebugLog`） |
+| 実装上の依存 | Graphics（`FrameConstantBuffer`、`FrameVertexBuffer`、`SwapChain`、`DepthBuffer`、`DescriptorHeap`、`PipelineState`、`ShaderDefinition`、`SceneRenderTarget`、`CommandManager`）、Asset（各 Handle と Manager、`Material`、`Mesh`）、Foundation（Math、`DebugLog`） |
 | 規則との食い違い | 各パスと `SceneRenderer` が Scene 層の System を呼ぶ。`ParticlePass` は `Scene`、`GameObject`、`ParticleStorage`、Particle 系コンポーネントを直接 include する |
 | 相互参照 | Scene 層の System も Render 層のヘッダ（`CameraView`、`Light.h`、`GizmoDrawList`、`Renderer`）を使う。ヘッダ単位では前方宣言で循環を避けているが、`.cpp` 単位では相互に参照している。詳細は [InternalDesign.md](../InternalDesign.md) を参照 |
 
@@ -108,7 +111,8 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 - `LightSetup` は先頭に置く。後続のパスが使うライトを準備する。
 - `Skybox` は `Opaque` より前に置く。
 - `Particle` は半透明描画を想定し、`Opaque` の後に置く。
-- `Gizmo` は実体の上に表示するため、最後に置く。
+- `Gizmo` は実体の上に表示するため、`Opaque` と `Particle` の後に置く。
+- `Sprite` は画面に重ねるため、最後に置く。
 
 ### シーンの状態と描画データ
 
@@ -129,5 +133,5 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 
 - `ParticlePass` は不透明の後にエミッター順で描くだけで、粒やエミッター間のソートはありません。
 - `Renderer.cpp` の `CameraForGPU` のコメントは「Standard.PS.hlsl の Camera と同じ並びにすること」と書いていますが、`Standard.PS.hlsl` に `Camera` は無く、`b2` を読むのはゲーム側の `Object3d.PS.hlsl` だけです。
-- `DrawSprite` と `SetPSO` を呼んでいる箇所はエンジン内にありません。
+- `SpritePass` は描くスプライトをまだ集めていないため、`DrawSprite` を呼んでいる箇所はエンジン内にありません。`SetPSO` も呼ばれていません。
 - `Renderer` の `lastPSO_` と `lastMat_` は PSO キャッシュ用のメンバですが、`DrawGizmos` で `nullptr` に戻す以外に使われていません。

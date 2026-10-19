@@ -1,9 +1,9 @@
 #pragma once
 /*====================================
  *
- * 画面座標で描くこと。
- * 画面に重ねるので、パス列の最後に置くこと。
- * drawScreenSpritesがfalseのときは何もしないこと。
+ * 画面に描くスプライトを、基準解像度のピクセル座標で描くパス。
+ * 画面に重ねるので、パス列の最後に置く。
+ * options->drawScreenSprites が false のとき（Scene ビュー）は何もしない。
  *
  * ====================================*/
 #include "Engine/Render/Pass/RenderPass.h"

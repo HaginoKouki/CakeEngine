@@ -59,7 +59,7 @@ void Editor::Update(Time& time) {
 	// 前フレームのフォーカスで確定した入力先を反映してから更新する（1フレーム遅延）.
 	ApplyInputContext();
 
-	sceneManager_->Update(time.GetDeltaTime(), time.GetUnscaledDeltaTime());
+	sceneManager_->Update(time.GetScaledDeltaTime(), time.GetUnscaledDeltaTime());
 	// デバッグカメラ更新.
 	sceneWindow_.Update(time.GetUnscaledDeltaTime());
 

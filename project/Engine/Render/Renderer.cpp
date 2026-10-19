@@ -286,7 +286,7 @@ void Renderer::DrawModel(
 	}
 
 	Matrix4x4 viewProj = cameraView.viewMatrix * cameraView.projectionMatrix;
-	TransformationMatrix wvp{world * viewProj, world};
+	TransformationMatrix wvp{world * viewProj, world, Matrix4x4::Transpose(Matrix4x4::Inverse(world))};
 	commandList_->SetGraphicsRootConstantBufferView(1, frameConstants_.Allocate(&wvp, sizeof(wvp)));
 
 	for (const Mesh& mesh : meshes) {

@@ -20,6 +20,7 @@ struct Transform {
 struct TransformationMatrix {
 	Matrix4x4 WVP = Matrix4x4::Identity;
 	Matrix4x4 World = Matrix4x4::Identity;
+	Matrix4x4 WorldInverseTranspose = Matrix4x4::Identity;
 };
 
 namespace Math {

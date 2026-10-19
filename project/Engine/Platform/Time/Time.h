@@ -23,47 +23,55 @@
  *
  * ====================================*/
 #include <cstdint>
+#include <optional>
 #include <chrono>
 
 namespace Cake {
 
-class Time {
+class Time final {
 private:
 	// 1フレームとして認める経過時間の上限（秒）。超えた分は捨てる.
 	static constexpr float kMaxDeltaTime = 0.1f;
+	std::chrono::steady_clock::time_point initialTime_{};
+	// 前回のフレーム開始時間.
+	std::optional<std::chrono::steady_clock::time_point> prevTime_;
 
-	std::chrono::steady_clock::time_point prevTime_{};
-	bool hasPrevTime_ = false; // 初回 Tick を経過時間 0 で通すため.
-
-	// 実経過時間（timeScaleが適用前の値）.
+	// 実経過時間（timeScale適用前の値）.
 	float unscaledDeltaTime_ = 0.0f;
-	// 経過時間（timeScaleが適用された値）.
-	float deltaTime_ = 0.0f;
+	// ゲーム内経過時間（timeScale適用後の値）.
+	float scaledDeltaTime_ = 0.0f;
 
 	// 起動からの累計時間.
 	double unscaledTotalTime_ = 0.0;
-	double totalTime_ = 0.0;
+	double scaledTotalTime_ = 0.0;
 
 	uint64_t frameCount_ = 0;
 
+	bool isPaused_ = false;
 	// 時間の流れ方。0で停止、1で等速。負の値は0に丸める.
 	float timeScale_ = 1.0f;
 
-	bool isPaused_ = false;
+	// 目標のフレームレート。0 以下なら待たない.
+	std::optional<float> targetFrameRate_ = 60.0f;
 
 public:
-	// フレームの先頭で1回だけ呼ぶ.
-	// これ以降に走る処理は、そのフレーム中すべて同じ deltaTime を見る.
-	void Tick();
-
+	void Initialize(std::chrono::steady_clock::time_point initialTime);
 	// 計測を打ち切り、次の Tick を初回として扱う.
 	// シーン読み込みなど、止まっていた時間を deltaTime に混ぜたくない場面で呼ぶ.
 	void Reset();
 
+	// フレームの先頭で1回だけ呼ぶ.
+	// これ以降に走る処理は、そのフレーム中すべて同じ deltaTime を見る.
+	void Tick();
+
+	// フレームの末尾（Present の後）で1回だけ呼ぶ.
+	// 前回からの経過が目標のフレーム時間より短ければ、その時間になるまで待つ.
+	void WaitForTargetFrame();
+
 	/* ===== ゲームロジック用（timeScale 適用済み）===== */
 
-	float GetDeltaTime() const { return deltaTime_; }
-	double GetTotalTime() const { return totalTime_; }
+	float GetScaledDeltaTime() const { return scaledDeltaTime_; }
+	double GetScaledTotalTime() const { return scaledTotalTime_; }
 
 	/* ===== エディタ・UI・入力用（実時間）===== */
 	/* Stop 中（timeScale = 0）でも進む. */
@@ -77,15 +85,13 @@ public:
 
 	/* ===== 時間の流れ方 ===== */
 
-	// 0 で停止、1 で等速。負の値は 0 に丸める.
 	float GetTimeScale() const { return timeScale_; }
-	void SetTimeScale(float scale);
+	// 次 Tick からの時間の流れを決める。0 で停止、1 で等速。負の値は 0 に丸める.
+	void RequestSetTimeScale(float scale) { timeScale_ = (scale > 0.0f) ? scale : 0.0f; }
 
 	bool IsPaused() const { return isPaused_; }
-	void SetPaused(bool paused);
-
-private:
-	void ApplyScale();
+	// 次 Tick からの時間を停止するかを決める.
+	void RequestSetPaused(bool paused) { isPaused_ = paused; }
 };
 
 } // namespace Cake

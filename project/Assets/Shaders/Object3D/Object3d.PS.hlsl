@@ -41,8 +41,8 @@ PixelShaderOutput main(VertexShaderOutput input) {
 
 	if (gMaterial.enableLighting != 0) {
 		/* half lambert. */
-		float NdoL = dot(normalize(input.normal), -gDirectionalLight.direction);
-		float cos = pow(NdoL * 0.5f + 0.5f, 2.0f);
+		float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
+		float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
 		/* Phong */
 		// float32_t3 reflectLight = reflect(gDirectionalLight.direction, normalize(input.normal));
@@ -51,7 +51,6 @@ PixelShaderOutput main(VertexShaderOutput input) {
 
 		/* Blinn-Phong */
 		float32_t3 halfVector = normalize(-gDirectionalLight.direction + toEye);
-		float NdotL = dot(normalize(input.normal), lightDirection);
 		float specularPow = 0.0f;
 		if (NdotL > 0.0f) {
 			float NDotH = dot(normalize(input.normal), halfVector);

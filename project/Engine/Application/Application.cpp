@@ -1,6 +1,7 @@
 #include "Application.h"
 
 #include <string>
+#include <chrono>
 #include <filesystem>
 
 #include <strsafe.h>
@@ -65,6 +66,7 @@ Application::D3DResourceLeakChecker::~D3DResourceLeakChecker() {
 }
 
 void Application::Initialize(HINSTANCE hInstance) {
+	const auto initialTime = std::chrono::steady_clock::now();
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
 #ifdef USE_IMGUI
@@ -128,7 +130,7 @@ void Application::Initialize(HINSTANCE hInstance) {
 	}
 
 	// Platform層の初期化.
-	platform_.Initialize(hInstance, hwnd);
+	platform_.Initialize(hInstance, hwnd, initialTime);
 	// InputManagerを登録.
 	windowApp_.SetInputManager(&platform_.GetInput());
 
@@ -219,7 +221,7 @@ void Application::Run() {
 	graphics_.GetCommandManager()->WaitForGPU();
 
 #ifdef ENABLE_EDITOR
-	// 次回起動用に状態を書き出す。Editor はこの後の破棄まで生きているので触ってよい.
+	// 次回起動用に状態を書き出す.
 	editor_.CaptureCache(cache_);
 
 	WindowPlacement placement{};
@@ -277,7 +279,7 @@ void Application::RunFrame() {
 	renderer_.PrepareBackbufferToGame(clientWidth_, clientHeight_, settings_.GetAspectRatio());
 
 	// シーンの更新.
-	sceneManager_.Update(time.GetDeltaTime(), time.GetUnscaledDeltaTime());
+	sceneManager_.Update(time.GetScaledDeltaTime(), time.GetUnscaledDeltaTime());
 
 	// シーンを描画.
 	CameraView view{};
@@ -295,6 +297,9 @@ void Application::RunFrame() {
 	/* Debugビルドのみ */
 	graphics_.GetPerformanceProfiler()->Resolve();
 #endif
+
+	// Platform層のフレーム終了.
+	platform_.EndFrame();
 }
 
 void Application::CheckResize() {

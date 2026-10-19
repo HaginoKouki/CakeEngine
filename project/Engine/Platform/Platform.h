@@ -22,11 +22,22 @@ private:
 	InputManager input_;
 	SoundManager sound_;
 
+	bool timerPeriodRaised_ = false; // timeBeginPeriod が成功したか.
+
 public:
-	void Initialize(HINSTANCE hInstance, HWND hwnd);
+	Platform() = default;
+	~Platform();
+
+	// デストラクタで timeEndPeriod を呼ぶため、コピーで二重に呼ばれないようにする.
+	Platform(const Platform&) = delete;
+	Platform& operator=(const Platform&) = delete;
+
+	void Initialize(HINSTANCE hInstance, HWND hwnd, std::chrono::steady_clock::time_point initialTime);
 
 	// フレーム先頭。時間を測り、入力を更新する.
 	void BeginFrame();
+	// フレーム終了処理。FPS固定用の待機時間など.
+	void EndFrame();
 
 	Time& GetTime() { return time_; }
 	InputManager& GetInput() { return input_; }

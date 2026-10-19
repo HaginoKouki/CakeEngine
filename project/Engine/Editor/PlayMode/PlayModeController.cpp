@@ -68,10 +68,10 @@ void PlayModeController::RequestStep() {
 void PlayModeController::Tick(Time& time) {
 	if (state_ == PlayModeState::Paused && stepRequested_) {
 		stepRequested_ = false;
-		time.SetPaused(false); // このフレームだけ時間を通す.
+		time.RequestSetPaused(false); // このフレームだけ時間を通す.
 		return;
 	}
-	time.SetPaused(state_ != PlayModeState::Play);
+	time.RequestSetPaused(state_ != PlayModeState::Play);
 }
 
 } // namespace Cake

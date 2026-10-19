@@ -84,6 +84,7 @@
     <ClCompile Include="Engine\Render\Pass\OpaquePass.cpp" />
     <ClCompile Include="Engine\Render\Pass\ParticlePass.cpp" />
     <ClCompile Include="Engine\Render\Pass\SkyboxPass.cpp" />
+    <ClCompile Include="Engine\Render\Pass\SpritePass.cpp" />
     <ClCompile Include="Engine\Render\Renderer.cpp" />
     <ClCompile Include="Engine\Render\SceneRenderer.cpp" />
     <ClCompile Include="Engine\Scene\Component\ComponentRegistration.cpp" />
@@ -257,6 +258,7 @@
     <ClInclude Include="Engine\Render\Pass\ParticlePass.h" />
     <ClInclude Include="Engine\Render\Pass\RenderPass.h" />
     <ClInclude Include="Engine\Render\Pass\SkyboxPass.h" />
+    <ClInclude Include="Engine\Render\Pass\SpritePass.h" />
     <ClInclude Include="Engine\Render\Renderer.h" />
     <ClInclude Include="Engine\Render\SceneRenderer.h" />
     <ClInclude Include="Engine\Scene\Component\CameraComponent.h" />

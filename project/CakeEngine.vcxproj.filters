@@ -522,6 +522,9 @@
     <ClCompile Include="externals\imgui\ImGradient.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Render\Pass\SpritePass.cpp">
+      <Filter>Engine\Render\Pass</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Application\Application.h">
@@ -979,6 +982,9 @@
     </ClInclude>
     <ClInclude Include="externals\imgui\ImGradient.h">
       <Filter>externals\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Render\Pass\SpritePass.h">
+      <Filter>Engine\Render\Pass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

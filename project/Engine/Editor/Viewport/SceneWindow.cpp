@@ -67,6 +67,7 @@ void SceneWindow::Render(GameObjectId selected) {
 	gizmoSettings_.selected = selected;
 	gizmoSettings_.gameAspect = settings_->GetAspectRatio();
 	RenderViewOptions debugOptions{};
+	debugOptions.drawScreenSprites = false;
 	debugOptions.gizmos = &gizmoSettings_;
 
 	renderer_->BeginScene(cmd, &rt_);

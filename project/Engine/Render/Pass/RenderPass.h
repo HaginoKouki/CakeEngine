@@ -32,6 +32,8 @@ struct GizmoSettings;
 
 // 視点ごとに変えたい描画設定。ゲームビューとエディタビューの差はここへ集める.
 struct RenderViewOptions {
+	// falseの時は画面に描くスプライトを描かない。Sceneビューではfalse.
+	bool drawScreenSprites = true;
 	// 非nullのときだけギズモを描く。ゲームビューでは常に nullptr.
 	const GizmoSettings* gizmos = nullptr;
 };

@@ -32,19 +32,20 @@ class MaterialManager;
 class ModelManager;
 
 struct RendererInitDesc {
-	// --- Graphics層から ---
+	/* --- Graphics層から --- */
 	ID3D12Device* device = nullptr;
 	SwapChain* swapChain = nullptr;
 	DepthBuffer* depthBuffer = nullptr;
 	DescriptorHeap* srvHeap = nullptr;
 	PipelineState* pipelineState = nullptr;
 
-	// --- Asset層から ---
+	/* --- Asset層から --- */
 	TextureManager* textureManager = nullptr;
 	MaterialManager* materialManager = nullptr; // マテリアルハンドルの解決に使う.
 	ModelManager* modelManager = nullptr;       // メッシュの解決に使う.
 
 	// --- 初期サイズ ---
+	/* --- 初期サイズ --- */
 	uint32_t clientWidth = 0;
 	uint32_t clientHeight = 0;
 
@@ -95,6 +96,8 @@ private:
 	MaterialHandle skyboxMaterialHandle_{};
 
 	// キャッシュ用.
+	/* キャッシュ用 */
+
 	ID3D12PipelineState* lastPSO_ = nullptr;
 	const Material* lastMat_ = nullptr;
 

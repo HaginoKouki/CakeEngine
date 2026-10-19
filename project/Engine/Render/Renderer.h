@@ -15,7 +15,6 @@
 #include "Engine/Graphics/Buffer/FrameConstantBuffer.h"
 #include "Engine/Graphics/Buffer/FrameVertexBuffer.h"
 
-#include "Engine/Asset/Texture/TextureHandle.h"
 #include "Engine/Asset/Material/MaterialHandle.h"
 #include "Engine/Asset/Model/ModelHandle.h"
 
@@ -61,6 +60,7 @@ struct RendererInitDesc {
 };
 
 class CommandManager;
+struct SpriteDrawItem;
 struct Model;
 class Material;
 class SceneRenderTarget;
@@ -69,20 +69,6 @@ class GizmoDrawList;
 struct InstanceData {
 	Matrix4x4 world;
 	Vector4 color = Vector4::One;
-};
-
-// スプライト1枚分の描画データ。Scene 層が詰めて DrawSprite に渡す.
-struct SpriteDrawItem {
-	Matrix4x4 world = Matrix4x4::Identity; // ピクセル単位の配置（Transform のワールド行列）.
-	TextureHandle texture{};               // 無効なら既定テクスチャで描く.
-	Vector4 color = Vector4::One;
-	Vector4 uvRect{0.0f, 0.0f, 1.0f, 1.0f};
-	Vector2 size{100.0f, 100.0f}; // ピクセル。useTextureSize が true なら使わない.
-	Vector2 pivot{0.5f, 0.5f};
-	Vector2 uvOffset{0.0f, 0.0f};
-	bool flipX = false;
-	bool flipY = false;
-	bool useTextureSize = false;
 };
 
 class Renderer {

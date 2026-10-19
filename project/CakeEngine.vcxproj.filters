@@ -199,6 +199,9 @@
     <Filter Include="externals\imgradient">
       <UniqueIdentifier>{d96ad2dd-0d0b-4b15-a093-047bce56f132}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Render\Sprite">
+      <UniqueIdentifier>{ff2d7fe6-a698-4a14-b6cf-717c9ba62965}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -524,6 +527,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Render\Pass\SpritePass.cpp">
       <Filter>Engine\Render\Pass</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Render\Sprite\SpriteDrawList.cpp">
+      <Filter>Engine\Render\Sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -985,6 +991,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Render\Pass\SpritePass.h">
       <Filter>Engine\Render\Pass</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Render\Sprite\SpriteDrawList.h">
+      <Filter>Engine\Render\Sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

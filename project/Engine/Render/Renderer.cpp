@@ -13,6 +13,7 @@
 #include "Engine/Graphics/RenderTarget/SceneRenderTarget.h"
 #include "Engine/Graphics/Shader/ShaderDefinition.h"
 
+#include "Engine/Render/Sprite/SpriteDrawList.h"
 #include "Engine/Render/Gizmo/GizmoDrawList.h"
 
 #include "Engine/Asset/Texture/TextureManager.h"

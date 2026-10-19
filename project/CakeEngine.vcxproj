@@ -274,6 +274,7 @@
     <ClInclude Include="Engine\Scene\Component\Particle\ParticleForceFieldComponent.h" />
     <ClInclude Include="Engine\Scene\Component\Particle\ParticleRendererComponent.h" />
     <ClInclude Include="Engine\Scene\Component\Particle\ParticleSystemComponent.h" />
+    <ClInclude Include="Engine\Scene\Component\SpriteRendererComponent.h" />
     <ClInclude Include="Engine\Scene\Component\TransformComponent.h" />
     <ClInclude Include="Engine\Scene\Object\ComponentPool.h" />
     <ClInclude Include="Engine\Scene\Object\GameObject.h" />

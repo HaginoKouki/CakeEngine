@@ -995,6 +995,9 @@
     <ClInclude Include="Engine\Render\Sprite\SpriteDrawList.h">
       <Filter>Engine\Render\Sprite</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Scene\Component\SpriteRendererComponent.h">
+      <Filter>Engine\Scene\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

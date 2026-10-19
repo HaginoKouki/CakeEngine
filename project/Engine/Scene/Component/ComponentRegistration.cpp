@@ -4,6 +4,7 @@
 
 #include "Engine/Scene/Component/LightComponent.h"
 #include "Engine/Scene/Component/CameraComponent.h"
+#include "Engine/Scene/Component/SpriteRendererComponent.h"
 #include "Engine/Scene/Component/MeshRendererComponent.h"
 #include "Engine/Scene/Component/Collider/SphereColliderComponent.h"
 #include "Engine/Scene/Component/Collider/BoxColliderComponent.h"
@@ -20,6 +21,7 @@ void RegisterAllComponents() {
 	// 第1引数は Update の実行順（小さいほど先）。Update を持たない型では意味を持たない.
 	registry.Register<LightComponent>();
 	registry.Register<CameraComponent>();
+	registry.Register<SpriteRendererComponent>();
 	registry.Register<MeshRendererComponent>();
 	registry.Register<SphereColliderComponent>();
 	registry.Register<BoxColliderComponent>();

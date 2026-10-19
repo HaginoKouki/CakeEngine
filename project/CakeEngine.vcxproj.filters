@@ -67,9 +67,6 @@
     <Filter Include="Engine\Asset\Texture">
       <UniqueIdentifier>{34bec384-21c3-4a8f-939a-9146d7106a8a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Asset\Sprite">
-      <UniqueIdentifier>{adece53d-e1fa-4f22-bfa8-ae70e5a8ba43}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Editor\Input">
       <UniqueIdentifier>{9587923b-d771-4f91-832c-c5c1436f416d}</UniqueIdentifier>
     </Filter>
@@ -236,9 +233,6 @@
     </ClCompile>
     <ClCompile Include="Engine\Asset\Model\ModelManager.cpp">
       <Filter>Engine\Asset\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Asset\Sprite\Sprite.cpp">
-      <Filter>Engine\Asset\Sprite</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Asset\Texture\TextureManager.cpp">
       <Filter>Engine\Asset\Texture</Filter>
@@ -598,9 +592,6 @@
     </ClInclude>
     <ClInclude Include="Engine\Asset\Runtime\HandlePool.h">
       <Filter>Engine\Asset\Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Asset\Sprite\Sprite.h">
-      <Filter>Engine\Asset\Sprite</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Asset\Texture\TextureHandle.h">
       <Filter>Engine\Asset\Texture</Filter>

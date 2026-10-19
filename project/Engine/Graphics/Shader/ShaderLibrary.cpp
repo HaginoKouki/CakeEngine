@@ -134,22 +134,13 @@ void Cake::ShaderLibrary::RegisterDefaultShaders() {
 	sprite.name = "Sprite";
 	sprite.vsPath = L"EngineResources/shaders/Sprite/Sprite.VS.hlsl";
 	sprite.psPath = L"EngineResources/shaders/Sprite/Sprite.PS.hlsl";
-	sprite.params = {
-		ShaderParamDesc{
-			.name = "color",
-			.type = ShaderParamType::Color,
-			.defaultValue = {1, 1, 1, 1},
-			.uiMin = 0.0f,
-			.uiMax = 1.0f
-		},
-		ShaderParamDesc{
-			.name = "uvRect",
-			.type = ShaderParamType::Float4,
-			.defaultValue = {1, 1, 1, 1},
-			.uiMin = 0.0f,
-			.uiMax = 1.0f
-		},
-	};
+	sprite.vertexLayout = VertexLayoutType::None;
+	sprite.blendMode = BlendMode::kBlendModeNormal;
+	sprite.depthTest = false;
+	sprite.depthWrite = false;
+	sprite.cullMode = D3D12_CULL_MODE_NONE;
+	sprite.hiddenInEditor = true;
+	sprite.params = {};
 	sprite.textures = {
 		TextureSlotDesc{
 			.name = "main",

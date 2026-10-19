@@ -160,6 +160,8 @@ void Application::Initialize(HINSTANCE hInstance) {
 	rendererDesc.textureManager = asset_.GetTextureManager();
 	rendererDesc.materialManager = asset_.GetMaterialManager();
 	rendererDesc.modelManager = asset_.GetModelManager();
+	rendererDesc.referenceWidth = settings_.referenceWidth;
+	rendererDesc.referenceHeight = settings_.referenceHeight;
 	rendererDesc.clientWidth = clientWidth_;
 	rendererDesc.clientHeight = clientHeight_;
 
@@ -266,6 +268,7 @@ void Application::RunFrame() {
 
 	// Render層のフレーム開始.
 	renderer_.BeginFrame(graphics_.GetCommandManager());
+	renderer_.SetReferenceResolution(settings_.referenceWidth, settings_.referenceHeight);
 
 #ifdef ENABLE_EDITOR
 	/* Debugビルドのみ */

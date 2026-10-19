@@ -16,18 +16,27 @@
 #include "Engine/Render/Gizmo/GizmoDrawList.h"
 
 #include "Engine/Asset/Texture/TextureManager.h"
-#include "Engine/Asset/Sprite/Sprite.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Model/Mesh.h"
 #include "Engine/Asset/Model/ModelManager.h"
-
 
 namespace Cake {
 namespace {
 constexpr const char* kLogCategory = "Renderer";
 }
 
+// Sprite.hlsli の SpriteForGPU と同じ並びにすること.
+struct SpriteForGPU {
+	Matrix4x4 wvp;
+	Vector4 color;
+	Vector4 uvRect;
+	Vector2 size;
+	Vector2 pivot;
+	Vector2 uvOffset;
+	Vector2 flip;
+};
+static_assert(sizeof(SpriteForGPU) == 128, "SpriteForGPU のレイアウトが HLSL と一致しません");
 // Particle.VS.hlsl の ParticleForGPU と同じ並びにすること.
 struct ParticleForGPU {
 	Matrix4x4 WVP;
@@ -49,6 +58,7 @@ void Renderer::Initialize(RendererInitDesc desc) {
 	depthBuffer_ = desc.depthBuffer;
 	srvHeap_ = desc.srvHeap;
 	pipelineState_ = desc.pipelineState;
+	textureManager_ = desc.textureManager;
 	materialManager_ = desc.materialManager;
 	modelManager_ = desc.modelManager;
 
@@ -73,10 +83,13 @@ void Renderer::Initialize(RendererInitDesc desc) {
 	scissorRect_.top = 0;
 	scissorRect_.bottom = desc.clientHeight;
 
+	SetReferenceResolution(desc.referenceWidth, desc.referenceHeight);
 	clientWidth_ = desc.clientWidth;
 	clientHeight_ = desc.clientHeight;
 	drawWidth_ = static_cast<float>(clientWidth_);
 	drawHeight_ = static_cast<float>(clientHeight_);
+
+	spritePSO_ = pipelineState_->GetPSO("Sprite");
 
 	skyboxMaterialHandle_ = materialManager_->CreateMaterial("__Skybox", "Skybox/Panoramic");
 	{
@@ -251,26 +264,30 @@ void Renderer::DrawSkybox(const CameraView& cameraView) {
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList_->DrawInstanced(3, 1, 0, 0);
 }
-void Renderer::DrawSprite(const Sprite& sprite) {
-	const Material* mat = materialManager_->ResolveOrError(sprite.GetMaterial());
-	const ShaderDefinition* shader = mat->GetShader();
-	if (shader == nullptr || shader->pso == nullptr) {
+void Renderer::DrawSprite(const SpriteDrawItem& item) {
+	if (spritePSO_ == nullptr) {
 		return;
 	}
+	SpriteForGPU result;
 
-	SpriteTransform transform = sprite.BuildTransform(static_cast<float>(clientWidth_), static_cast<float>(clientHeight_));
-
-	commandList_->SetPipelineState(shader->pso);
-	commandList_->SetGraphicsRootConstantBufferView(0, mat->GetCB()->GetGPUVirtualAddress());
-	commandList_->SetGraphicsRootConstantBufferView(1, frameConstants_.Allocate(&transform, sizeof(transform)));
-
-	for (const TextureSlotDesc& slot : shader->textures) {
-		commandList_->SetGraphicsRootDescriptorTable(
-			PipelineState::kTextureRootParamStart + slot.registerIndex,
-			mat->GetTexture(slot.name).gpuHandle
-		);
+	const TextureData* tex = textureManager_->ResolveOrError(item.texture.IsValid() ? item.texture : textureManager_->GetDefaultTexture());
+	if (item.useTextureSize) {
+		result.size.x = tex->textureWidth * item.uvRect.z;
+		result.size.y = tex->textureHeight * item.uvRect.w;
+	} else {
+		result.size = item.size;
 	}
 
+	result.wvp = item.world * Matrix4x4::MakeOrthographicMatrix(0, 0, static_cast<float>(referenceWidth_), static_cast<float>(referenceHeight_), 0, 1);
+	result.color = item.color;
+	result.uvRect = item.uvRect;
+	result.pivot = item.pivot;
+	result.uvOffset = item.uvOffset;
+	result.flip = {item.flipX ? 1.0f : 0.0f, item.flipY ? 1.0f : 0.0f};
+
+	commandList_->SetPipelineState(spritePSO_);
+	commandList_->SetGraphicsRootConstantBufferView(1, frameConstants_.Allocate(&result, sizeof(result)));
+	commandList_->SetGraphicsRootDescriptorTable(PipelineState::kTextureRootParamStart + 0, tex->handle.gpuHandle);
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList_->DrawInstanced(6, 1, 0, 0);
 }
@@ -372,7 +389,6 @@ void Renderer::DrawModelInstanced(
 	}
 }
 
-
 void Renderer::SetPSO(const std::string& name) {
 	commandList_->SetPipelineState(pipelineState_->GetPSO(name));
 }
@@ -389,6 +405,10 @@ void Renderer::SetCamera(const CameraView& cameraView) {
 		PipelineState::kCameraRootParam,
 		frameConstants_.Allocate(&camera, sizeof(camera))
 	);
+}
+void Renderer::SetReferenceResolution(uint32_t width, uint32_t height) {
+	referenceWidth_ = width;
+	referenceHeight_ = height;
 }
 
 } // namespace Cake

@@ -22,7 +22,6 @@
     <ClCompile Include="Engine\Asset\Material\MaterialManager.cpp" />
     <ClCompile Include="Engine\Asset\Material\MaterialSerializer.cpp" />
     <ClCompile Include="Engine\Asset\Model\ModelManager.cpp" />
-    <ClCompile Include="Engine\Asset\Sprite\Sprite.cpp" />
     <ClCompile Include="Engine\Asset\Texture\TextureManager.cpp" />
     <ClCompile Include="Engine\Editor\Camera\EditorCamera.cpp" />
     <ClCompile Include="Engine\Editor\Editor.cpp" />
@@ -182,7 +181,6 @@
     <ClInclude Include="Engine\Asset\Model\ModelManager.h" />
     <ClInclude Include="Engine\Asset\Model\PrimitiveShape.h" />
     <ClInclude Include="Engine\Asset\Runtime\HandlePool.h" />
-    <ClInclude Include="Engine\Asset\Sprite\Sprite.h" />
     <ClInclude Include="Engine\Asset\Texture\TextureHandle.h" />
     <ClInclude Include="Engine\Asset\Texture\TextureManager.h" />
     <ClInclude Include="Engine\Editor\Camera\EditorCamera.h" />

@@ -15,6 +15,7 @@
 #include "Engine/Graphics/Buffer/FrameConstantBuffer.h"
 #include "Engine/Graphics/Buffer/FrameVertexBuffer.h"
 
+#include "Engine/Asset/Texture/TextureHandle.h"
 #include "Engine/Asset/Material/MaterialHandle.h"
 #include "Engine/Asset/Model/ModelHandle.h"
 
@@ -44,18 +45,22 @@ struct RendererInitDesc {
 	MaterialManager* materialManager = nullptr; // マテリアルハンドルの解決に使う.
 	ModelManager* modelManager = nullptr;       // メッシュの解決に使う.
 
-	// --- 初期サイズ ---
+	/* --- 基準解像度 --- */
+	uint32_t referenceWidth = 0;
+	uint32_t referenceHeight = 0;
+
 	/* --- 初期サイズ --- */
 	uint32_t clientWidth = 0;
 	uint32_t clientHeight = 0;
 
 	bool IsValid() const {
-		return device != nullptr && swapChain != nullptr && depthBuffer != nullptr && srvHeap != nullptr && pipelineState != nullptr && textureManager != nullptr && materialManager != nullptr && modelManager != nullptr;
+		return device != nullptr && swapChain != nullptr && depthBuffer != nullptr && srvHeap != nullptr && pipelineState != nullptr &&
+			textureManager != nullptr && materialManager != nullptr && modelManager != nullptr &&
+			referenceWidth > 0 && referenceHeight > 0;
 	}
 };
 
 class CommandManager;
-class Sprite;
 struct Model;
 class Material;
 class SceneRenderTarget;
@@ -66,6 +71,20 @@ struct InstanceData {
 	Vector4 color = Vector4::One;
 };
 
+// スプライト1枚分の描画データ。Scene 層が詰めて DrawSprite に渡す.
+struct SpriteDrawItem {
+	Matrix4x4 world = Matrix4x4::Identity; // ピクセル単位の配置（Transform のワールド行列）.
+	TextureHandle texture{};               // 無効なら既定テクスチャで描く.
+	Vector4 color = Vector4::One;
+	Vector4 uvRect{0.0f, 0.0f, 1.0f, 1.0f};
+	Vector2 size{100.0f, 100.0f}; // ピクセル。useTextureSize が true なら使わない.
+	Vector2 pivot{0.5f, 0.5f};
+	Vector2 uvOffset{0.0f, 0.0f};
+	bool flipX = false;
+	bool flipY = false;
+	bool useTextureSize = false;
+};
+
 class Renderer {
 private:
 	ID3D12Device* device_ = nullptr;
@@ -73,6 +92,7 @@ private:
 	DepthBuffer* depthBuffer_ = nullptr;
 	DescriptorHeap* srvHeap_ = nullptr;
 	PipelineState* pipelineState_ = nullptr;
+	TextureManager* textureManager_ = nullptr;   // 非所有.
 	MaterialManager* materialManager_ = nullptr; // マテリアルハンドルの解決に使う（非所有）.
 	ModelManager* modelManager_ = nullptr;       // メッシュ解決に使う（非所有）.
 
@@ -87,6 +107,8 @@ private:
 
 	D3D12_VIEWPORT viewport_{};
 	D3D12_RECT scissorRect_{};
+	uint32_t referenceWidth_ = 0;
+	uint32_t referenceHeight_ = 0;
 	uint32_t clientWidth_ = 0;
 	uint32_t clientHeight_ = 0;
 	float drawWidth_ = 0.0f;
@@ -95,7 +117,8 @@ private:
 	float clearColor_[4] = {0.1f, 0.25f, 0.5f, 1.0f};
 	MaterialHandle skyboxMaterialHandle_{};
 
-	// キャッシュ用.
+	ID3D12PipelineState* spritePSO_ = nullptr;
+
 	/* キャッシュ用 */
 
 	ID3D12PipelineState* lastPSO_ = nullptr;
@@ -125,7 +148,7 @@ public:
 
 	// SkyboxをCameraに対して描画する.
 	void DrawSkybox(const CameraView&);
-	void DrawSprite(const Sprite&);
+	void DrawSprite(const SpriteDrawItem&);
 	// 共有モデルを、指定の Transform と Camera で描画する.
 	// materialOverride が有効なら、全サブメッシュをそのマテリアル1枚で描く
 	// （モデル側の materialSlots は書き換えない。上書きは描画時だけの話）.
@@ -147,6 +170,7 @@ public:
 	void SetPSO(const std::string& name);
 	void SetLight(const DirectionalLight& light);
 	void SetCamera(const CameraView& cameraView);
+	void SetReferenceResolution(uint32_t width, uint32_t height);
 
 	MaterialHandle GetSkyboxMaterial() { return skyboxMaterialHandle_; }
 	uint32_t GetClientWidth() const { return clientWidth_; }

@@ -18,7 +18,7 @@
           1.0
         ],
         "shininess": [
-          1.0
+          64.0
         ]
       },
       "shader": "Object3D",

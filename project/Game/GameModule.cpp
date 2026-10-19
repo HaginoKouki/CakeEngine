@@ -43,8 +43,8 @@ void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 			.name = "shininess",
 			.type = Cake::ShaderParamType::Float,
 			.defaultValue = {1, 0, 0, 0},
-			.uiMin = 0.0f,
-			.uiMax = 1.0f
+			.uiMin = 1.0f,
+			.uiMax = 512.0f
 		},
 		Cake::ShaderParamDesc{
 			.name = "reflectionColor",

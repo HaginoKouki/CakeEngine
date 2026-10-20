@@ -22,7 +22,13 @@ void CollectScreenSprites(Scene& scene, SpriteDrawList& out) {
 			item.texture = spriteRenderer.texture.handle;
 			item.world = object->GetTransform().GetWorldMatrix();
 			item.color = spriteRenderer.color;
+
+			item.pivot = spriteRenderer.pivot;
 			item.size = spriteRenderer.size;
+			item.uvRect = spriteRenderer.uvRect;
+
+			item.flipX = spriteRenderer.flipX;
+			item.flipY = spriteRenderer.flipY;
 
 			out.Add(item, spriteRenderer.sortingOrder);
 		}

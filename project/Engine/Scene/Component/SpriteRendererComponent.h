@@ -36,17 +36,28 @@ namespace Cake {
 struct SpriteRendererComponent {
 	bool visible = true;
 	AssetRef<TextureHandle> texture;
-	int sortingOrder = 0;
 	Vector4 color = Vector4::One; // テクスチャの色に掛ける色.
+
+	Vector2 pivot{0.5f, 0.5f};
 	Vector2 size{100.0f, 100.0f}; // 表示サイズ（ピクセル）。Transform の scale.xy がさらに掛かる.
+	Vector4 uvRect{0.0f, 0.0f, 1.0f, 1.0f};
+
+	bool flipX = false;
+	bool flipY = false;
+
+	int sortingOrder = 0;
 };
 
 CAKE_REFLECT(SpriteRendererComponent)
 CAKE_PROPERTY(visible, "Visible")
 CAKE_PROPERTY(texture, "Texture")
-CAKE_PROPERTY(sortingOrder, "Sorting Order")
 CAKE_PROPERTY_COLOR(color, "Color")
+CAKE_PROPERTY_CLAMP(pivot, "Pivot", 0.0f, 1.0f)
 CAKE_PROPERTY_MIN(size, "Size", 0.0f)
+CAKE_PROPERTY_CLAMP(uvRect, "UV Rect", 0.0f, 1.0f)
+CAKE_PROPERTY(flipX, "Flip X")
+CAKE_PROPERTY(flipY, "Flip Y")
+CAKE_PROPERTY(sortingOrder, "Sorting Order")
 CAKE_REFLECT_END()
 
 } // namespace Cake

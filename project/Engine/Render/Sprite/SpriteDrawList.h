@@ -22,6 +22,7 @@ namespace Cake {
 struct SpriteDrawItem {
 	Matrix4x4 world = Matrix4x4::Identity; // ピクセル単位の配置（Transform のワールド行列）.
 	TextureHandle texture{};               // 無効なら既定テクスチャで描く.
+	bool isTextureMissing = false;         // 参照先を設定したのに見つからない。true ならエラー用テクスチャで描く.
 	Vector4 color = Vector4::One;
 	Vector4 uvRect{0.0f, 0.0f, 1.0f, 1.0f};
 	Vector2 size{100.0f, 100.0f}; // ピクセル。useTextureSize が true なら使わない.

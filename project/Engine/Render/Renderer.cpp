@@ -271,7 +271,8 @@ void Renderer::DrawSprite(const SpriteDrawItem& item) {
 	}
 	SpriteForGPU result;
 
-	const TextureData* tex = textureManager_->ResolveOrError(item.texture.IsValid() ? item.texture : textureManager_->GetDefaultTexture());
+	const auto handle = item.isTextureMissing ? textureManager_->GetErrorTexture() : (item.texture.IsValid() ? item.texture : textureManager_->GetDefaultTexture());
+	const TextureData* tex = textureManager_->ResolveOrError(handle);
 	if (item.useTextureSize) {
 		result.size.x = tex->textureWidth * item.uvRect.z;
 		result.size.y = tex->textureHeight * item.uvRect.w;

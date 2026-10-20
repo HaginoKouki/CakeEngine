@@ -1,6 +1,7 @@
 #include "SpriteTesterComponent.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Component/SpriteRendererComponent.h"
@@ -46,6 +47,9 @@ void SpriteTesterComponent::Update(const Cake::UpdateContext& ctx, Cake::GameObj
 		} else {
 			sprite->color = {1.0f, 1.0f, 1.0f, sprite->color.w};
 		}
+	}
+	if (ctx.IsKeyDown(Cake::KeyCode::T)) {
+		std::swap(sprite->texture, alternateTexture);
 	}
 
 	if (ctx.IsKeyHeld(Cake::KeyCode::Z)) {

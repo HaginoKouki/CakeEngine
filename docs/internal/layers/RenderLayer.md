@@ -36,7 +36,7 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | 描画 | `DrawModel` | 共有モデルを world 行列と視点で描く。`materialOverride` が有効なら全サブメッシュをそれ 1 枚で描く |
 | 描画 | `DrawModelInstanced` | 同じモデルをインスタンシングで描く（パーティクル用）。マテリアルのシェーダーが `requiresInstancing` でなければ 1 個ずつ `DrawModel` で描く |
 | 描画 | `DrawSkybox`、`DrawGizmos` | 専用の描き方 |
-| 描画 | `DrawSprite` | `SpriteDrawItem` を基準解像度のピクセル座標（左上が原点、y は下向き）で描く。world と正射影を掛けた行列を `SpriteForGPU` に詰めて VS の `b0` に送り、テクスチャは `t0` に直接設定する。テクスチャが未設定なら既定テクスチャで描く |
+| 描画 | `DrawSprite` | `SpriteDrawItem` を基準解像度のピクセル座標（左上が原点、y は下向き）で描く。world と正射影を掛けた行列を `SpriteForGPU` に詰めて VS の `b0` に送り、テクスチャは `t0` に直接設定する。テクスチャが未設定なら既定テクスチャ（白）、参照先が見つからない（`isTextureMissing`）ならエラー用テクスチャで描く |
 | バインド | `SetLight` | `b1` に平行光源をバインドする |
 | バインド | `SetCamera` | `CameraView::position` を `CameraForGPU` に詰めてフレーム定数バッファへ書き、`b2` にバインドする。ビューごとに別アドレスへ書くので、ゲームビューとシーンビューで上書きし合わない |
 | 設定 | `SetReferenceResolution` | スプライトの座標系に使う基準解像度を設定する。`Application` が毎フレーム `ProjectSettings` の値を渡す |

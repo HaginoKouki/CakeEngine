@@ -18,6 +18,8 @@ void CollectScreenSprites(Scene& scene, SpriteDrawList& out) {
 			}
 
 			SpriteDrawItem item;
+			item.isTextureMissing = !spriteRenderer.texture.IsEmpty() && !spriteRenderer.texture.IsResolved();
+			item.texture = spriteRenderer.texture.handle;
 			item.world = object->GetTransform().GetWorldMatrix();
 			item.color = spriteRenderer.color;
 			item.size = spriteRenderer.size;

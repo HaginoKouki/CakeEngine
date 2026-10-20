@@ -4,6 +4,7 @@
 
 #include "Engine/Render/Renderer.h"
 
+#include "Engine/Scene/Component/SpriteRendererComponent.h"
 #include "Engine/Scene/Component/MeshRendererComponent.h"
 #include "Engine/Scene/Component/Particle/ParticleRendererComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
@@ -34,6 +35,15 @@ void DrawMeshRenderers(Scene& scene, Renderer& renderer, const CameraView& camer
 }
 
 void ResolveSceneAssets(Scene& scene, AssetDatabase& assetDatabase) {
+	scene.GetPool<SpriteRendererComponent>()->ForEach(
+		[&](GameObjectId, SpriteRendererComponent& spriteRenderer) {
+			// 未設定（GUIDなし）は解決しようがないので飛ばす.
+			if (!spriteRenderer.texture.IsEmpty() && !spriteRenderer.texture.IsResolved()) {
+				spriteRenderer.texture.Resolve(assetDatabase);
+			}
+		}
+	);
+
 	scene.GetPool<MeshRendererComponent>()->ForEach(
 		[&](GameObjectId, MeshRendererComponent& meshRenderer) {
 			// 未設定（GUIDなし）は解決しようがないので飛ばす.

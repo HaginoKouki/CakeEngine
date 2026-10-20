@@ -9,6 +9,11 @@
  * 左上が原点、y は下向き。使うのは translate.xy、rotate.z、scale.xy だけ。
  * 3D のオブジェクトの子にすると、親のワールド行列（メートル単位）が掛かって位置が崩れる。
  *
+ * 【テクスチャ】
+ * texture が未設定なら白い四角を描く（color で色を付けて使える）。
+ * 参照先を設定したのに見つからないとき（ファイルを消したなど）は、
+ * エラー用のチェッカー柄で描いて、欠けていることが見えるようにする。
+ *
  * 【色と表示サイズ】
  * color はテクスチャの色に掛ける色。w（不透明度）を下げると半透明になる。
  * size は表示サイズで、単位はピクセル。Transform の scale.xy がさらに掛かる
@@ -23,11 +28,14 @@
  * ====================================*/
 #include "Engine/Foundation/Math/Vector.h"
 #include "Engine/Foundation/Reflection/ReflectMacros.h"
+#include "Engine/Asset/Database/AssetRef.h"
+#include "Engine/Asset/Texture/TextureHandle.h"
 
 namespace Cake {
 
 struct SpriteRendererComponent {
 	bool visible = true;
+	AssetRef<TextureHandle> texture;
 	int sortingOrder = 0;
 	Vector4 color = Vector4::One; // テクスチャの色に掛ける色.
 	Vector2 size{100.0f, 100.0f}; // 表示サイズ（ピクセル）。Transform の scale.xy がさらに掛かる.
@@ -35,6 +43,7 @@ struct SpriteRendererComponent {
 
 CAKE_REFLECT(SpriteRendererComponent)
 CAKE_PROPERTY(visible, "Visible")
+CAKE_PROPERTY(texture, "Texture")
 CAKE_PROPERTY(sortingOrder, "Sorting Order")
 CAKE_PROPERTY_COLOR(color, "Color")
 CAKE_PROPERTY_MIN(size, "Size", 0.0f)

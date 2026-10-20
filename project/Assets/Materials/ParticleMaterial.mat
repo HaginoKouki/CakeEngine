@@ -10,7 +10,9 @@
         ]
       },
       "shader": "Particle",
-      "textures": {}
+      "textures": {
+        "albedo": "Assets/CG3/circle.png"
+      }
     }
   }
 }

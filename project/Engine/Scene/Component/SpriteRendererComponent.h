@@ -1,9 +1,5 @@
 #pragma once
 
-#include "Engine/Asset/Database/AssetRef.h"
-#include "Engine/Asset/Material/MaterialHandle.h"
-#include "Engine/Asset/Model/ModelHandle.h"
-
 #include "Engine/Foundation/Reflection/ReflectMacros.h"
 
 namespace Cake {

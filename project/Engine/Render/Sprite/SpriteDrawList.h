@@ -25,7 +25,7 @@ struct SpriteDrawItem {
 	bool isTextureMissing = false;         // 参照先を設定したのに見つからない。true ならエラー用テクスチャで描く.
 	Vector4 color = Vector4::One;
 	Vector4 uvRect{0.0f, 0.0f, 1.0f, 1.0f};
-	Vector2 size{100.0f, 100.0f}; // ピクセル。useTextureSize が true なら使わない.
+	Vector2 size{100.0f, 100.0f}; // ピクセル。useTextureSize が true でテクスチャがあるときは使わない.
 	Vector2 pivot{0.5f, 0.5f};
 	Vector2 uvOffset{0.0f, 0.0f};
 	bool flipX = false;

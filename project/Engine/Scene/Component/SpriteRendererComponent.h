@@ -16,8 +16,18 @@
  *
  * 【色と表示サイズ】
  * color はテクスチャの色に掛ける色。w（不透明度）を下げると半透明になる。
- * size は表示サイズで、単位はピクセル。Transform の scale.xy がさらに掛かる
- * （size が 100 で scale が 2 なら、200 ピクセルで描かれる）。
+ * useTextureSize が true でテクスチャがあるときは、テクスチャのピクセルサイズ × uvRect の幅と高さで描く。
+ * それ以外（false のとき、テクスチャが未設定か見つからないとき）は size（ピクセル）で描く。
+ * どちらにも Transform の scale.xy がさらに掛かる（100 ピクセルで scale が 2 なら、200 ピクセル）。
+ * useTextureSize を false にしても、テクスチャのサイズを size へ写すことはしない。
+ *
+ * 【基準点・反転・切り出し】
+ * pivot は授業資料のアンカーポイントに当たり、画像のどこを Transform の位置に合わせるかを 0〜1 で表す。
+ * (0, 0) が左上で、回転と拡大縮小もこの点を中心に行う。
+ * uvRect は切り出す範囲で、xy が左上、zw が幅と高さ（どれも UV の 0〜1）。
+ * flipX と flipY は UV を入れ替えて反転するので、切り出した範囲の中で反転する。
+ * uvOffset は UV に足すずらし量。サンプラーが WRAP なので、はみ出した分は反対側から出る。
+ * 切り出したまま流すと、画像全体の中で範囲がずれるので、隣のコマが見える。
  *
  * 【描く順】
  * sortingOrder の小さい順に描くので、大きいほど手前に出る。
@@ -35,17 +45,21 @@ namespace Cake {
 
 struct SpriteRendererComponent {
 	bool visible = true;
-	AssetRef<TextureHandle> texture;
-	Vector4 color = Vector4::One; // テクスチャの色に掛ける色.
 
-	Vector2 pivot{0.5f, 0.5f};
-	Vector2 size{100.0f, 100.0f}; // 表示サイズ（ピクセル）。Transform の scale.xy がさらに掛かる.
-	Vector4 uvRect{0.0f, 0.0f, 1.0f, 1.0f};
+	AssetRef<TextureHandle> texture; // 未設定なら白い四角で描く.
+	Vector4 color = Vector4::One;    // テクスチャの色に掛ける色.
 
-	bool flipX = false;
-	bool flipY = false;
+	Vector2 pivot{0.5f, 0.5f}; // 基準点（アンカーポイント）。0〜1 で、(0, 0) が左上.
 
-	int sortingOrder = 0;
+	bool useTextureSize = true;             // true でテクスチャがあれば、テクスチャのサイズで描く.
+	Vector2 size{100.0f, 100.0f};           // 表示サイズ（ピクセル）。テクスチャのサイズを使わないときの大きさ.
+	Vector4 uvRect{0.0f, 0.0f, 1.0f, 1.0f}; // 切り出す範囲（UV）。xy が左上、zw が幅と高さ.
+	Vector2 uvOffset{0.0f, 0.0f};           // UV のずらし量。WRAP で繰り返す.
+
+	bool flipX = false; // 左右反転（切り出した範囲の中で反転する）.
+	bool flipY = false; // 上下反転（切り出した範囲の中で反転する）.
+
+	int sortingOrder = 0; // 大きいほど手前に描く.
 };
 
 CAKE_REFLECT(SpriteRendererComponent)
@@ -53,8 +67,10 @@ CAKE_PROPERTY(visible, "Visible")
 CAKE_PROPERTY(texture, "Texture")
 CAKE_PROPERTY_COLOR(color, "Color")
 CAKE_PROPERTY_CLAMP(pivot, "Pivot", 0.0f, 1.0f)
+CAKE_PROPERTY(useTextureSize, "Use Texture Size")
 CAKE_PROPERTY_MIN(size, "Size", 0.0f)
 CAKE_PROPERTY_CLAMP(uvRect, "UV Rect", 0.0f, 1.0f)
+CAKE_PROPERTY_CLAMP(uvOffset, "UV Offset", 0.0f, 1.0f)
 CAKE_PROPERTY(flipX, "Flip X")
 CAKE_PROPERTY(flipY, "Flip Y")
 CAKE_PROPERTY(sortingOrder, "Sorting Order")

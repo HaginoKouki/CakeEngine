@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <cmath>
 
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Component/SpriteRendererComponent.h"
@@ -60,4 +61,10 @@ void SpriteTesterComponent::Update(const Cake::UpdateContext& ctx, Cake::GameObj
 		sprite->size.x = std::max<float>(0.0f, sprite->size.x + size * ctx.deltaTime);
 		sprite->size.y = std::max<float>(0.0f, sprite->size.y + size * ctx.deltaTime);
 	}
+
+	sprite->uvOffset.x += uvScrollSpeed.x * ctx.deltaTime;
+	sprite->uvOffset.y += uvScrollSpeed.y * ctx.deltaTime;
+	// 0〜1 に収める（WRAP なので見た目は変わらない）。fmod は負の値で負を返すので floor を引く.
+	sprite->uvOffset.x -= std::floor(sprite->uvOffset.x);
+	sprite->uvOffset.y -= std::floor(sprite->uvOffset.y);
 }

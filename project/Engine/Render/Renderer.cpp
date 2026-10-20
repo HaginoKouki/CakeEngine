@@ -273,7 +273,7 @@ void Renderer::DrawSprite(const SpriteDrawItem& item) {
 
 	const auto handle = item.isTextureMissing ? textureManager_->GetErrorTexture() : (item.texture.IsValid() ? item.texture : textureManager_->GetDefaultTexture());
 	const TextureData* tex = textureManager_->ResolveOrError(handle);
-	if (item.useTextureSize) {
+	if (item.useTextureSize && item.texture.IsValid()) {
 		result.size.x = tex->textureWidth * item.uvRect.z;
 		result.size.y = tex->textureHeight * item.uvRect.w;
 	} else {

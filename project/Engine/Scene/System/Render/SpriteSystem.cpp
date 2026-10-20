@@ -24,8 +24,11 @@ void CollectScreenSprites(Scene& scene, SpriteDrawList& out) {
 			item.color = spriteRenderer.color;
 
 			item.pivot = spriteRenderer.pivot;
+
+			item.useTextureSize = spriteRenderer.useTextureSize;
 			item.size = spriteRenderer.size;
 			item.uvRect = spriteRenderer.uvRect;
+			item.uvOffset = spriteRenderer.uvOffset;
 
 			item.flipX = spriteRenderer.flipX;
 			item.flipY = spriteRenderer.flipY;

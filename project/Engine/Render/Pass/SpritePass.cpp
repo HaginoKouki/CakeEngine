@@ -14,7 +14,7 @@ void SpritePass::Execute(RenderContext& ctx) {
 	CollectScreenSprites(*ctx.scene, drawList_);
 	drawList_.SortByOrder();
 
-	for (const auto& entry : drawList_.GetEntries()) {
+	for (const  auto& entry : drawList_.GetEntries()) {
 		ctx.renderer->DrawSprite(entry.item);
 	}
 }

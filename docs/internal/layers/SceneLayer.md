@@ -21,7 +21,7 @@ Scene 層はゲーム世界の状態を持ち、毎フレーム更新します�
 | `Object/` | `ComponentPool<T>`、`IComponentPool`、`ComponentRef`、`ComponentTypeId` | 型ごとの連続配置プール。持ち主の `GameObjectId` を並行配列で持つ |
 | `Object/` | `ParticleStorage`、`EmitterState`、`Particle` | パーティクルの粒の状態と発生タイマー。エミッターごとに持つ |
 | `Component/` | `TransformComponent` | 姿勢と親子関係。GameObject の組み込みフィールドで、プールには入らない |
-| `Component/` | `CameraComponent`、`LightComponent`、`MeshRendererComponent` | データのみの構造体 |
+| `Component/` | `CameraComponent`、`LightComponent`、`MeshRendererComponent`、`SpriteRendererComponent` | データのみの構造体 |
 | `Component/Collider/` | `SphereColliderComponent`、`BoxColliderComponent` | 当たり判定の設定と、今フレームの衝突結果 |
 | `Component/Particle/` | `ParticleSystemComponent`、`ParticleRendererComponent`、`ParticleForceFieldComponent` | パーティクルの出し方、描き方、Field |
 | `Component/ComponentRegistry/` | `TypeRegistry`、`ComponentOps`、`ComponentTypeInfo` | 型名や型 ID から `TypeInfo` と操作関数（add、get、remove、copy、update）を引く登録簿 |
@@ -33,6 +33,7 @@ Scene 層はゲーム世界の状態を持ち、毎フレーム更新します�
 | `System/` | `GizmoSystem`（`CollectSceneGizmos`、`GizmoSettings`） | グリッド、コライダー、カメラの視錐台、ライト、Field、選択中の軸を `GizmoDrawList` へ積む |
 | `System/` | `CloneSystem`（`DuplicateGameObject`） | GameObject を子孫ごと複製する |
 | `System/Render/` | `RenderSystem`（`DrawMeshRenderers`、`ResolveSceneAssets`） | MeshRenderer の描画と、シーン読み込み直後のアセット参照の解決 |
+| `System/Render/` | `SpriteSystem`（`CollectScreenSprites`） | 表示中の SpriteRenderer を `SpriteDrawList` へ積む。描画はしない |
 | `System/Collision/` | `CollisionSystem`（`RunCollisionDetection`） | 球と箱の総当たり判定 |
 | `System/Particle/` | `ParticleSystem`（`UpdateParticleSystems`） | 粒の生成、移動、消滅、Field の適用、色の計算 |
 | `Serialize/` | `SceneSerializer` | シーンの JSON 保存と復元。ファイル版と、Play / Stop のスナップショット用の文字列版 |
@@ -223,7 +224,7 @@ CAKE_REQUIRE_COMPONENTS(ParticleSystemComponent, ParticleRendererComponent)
 | 項目 | 内容 |
 | --- | --- |
 | 規則 | Render 層以下にのみ依存する。Editor 層と Application 層はこの層の上 |
-| 実装上の依存 | Foundation（Math、Reflection、Debug、Serialize）、Asset（`AssetRef`、各 Handle、`AssetDatabase`）、Platform（`SceneManager` → `Platform.h`、`UpdateContext` → Input）、Render（`CameraView`、`Light.h`、`GizmoDrawList`、`Renderer`） |
+| 実装上の依存 | Foundation（Math、Reflection、Debug、Serialize）、Asset（`AssetRef`、各 Handle、`AssetDatabase`）、Platform（`SceneManager` → `Platform.h`、`UpdateContext` → Input）、Render（`CameraView`、`Light.h`、`GizmoDrawList`、`SpriteDrawList`、`Renderer`） |
 | 外部 | nlohmann/json（`SceneSerializer`）、ImGui と ImGuizmo（`GizmoSystem.h` が `GizmoSettings` のために無条件に include） |
 | 規則との食い違い | Render 層と相互に参照している（Render 層の各パスが Scene の System を呼び、Scene の System が Render のヘッダを使う）。詳細は [InternalDesign.md](../InternalDesign.md) |
 | 規則との食い違い | Scene 層が ImGui に依存している（`GizmoSystem.h`。`ENABLE_EDITOR` や `USE_IMGUI` の分岐なし） |
@@ -249,7 +250,7 @@ CAKE_REQUIRE_COMPONENTS(ParticleSystemComponent, ParticleRendererComponent)
 
 - `Find`、`GetComponent`、`ComponentPool::Get` が返すポインタは次の追加まで有効。フレームをまたいで保持する識別子は `GameObjectId`。
 - 行列を計算する System は作らず、`TransformComponent` がキャッシュした world を使う。
-- `CollisionSystem`、`GizmoSystem`、`CameraSystem`、`LightSystem`、`RenderSystem` は `UpdateTransforms` の後に呼ぶ。
+- `CollisionSystem`、`GizmoSystem`、`CameraSystem`、`LightSystem`、`RenderSystem`、`SpriteSystem` は `UpdateTransforms` の後に呼ぶ。
 - `UpdateContext` はそのフレームの `Update` 中だけ有効。メンバに保持しない。ゲーム入力には `GetKey` 系を使う。
 - `CameraSystem` と `LightSystem` は有効なものから最小 `priority` の 1 つを選ぶ。同値ならプール順。ライトは現状 1 灯のみ。
 
@@ -264,6 +265,12 @@ CAKE_REQUIRE_COMPONENTS(ParticleSystemComponent, ParticleRendererComponent)
 
 - `ParticlePass` は粒の状態を読むだけで変更しない。更新は `UpdateParticleSystems` だけが行う。
 - Field が「潰れている」（ワールド行列のいずれかの軸の長さが 1e-6 以下）ならその Field を集めない。エミッター側が潰れていればそのエミッターには Field を効かせない。
+
+### スプライト
+
+- `SpriteRendererComponent` を持つ GameObject の Transform は、基準解像度のピクセル座標として扱う。使うのは translate.xy、rotate.z、scale.xy で、左上が原点、y は下向き。
+- スプライトを 3D のオブジェクトの子にしない。親のワールド行列（メートル単位）が掛かり、画面上の位置が崩れる。
+- `sortingOrder` が同じスプライトどうしは、プールに並んでいる順に描かれる。プールは削除で空いた枠を再利用するため、作った順になるとは限らない。
 
 ### シリアライズ
 

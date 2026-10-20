@@ -9,7 +9,7 @@ namespace Cake {
 void CollectScreenSprites(Scene& scene, SpriteDrawList& out) {
 	scene.GetPool<SpriteRendererComponent>()->ForEach(
 		[&](GameObjectId owner, SpriteRendererComponent& spriteRenderer) {
-			if (!spriteRenderer.visible || !owner.IsValid()) {
+			if (!spriteRenderer.visible) {
 				return;
 			}
 			const GameObject* object = scene.Find(owner);

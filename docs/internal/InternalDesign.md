@@ -48,8 +48,8 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 
 | 方向 | 具体例 |
 | --- | --- |
-| Render → Scene | `OpaquePass` → `RenderSystem`、`LightSetupPass` → `LightSystem`、`GizmoPass` → `GizmoSystem`、`SceneRenderer` → `CameraSystem`、`ParticlePass` → `Scene` と各 Particle コンポーネント |
-| Scene → Render | `CameraSystem` → `CameraView`、`LightSystem` → `Light.h`、`GizmoSystem` → `GizmoDrawList`、`RenderSystem` → `Renderer` |
+| Render → Scene | `OpaquePass` → `RenderSystem`、`LightSetupPass` → `LightSystem`、`GizmoPass` → `GizmoSystem`、`SpritePass` → `SpriteSystem`、`SceneRenderer` → `CameraSystem`、`ParticlePass` → `Scene` と各 Particle コンポーネント |
+| Scene → Render | `CameraSystem` → `CameraView`、`LightSystem` → `Light.h`、`GizmoSystem` → `GizmoDrawList`、`SpriteSystem` → `SpriteDrawList`、`RenderSystem` → `Renderer` |
 
 ヘッダ単位では前方宣言で循環を避けていますが、`.cpp` 単位では相互に参照しています。どちらの層を上とみなすかは、実装からは決められません。
 

@@ -157,6 +157,7 @@
     </ClCompile>
     <ClCompile Include="Game\Components\Player\PlayerComponent.cpp" />
     <ClCompile Include="Game\Components\RotatorComponent.cpp" />
+    <ClCompile Include="Game\Components\Tester\SpriteTesterComponent.cpp" />
     <ClCompile Include="Game\GameModule.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -315,6 +316,7 @@
     <ClInclude Include="externals\nlohmann\json.hpp" />
     <ClInclude Include="Game\Components\Player\PlayerComponent.h" />
     <ClInclude Include="Game\Components\RotatorComponent.h" />
+    <ClInclude Include="Game\Components\Tester\SpriteTesterComponent.h" />
     <ClInclude Include="Game\GameLayer.h" />
     <ClInclude Include="Game\GameModule.h" />
   </ItemGroup>

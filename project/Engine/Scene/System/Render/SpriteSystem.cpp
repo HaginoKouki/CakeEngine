@@ -19,6 +19,8 @@ void CollectScreenSprites(Scene& scene, SpriteDrawList& out) {
 
 			SpriteDrawItem item;
 			item.world = object->GetTransform().GetWorldMatrix();
+			item.color = spriteRenderer.color;
+			item.size = spriteRenderer.size;
 
 			out.Add(item, spriteRenderer.sortingOrder);
 		}

@@ -269,6 +269,7 @@ CAKE_REQUIRE_COMPONENTS(ParticleSystemComponent, ParticleRendererComponent)
 ### スプライト
 
 - `SpriteRendererComponent` を持つ GameObject の Transform は、基準解像度のピクセル座標として扱う。使うのは translate.xy、rotate.z、scale.xy で、左上が原点、y は下向き。
+- 表示サイズは `size`（ピクセル）で、Transform の scale.xy がさらに掛かる。`color` はテクスチャの色に掛ける色で、w（不透明度）を下げると半透明になる。
 - スプライトを 3D のオブジェクトの子にしない。親のワールド行列（メートル単位）が掛かり、画面上の位置が崩れる。
 - `sortingOrder` が同じスプライトどうしは、プールに並んでいる順に描かれる。プールは削除で空いた枠を再利用するため、作った順になるとは限らない。
 

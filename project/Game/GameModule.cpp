@@ -7,6 +7,7 @@
 
 #include "Game/Components/RotatorComponent.h"
 #include "Game/Components/Player/PlayerComponent.h"
+#include "Game/Components/Tester/SpriteTesterComponent.h"
 
 namespace Game {
 
@@ -15,6 +16,7 @@ void RegisterGameComponents() {
 	// ユーザーのコンポーネントはここに追加する.
 	registry.Register<RotatorComponent>(Cake::kDefaultUpdatePriority);
 	registry.Register<PlayerComponent>(Cake::kDefaultUpdatePriority);
+	registry.Register<SpriteTesterComponent>(Cake::kDefaultUpdatePriority);
 }
 void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 	/*

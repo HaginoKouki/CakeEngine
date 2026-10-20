@@ -61,7 +61,7 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 | 関数 | 呼ばれる場所 | 内容 |
 | --- | --- | --- |
 | `Game::RegisterGameShaders(ShaderLibrary&)` | `Graphics` 初期化の直後、`Asset` 初期化の前 | ゲーム固有のシェーダー定義を登録する。現状は `Object3D` と `Particle` |
-| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent` と `PlayerComponent` |
+| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent`、`PlayerComponent`、`SpriteTesterComponent`（スプライトの確認用） |
 
 `Game/` の中身は次のとおりです。
 

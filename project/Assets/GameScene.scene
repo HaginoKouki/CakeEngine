@@ -12,7 +12,7 @@
           "type": "CameraComponent"
         }
       ],
-      "id": 0,
+      "id": 4,
       "name": "MainCamera",
       "transform": {
         "rotate": [
@@ -48,7 +48,7 @@
           "type": "LightComponent"
         }
       ],
-      "id": 1,
+      "id": 3,
       "name": "DirectionalLight",
       "transform": {
         "rotate": [
@@ -164,7 +164,7 @@
           "visible": true
         }
       ],
-      "id": 3,
+      "id": 1,
       "name": "GameObject",
       "transform": {
         "rotate": [
@@ -188,12 +188,28 @@
       "active": true,
       "components": [
         {
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "size": [
+            100.0,
+            100.0
+          ],
           "sortingOrder": 0,
           "type": "SpriteRendererComponent",
           "visible": true
+        },
+        {
+          "rotate": 3.0,
+          "size": 10.0,
+          "speed": 200.0,
+          "type": "SpriteTesterComponent"
         }
       ],
-      "id": 4,
+      "id": 0,
       "name": "SpriteTest",
       "transform": {
         "rotate": [

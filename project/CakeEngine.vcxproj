@@ -101,6 +101,7 @@
     <ClCompile Include="Engine\Scene\System\LightSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\Particle\ParticleSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\Render\RenderSystem.cpp" />
+    <ClCompile Include="Engine\Scene\System\Render\SpriteSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp" />
     <ClCompile Include="externals\imgradient\imgradient.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -291,6 +292,7 @@
     <ClInclude Include="Engine\Scene\System\LightSystem.h" />
     <ClInclude Include="Engine\Scene\System\Particle\ParticleSystem.h" />
     <ClInclude Include="Engine\Scene\System\Render\RenderSystem.h" />
+    <ClInclude Include="Engine\Scene\System\Render\SpriteSystem.h" />
     <ClInclude Include="Engine\Scene\System\UpdateContext.h" />
     <ClInclude Include="externals\imgradient\imgradient.h" />
     <ClInclude Include="externals\imgradient\imgradient_internal.h" />

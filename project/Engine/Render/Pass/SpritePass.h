@@ -7,10 +7,14 @@
  *
  * ====================================*/
 #include "Engine/Render/Pass/RenderPass.h"
+#include "Engine/Render/Sprite/SpriteDrawList.h"
 
 namespace Cake {
 
 class SpritePass : public RenderPass {
+private:
+	SpriteDrawList drawList_;
+
 public:
 	const char* GetName() const override { return "Sprite"; }
 	void Execute(RenderContext& ctx) override;

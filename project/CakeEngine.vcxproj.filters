@@ -531,6 +531,9 @@
     <ClCompile Include="Engine\Render\Sprite\SpriteDrawList.cpp">
       <Filter>Engine\Render\Sprite</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Scene\System\Render\SpriteSystem.cpp">
+      <Filter>Engine\Scene\System\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Application\Application.h">
@@ -997,6 +1000,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Scene\Component\SpriteRendererComponent.h">
       <Filter>Engine\Scene\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\System\Render\SpriteSystem.h">
+      <Filter>Engine\Scene\System\Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

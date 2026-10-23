@@ -67,7 +67,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | 2 | `ProjectSettings` の読み込み | 読めなくても既定値で続行する。エディタ構成では初回にファイルを作る |
 | 3 | （エディタ）`EditorPreferences` と `EditorCache` の読み込み | ウィンドウの位置と大きさを復元するため、ウィンドウ生成より前に読む |
 | 4 | `WindowApp` でウィンドウを生成し、クライアント領域の大きさを確定する | 0 のままではスワップチェーンを作れないため、0 なら設定値で補う |
-| 5 | `Platform` の初期化と、`InputManager` を `WindowApp` へ登録 | WndProc が受けた入力を `InputManager` へ転送する |
+| 5 | `Platform` の初期化（タイマー分解能を 1 ms に上げ、`Time` と `InputManager` を初期化）と、`InputManager` を `WindowApp` へ登録 | WndProc が受けた入力を `InputManager` へ転送する。分解能はフレーム末尾の待機を正確にするために上げる |
 | 6 | `Graphics` の初期化 | デバイス、コマンド、ヒープ、スワップチェーン、シェーダー、PSO を作る |
 | 7 | `Game::RegisterGameShaders` | マテリアルの読み込みでシェーダー名を解決するため、Asset より前に登録する |
 | 8 | `Asset` の初期化 | `Assets/` 以下を走査して `.meta` と索引を作る |
@@ -93,8 +93,11 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | 6 | | `Editor` の `BeginFrame` → `Update` → `Draw` → `EndFrame`。シーンの更新、2 視点の描画、ImGui の描画をここで行う | `PrepareBackbufferToGame` でレターボックスを設定し、`SceneManager::Update` の後にメインカメラの視点で `SceneRenderer::Render` を呼ぶ |
 | 7 | `Renderer::EndFrame` でコマンドを実行し、GPU の完了を待ってから Present する | | |
 | 8 | | `PerformanceProfiler::Resolve` で GPU 時間を読み戻す | |
+| 9 | `Platform::EndFrame` で、フレーム開始から 1/60 秒になるまで待つ（60 FPS 固定） | | |
 
 `Renderer::EndFrame` が毎フレーム GPU を待ち切る同期設計です。このため、フレーム内で使い捨てる定数バッファや頂点バッファ、プロファイラは多重バッファリングを持ちません。描画を非同期にする場合は、これら 3 つを作り直す必要があります。
+
+フレームレートは `Time::WaitForTargetFrame` が 60 FPS に固定します。待つのは Present の後で、フレーム開始から 1/60 秒に満たない分だけです。待ち方は [PlatformLayer.md](layers/PlatformLayer.md) の「フレームレートの固定」にあります。
 
 ## シーンが絵になるまで
 

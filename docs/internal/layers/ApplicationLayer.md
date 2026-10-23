@@ -28,7 +28,7 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 | 項目 | 既定値 | 意味 |
 | --- | --- | --- |
-| `referenceWidth`、`referenceHeight` | 1920、1080 | ゲーム画面の設計解像度。アスペクト比の基準 |
+| `referenceWidth`、`referenceHeight` | 1920、1080 | ゲーム画面の設計解像度。アスペクト比と、スプライトのピクセル座標の基準。`Application` が毎フレーム `Renderer::SetReferenceResolution` へ渡す |
 | `windowWidth`、`windowHeight` | 1280、720 | 起動時のウィンドウサイズ。読み込み時に 16 から 16384 の範囲に収め、範囲外は既定値へ倒す |
 | `fullscreen` | false | ボーダレス全画面で起動するか。エディタ構成では無視される |
 | `windowTitle` | "CakeEngine" | ウィンドウタイトル。JSON と ImGui に合わせて UTF-8 で持ち、ウィンドウ生成時だけワイド文字へ直す |

@@ -23,7 +23,7 @@ private:
 public:
 	void Initialize();
 
-	ID3D12Device* GetD3DDevice() const { return device_.Get(); }
+	ID3D12Device* GetD3D12Device() const { return device_.Get(); }
 	IDXGIFactory7* GetFactory() const { return dxgiFactory_.Get(); }
 };
 

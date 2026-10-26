@@ -144,7 +144,7 @@ void Application::Initialize(HINSTANCE hInstance) {
 
 	// Asset層の初期化.
 	AssetInitializeDesc assetDesc;
-	assetDesc.device = graphics_.GetDevice()->GetD3DDevice();
+	assetDesc.device = graphics_.GetDevice()->GetD3D12Device();
 	assetDesc.srvHeap = graphics_.GetSrvHeap();
 	assetDesc.commandManager = graphics_.GetCommandManager();
 	assetDesc.shaderLibrary = graphics_.GetShaderLibrary();
@@ -154,7 +154,7 @@ void Application::Initialize(HINSTANCE hInstance) {
 
 	// Render層の初期化.
 	RendererInitDesc rendererDesc;
-	rendererDesc.device = graphics_.GetDevice()->GetD3DDevice();
+	rendererDesc.device = graphics_.GetDevice()->GetD3D12Device();
 	rendererDesc.swapChain = graphics_.GetSwapChain();
 	rendererDesc.depthBuffer = graphics_.GetDepthBuffer();
 	rendererDesc.srvHeap = graphics_.GetSrvHeap();

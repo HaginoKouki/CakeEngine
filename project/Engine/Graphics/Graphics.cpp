@@ -7,17 +7,17 @@ void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
 	device_.Initialize();
 
 	// 2. CommandManager.
-	commandManager_.Initialize(device_.GetD3DDevice());
+	commandManager_.Initialize(device_.GetD3D12Device());
 
 	// 3. DescriptorHeap ×3.
-	rtvHeap_.Initialize(device_.GetD3DDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 4, false);
-	srvHeap_.Initialize(device_.GetD3DDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
-	dsvHeap_.Initialize(device_.GetD3DDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+	rtvHeap_.Initialize(device_.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 4, false);
+	srvHeap_.Initialize(device_.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	dsvHeap_.Initialize(device_.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 	// 4. SwapChain.
 	swapChain_.Initialize(
 		device_.GetFactory(),
-		device_.GetD3DDevice(),
+		device_.GetD3D12Device(),
 		commandManager_.GetCommandQueue(),
 		hwnd,
 		&rtvHeap_,
@@ -28,15 +28,15 @@ void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
 	shaderCompiler_.Initialize();
 
 	// 6. PipelineState（Standard PSO を固定登録）.
-	pipelineState_.Initialize(device_.GetD3DDevice());
+	pipelineState_.Initialize(device_.GetD3D12Device());
 
 	// 6.5 ShaderLibrary（シェーダー定義を登録し、PSO生成まで行う）.
 	shaderLibrary_.Initialize(&pipelineState_, &shaderCompiler_);
 
 	// 7. DepthBuffer.
-	depthBuffer_.Initialize(device_.GetD3DDevice(), &dsvHeap_, width, height);
+	depthBuffer_.Initialize(device_.GetD3D12Device(), &dsvHeap_, width, height);
 
-	profiler_.Initialize(device_.GetD3DDevice(), &commandManager_);
+	profiler_.Initialize(device_.GetD3D12Device(), &commandManager_);
 }
 
 

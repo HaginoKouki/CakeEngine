@@ -85,11 +85,11 @@ void ImGuiManager::Initialize(
 	ImGui_ImplWin32_Init(hwnd);
 
 	ImGui_ImplDX12_InitInfo initInfo = {};
-	initInfo.Device = device->GetD3DDevice();                  // DX12デバイス.
+	initInfo.Device = device->GetD3D12Device();                  // DX12デバイス.
 	initInfo.CommandQueue = commandManager->GetCommandQueue(); // DX12コマンドキュー.
 	initInfo.NumFramesInFlight = swapChain->GetBufferCount();  // バックバッファの数.
 	initInfo.RTVFormat = swapChain->GetRTVFormat();            // RTVのフォーマット.
-	initInfo.DSVFormat = depthBuffer->GetFormat();             // DSVのフォーマット.
+	initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;                  // DSVのフォーマット.
 	initInfo.UserData = srvHeap;                               // コールバックへ渡すSRVヒープ.
 	initInfo.SrvDescriptorHeap = srvHeap->GetHeap();           // SRV用ディスクリプタヒープ.
 	initInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) {

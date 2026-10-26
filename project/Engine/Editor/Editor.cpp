@@ -45,7 +45,7 @@ void Editor::Initialize(
 	menuBar_.Initialize(sceneManager, asset, settings, preferences, imguiManager_);
 
 	// エディタUIへ配る参照束。以降シグネチャは (対象, ctx_) に統一する.
-	ctx_.device = graphics_->GetDevice()->GetD3DDevice();
+	ctx_.device = graphics_->GetDevice()->GetD3D12Device();
 	ctx_.shaderLibrary = graphics_->GetShaderLibrary();
 	ctx_.textureManager = asset_->GetTextureManager();
 	ctx_.materialManager = asset_->GetMaterialManager();

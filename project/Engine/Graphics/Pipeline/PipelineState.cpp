@@ -195,6 +195,7 @@ D3D12_BLEND_DESC PipelineState::GetBlendDesc(BlendMode blendMode) const {
 			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
 			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
+			break;
 		case BlendMode::kBlendModeScreen:
 			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
 			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;

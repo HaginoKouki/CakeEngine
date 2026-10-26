@@ -6,6 +6,7 @@
 namespace Cake {
 
 class DescriptorHeap;
+class SrvManager;
 
 // ゲーム画面をオフスクリーンに描画し、ImGui::Imageで表示するための描画先.
 // カラーRT（RTV + SRV）を1枚持つ。深度は共有のDepthBufferを使う.
@@ -13,7 +14,7 @@ class SceneRenderTarget {
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle_{};    // rtvHeap内のCPUハンドル（描画先）.
-	D3D12_GPU_DESCRIPTOR_HANDLE srvGpuHandle_{}; // srvHeap内のGPUハンドル（ImGui::Image用）.
+	D3D12_GPU_DESCRIPTOR_HANDLE srvGpuHandle_{}; // SrvManager のヒープ内のGPUハンドル（ImGui::Image用）.
 	DXGI_FORMAT format_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	// 現在のリソース状態（バリアの StateBefore に使う）.
@@ -25,7 +26,7 @@ private:
 	// Resize用に保持.
 	ID3D12Device* device_ = nullptr;
 	DescriptorHeap* rtvHeap_ = nullptr;
-	DescriptorHeap* srvHeap_ = nullptr;
+	SrvManager* srvManager_ = nullptr;
 	uint32_t rtvIndex_ = 0;
 	uint32_t srvIndex_ = 0;
 
@@ -40,9 +41,8 @@ public:
 	void Initialize(
 		ID3D12Device* device,
 		DescriptorHeap* rtvHeap,
-		DescriptorHeap* srvHeap,
+		SrvManager* srvManager,
 		uint32_t rtvIndex,
-		uint32_t srvIndex,
 		uint32_t width,
 		uint32_t height
 	);

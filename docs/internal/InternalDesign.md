@@ -55,7 +55,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 
 ### Asset 層と Graphics 層の順序
 
-`Asset.h` のコメントは「Graphics に依存する」と書いており、実装もそのとおりです（`TextureManager` が `DescriptorHeap` を、`Material` が `ShaderDefinition` を使います）。このページでは実装に合わせて Asset を Graphics の上に置いています。
+`Asset.h` のコメントは「Graphics に依存する」と書いており、実装もそのとおりです（`TextureManager` が `SrvManager` を、`Material` が `ShaderDefinition` を使います）。このページでは実装に合わせて Asset を Graphics の上に置いています。
 
 ## 起動の流れ
 
@@ -190,7 +190,7 @@ CI がビルドするのは C++ だけです。HLSL は実行時にコンパイ�
 | 型、関数 | パスカルケース | `SceneManager`、`UpdateTransforms` |
 | メンバ変数 | 末尾にアンダースコア | `scene_`、`currentPath_` |
 | ローカル変数、引数、公開メンバ | キャメルケース | `deltaTime`、`startColor` |
-| 定数 | `k` 接頭辞 | `kMaxDeltaTime`、`kSrvReservedCount` |
+| 定数 | `k` 接頭辞 | `kMaxDeltaTime`、`kMaxSrvCount` |
 | 列挙子 | パスカルケース。`BlendMode` のように `k` 接頭辞のものもある | `KeyState::Pressed`、`BlendMode::kBlendModeNormal` |
 | シェーダー名 | スラッシュ区切りの階層 | `Unlit/Color`、`Skybox/Panoramic` |
 | HLSL のリソース | `g` 接頭辞 | `gMaterial`、`gTexture` |

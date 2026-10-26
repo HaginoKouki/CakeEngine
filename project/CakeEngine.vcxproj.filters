@@ -492,6 +492,9 @@
     <ClCompile Include="Game\Components\Tester\SpriteTesterComponent.cpp">
       <Filter>Game\Components\Tester</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Descriptor\SrvManager.cpp">
+      <Filter>Engine\Graphics\Descriptor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Application\Application.h">
@@ -910,6 +913,9 @@
     </ClInclude>
     <ClInclude Include="Game\Components\Tester\SpriteTesterComponent.h">
       <Filter>Game\Components\Tester</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Descriptor\SrvManager.h">
+      <Filter>Engine\Graphics\Descriptor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

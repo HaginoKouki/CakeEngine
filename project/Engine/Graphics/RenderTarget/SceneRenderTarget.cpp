@@ -1,6 +1,7 @@
 #include "SceneRenderTarget.h"
 #include "Engine/Foundation/Debug/DebugLog.h"
 #include "Engine/Graphics/Descriptor/DescriptorHeap.h"
+#include "Engine/Graphics/Descriptor/SrvManager.h"
 
 namespace Cake {
 
@@ -12,9 +13,8 @@ constexpr uint32_t kMaxDim = 16384;
 void SceneRenderTarget::Initialize(
 	ID3D12Device* device,
 	DescriptorHeap* rtvHeap,
-	DescriptorHeap* srvHeap,
+	SrvManager* srvManager,
 	uint32_t rtvIndex,
-	uint32_t srvIndex,
 	uint32_t width,
 	uint32_t height
 ) {
@@ -22,9 +22,9 @@ void SceneRenderTarget::Initialize(
 
 	device_ = device;
 	rtvHeap_ = rtvHeap;
-	srvHeap_ = srvHeap;
+	srvManager_ = srvManager;
 	rtvIndex_ = rtvIndex;
-	srvIndex_ = srvIndex;
+	srvIndex_ = srvManager_->Allocate();
 
 	CreateResources(width, height);
 
@@ -79,8 +79,8 @@ void SceneRenderTarget::CreateResources(uint32_t width, uint32_t height) {
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
-	device_->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHeap_->GetCPUHandle(srvIndex_));
-	srvGpuHandle_ = srvHeap_->GetGPUHandle(srvIndex_);
+	device_->CreateShaderResourceView(resource_.Get(), &srvDesc, srvManager_->GetCPUHandle(srvIndex_));
+	srvGpuHandle_ = srvManager_->GetGPUHandle(srvIndex_);
 }
 
 void SceneRenderTarget::TransitionToRenderTarget(ID3D12GraphicsCommandList* commandList) {

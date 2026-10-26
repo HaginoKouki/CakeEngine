@@ -16,6 +16,7 @@
 #include "Engine/Graphics/Device/DirectXDevice.h"
 #include "Engine/Graphics/Device/CommandManager.h"
 #include "Engine/Graphics/Descriptor/DescriptorHeap.h"
+#include "Engine/Graphics/Descriptor/SrvManager.h"
 #include "Engine/Graphics/RenderTarget/DepthBuffer.h"
 #include "Engine/Graphics/RenderTarget/SwapChain.h"
 #include "Engine/Graphics/Pipeline/PipelineState.h"
@@ -28,7 +29,8 @@ namespace Cake {
 class Graphics {
 	DirectXDevice device_;
 	CommandManager commandManager_;
-	DescriptorHeap rtvHeap_, srvHeap_, dsvHeap_;
+	DescriptorHeap rtvHeap_, dsvHeap_;
+	SrvManager srvManager_;
 	SwapChain swapChain_;
 	ShaderCompiler shaderCompiler_;
 	PipelineState pipelineState_;
@@ -46,7 +48,7 @@ public:
 	DirectXDevice* GetDevice() { return &device_; }
 	CommandManager* GetCommandManager() { return &commandManager_; }
 	DescriptorHeap* GetRtvHeap() { return &rtvHeap_; }
-	DescriptorHeap* GetSrvHeap() { return &srvHeap_; }
+	SrvManager* GetSrvManager() { return &srvManager_; }
 	DescriptorHeap* GetDsvHeap() { return &dsvHeap_; }
 	SwapChain* GetSwapChain() { return &swapChain_; }
 	ShaderCompiler* GetShaderCompiler() { return &shaderCompiler_; }

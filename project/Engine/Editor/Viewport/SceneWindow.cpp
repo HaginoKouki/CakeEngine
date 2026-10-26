@@ -32,11 +32,11 @@ void SceneWindow::Initialize(
 	sceneManager_ = &sceneManager;
 	settings_ = &settings;
 
-	// DebugSceneRenderTarget（デバッグカメラ視点。RTV=3 / SRV=5）.
+	// DebugSceneRenderTarget（デバッグカメラ視点。RTV=3、SRV は SrvManager から確保）.
 	rt_.Initialize(
 		graphics_->GetDevice()->GetD3D12Device(),
-		graphics_->GetRtvHeap(), graphics_->GetSrvHeap(),
-		Reserved::kRtvDebugSceneRT, Reserved::kSrvDebugSceneRT,
+		graphics_->GetRtvHeap(), graphics_->GetSrvManager(),
+		Reserved::kRtvDebugSceneRT,
 		settings_->windowWidth, settings_->windowHeight
 	);
 

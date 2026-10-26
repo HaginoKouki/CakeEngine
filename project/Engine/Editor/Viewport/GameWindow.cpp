@@ -28,8 +28,8 @@ void GameWindow::Initialize(
 	// SceneRenderTarget（ゲームカメラ視点）.
 	rt_.Initialize(
 		graphics_->GetDevice()->GetD3D12Device(),
-		graphics_->GetRtvHeap(), graphics_->GetSrvHeap(),
-		Reserved::kRtvSceneRT, Reserved::kSrvSceneRT,
+		graphics_->GetRtvHeap(), graphics_->GetSrvManager(),
+		Reserved::kRtvSceneRT,
 		settings_->windowWidth, settings_->windowHeight
 	);
 }

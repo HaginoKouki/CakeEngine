@@ -41,11 +41,11 @@ void ImGuiManager::Initialize(
 	DirectXDevice* device,
 	CommandManager* commandManager,
 	SwapChain* swapChain,
-	DescriptorHeap* srvHeap
+	SrvManager* srvManager
 ) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
-	srvHeap_ = srvHeap;
+	srvManager_ = srvManager;
 	hwnd_ = hwnd;
 
 	IMGUI_CHECKVERSION();
@@ -76,16 +76,16 @@ void ImGuiManager::Initialize(
 	consoleFont_ = io.Fonts->AddFontFromFileTTF(kLogFont, kLoadFontSize, nullptr, io.Fonts->GetGlyphRangesJapanese());
 	io.Fonts->AddFontFromFileTTF(kIconFont, kLoadFontSize, &iconConfig, kIconRanges);
 
-
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // ドッキング有効化.
 	// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // OSウィンドウ外へ引き出す機能。DX12は追加実装が要るので今回はOFF.
 
 	ImGui_ImplWin32_Init(hwnd);
 
-	// ImGui 用の予約枠のハンドルを控えておく. コールバックはこの配列だけを見る.
-	for (uint32_t i = 0; i < Reserved::kSrvImGuiCount; ++i) {
-		srvSlots_[i].cpuHandle = srvHeap->GetCPUHandle(Reserved::kSrvImGuiBegin + i);
-		srvSlots_[i].gpuHandle = srvHeap->GetGPUHandle(Reserved::kSrvImGuiBegin + i);
+	// SrvManager から ImGui 用の枠を確保し、ハンドルを控えておく. コールバックはこの配列だけを見る.
+	for (uint32_t i = 0; i < kSrvImGuiCount; ++i) {
+		uint32_t index = srvManager_->Allocate();
+		srvSlots_[i].cpuHandle = srvManager_->GetCPUHandle(index);
+		srvSlots_[i].gpuHandle = srvManager_->GetGPUHandle(index);
 		srvSlots_[i].inUse = false;
 	}
 
@@ -96,12 +96,12 @@ void ImGuiManager::Initialize(
 	initInfo.RTVFormat = swapChain->GetRTVFormat();            // RTVのフォーマット.
 	initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;                  // DSVのフォーマット. ImGuiは深度なしのパスで描くので未設定.
 	initInfo.UserData = this;                                  // コールバックへ渡す自分自身.
-	initInfo.SrvDescriptorHeap = srvHeap->GetHeap();           // SRV用ディスクリプタヒープ.
+	initInfo.SrvDescriptorHeap = srvManager_->GetHeap();       // SRV用ディスクリプタヒープ.
 	initInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) {
-		// SRV確保関数. ImGui用の予約枠から空いている枠を1つ渡す.
+		// SRV確保関数. ImGui用に確保した枠のうち、空いているものを1つ渡す.
 		// フォントアトラスを作り直すと、古いテクスチャが破棄されるまで一時的に複数枚が同時に存在する.
 		ImGuiManager* self = static_cast<ImGuiManager*>(info->UserData);
-		for (auto& slot : self->srvSlots_) {
+		for (auto& slot : self->srvSlots_) { 
 			if (!slot.inUse) {
 				slot.inUse = true;
 				*out_cpu_handle = slot.cpuHandle;
@@ -109,7 +109,7 @@ void ImGuiManager::Initialize(
 				return;
 			}
 		}
-		IM_ASSERT(false && "ImGui用のSRV予約枠が足りません. Reserved::kSrvImGuiCount を増やしてください.");
+		IM_ASSERT(false && "ImGui用のSRV枠が足りません. ImGuiManager::kSrvImGuiCount を増やしてください.");
 		// assert が無効な構成でも不正なハンドルを返さないよう、先頭の枠を渡す.
 		*out_cpu_handle = self->srvSlots_[0].cpuHandle;
 		*out_gpu_handle = self->srvSlots_[0].gpuHandle;
@@ -123,7 +123,7 @@ void ImGuiManager::Initialize(
 				return;
 			}
 		}
-		IM_ASSERT(false && "ImGui用の予約枠ではないSRVが解放されました.");
+		IM_ASSERT(false && "ImGui用に確保した枠ではないSRVが解放されました.");
 	};
 	ImGui_ImplDX12_Init(&initInfo);
 

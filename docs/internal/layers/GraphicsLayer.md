@@ -19,7 +19,8 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 | 直下 | `Graphics` | 下記の部品をすべて所有し、`Initialize` と `Resize` を提供する |
 | `Device/` | `DirectXDevice` | Factory、Adapter（高性能優先でソフトウェアアダプタを除外）、Device の生成。Debug 構成ではデバッグレイヤーと GPU ベース検証を有効にし、エラーと警告で停止する |
 | `Device/` | `CommandManager` | Queue、Allocator、CommandList、Fence。`ExecuteAndWait` と `WaitForGPU` |
-| `Descriptor/` | `DescriptorHeap` | ディスクリプタヒープ 1 本と、先頭の予約枠（`Reserved` 名前空間） |
+| `Descriptor/` | `DescriptorHeap` | ディスクリプタヒープ 1 本と、RTV ヒープ先頭の予約枠（`Reserved` 名前空間） |
+| `Descriptor/` | `SrvManager` | シェーダー可視の SRV ヒープ（512 個）を 1 本持ち、`Allocate` で番号を 0 から順に払い出す。解放はしない |
 | `RenderTarget/` | `SwapChain` | バックバッファ 2 枚。フレーム先頭と末尾のバリア、Present、Resize |
 | `RenderTarget/` | `DepthBuffer` | `D24_UNORM_S8_UINT` の深度バッファ 1 枚 |
 | `RenderTarget/` | `SceneRenderTarget` | オフスクリーン描画先（RTV と SRV）。エディタの 2 ビューが使う。遅延リサイズに対応 |
@@ -39,7 +40,7 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 
 1. `DirectXDevice`
 2. `CommandManager`
-3. `DescriptorHeap` を 3 本（RTV 4 個、SRV 128 個でシェーダー可視、DSV 1 個）
+3. `DescriptorHeap` を 2 本（RTV 4 個、DSV 1 個）と `SrvManager`（SRV 512 個でシェーダー可視）
 4. `SwapChain`
 5. `ShaderCompiler`
 6. `PipelineState`（ルートシグネチャの構築）と `ShaderLibrary`（既定シェーダーの登録と PSO 生成）
@@ -86,18 +87,24 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 
 ゲーム固有のシェーダー（`Object3D`、`Particle`）は `Game::RegisterGameShaders` から同じ `Register` で登録します。
 
-### ディスクリプタヒープの予約枠
+### RTV の予約枠と SRV の払い出し
 
-SRV ヒープと RTV ヒープの先頭は、エディタ固有の描画先のために予約しています（`Reserved` 名前空間）。
+RTV ヒープの先頭は、エディタ固有の描画先のために予約しています（`Reserved` 名前空間）。
 
-| 構成 | SRV | RTV |
+| 構成 | RTV |
+| --- | --- |
+| `ENABLE_EDITOR` あり | 0 と 1 = SwapChain、2 = SceneRT、3 = DebugSceneRT |
+| `ENABLE_EDITOR` なし | 0 と 1 = SwapChain |
+
+SRV は予約せず、`SrvManager::Allocate` が 0 から順に番号を払い出します。番号は初期化の順番で決まり、Debug と Release でも変わるので、各クラスは受け取った番号を保存して使います。解放の仕組みはないため、作り直す SRV（リサイズする `SceneRenderTarget` など）は最初に受け取った番号へ作り直します。上限（`kMaxSrvCount` = 512）を超えると assert で止まります。
+
+| 使う側 | 確保する数 | 確保する時点 |
 | --- | --- | --- |
-| `ENABLE_EDITOR` あり | 0〜3 = ImGui のテクスチャ（`kSrvImGuiCount` = 4）、4 = SceneRT、5 = DebugSceneRT。`kSrvReservedCount` = 6 | 0 と 1 = SwapChain、2 = SceneRT、3 = DebugSceneRT |
-| `ENABLE_EDITOR` なし | `kSrvReservedCount` = 0 | 0 と 1 = SwapChain |
+| `TextureManager` | テクスチャ 1 枚につき 2（描画用とプレビュー用） | テクスチャの読み込み時 |
+| `ImGuiManager` | 4 | 初期化時 |
+| `SceneRenderTarget` | 1 枚につき 1 | 初期化時（リサイズでは確保しない） |
 
-`TextureManager` のように動的に確保する側は、必ず `kSrvReservedCount` から始めます。
-
-ImGui のテクスチャに 4 枠あるのは、ImGui 1.92 以降のバックエンドがテクスチャごとに SRV を確保するためです。フォントアトラスを作り直すと、古いテクスチャが破棄されるまで新旧が同時に存在します。`ImGuiManager` は確保のコールバックで空いている枠を貸し出し、解放のコールバックで空きに戻します。
+ImGui のテクスチャに 4 枠あるのは、ImGui 1.92 以降のバックエンドがテクスチャごとに SRV を確保するためです。フォントアトラスを作り直すと、古いテクスチャが破棄されるまで新旧が同時に存在します。`ImGuiManager` は初期化時に `SrvManager` から 4 枠を確保しておき、確保のコールバックで空いている枠を貸し出し、解放のコールバックで空きに戻します。
 
 ### フレーム内の使い捨てバッファ
 

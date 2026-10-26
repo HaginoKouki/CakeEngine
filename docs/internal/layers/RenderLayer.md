@@ -91,7 +91,7 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | 項目 | 内容 |
 | --- | --- |
 | 規則 | Asset 層以下にのみ依存する。Scene 層はこの層の上 |
-| 実装上の依存 | Graphics（`FrameConstantBuffer`、`FrameVertexBuffer`、`SwapChain`、`DepthBuffer`、`DescriptorHeap`、`PipelineState`、`ShaderDefinition`、`SceneRenderTarget`、`CommandManager`）、Asset（各 Handle と Manager、`Material`、`Mesh`）、Foundation（Math、`DebugLog`） |
+| 実装上の依存 | Graphics（`FrameConstantBuffer`、`FrameVertexBuffer`、`SwapChain`、`DepthBuffer`、`SrvManager`、`PipelineState`、`ShaderDefinition`、`SceneRenderTarget`、`CommandManager`）、Asset（各 Handle と Manager、`Material`、`Mesh`）、Foundation（Math、`DebugLog`） |
 | 規則との食い違い | 各パスと `SceneRenderer` が Scene 層の System を呼ぶ。`ParticlePass` は `Scene`、`GameObject`、`ParticleStorage`、Particle 系コンポーネントを直接 include する |
 | 相互参照 | Scene 層の System も Render 層のヘッダ（`CameraView`、`Light.h`、`GizmoDrawList`、`SpriteDrawList`、`Renderer`）を使う。ヘッダ単位では前方宣言で循環を避けているが、`.cpp` 単位では相互に参照している。詳細は [InternalDesign.md](../InternalDesign.md) を参照 |
 

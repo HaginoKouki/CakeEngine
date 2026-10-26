@@ -11,7 +11,7 @@ void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
 
 	// 3. DescriptorHeap ×3.
 	rtvHeap_.Initialize(device_.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 4, false);
-	srvHeap_.Initialize(device_.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	srvManager_.Initialize(device_.GetD3D12Device());
 	dsvHeap_.Initialize(device_.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 	// 4. SwapChain.

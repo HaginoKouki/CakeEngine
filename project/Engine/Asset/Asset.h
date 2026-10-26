@@ -19,13 +19,13 @@
 
 namespace Cake {
 
-class DescriptorHeap;
+class SrvManager;
 class CommandManager;
 class ShaderLibrary;
 
 struct AssetInitializeDesc {
 	ID3D12Device* device = nullptr;
-	DescriptorHeap* srvHeap = nullptr;
+	SrvManager* srvManager = nullptr;
 	CommandManager* commandManager = nullptr;
 	const ShaderLibrary* shaderLibrary = nullptr;
 
@@ -34,7 +34,7 @@ struct AssetInitializeDesc {
 
 	// 必須項目が埋まっているか（Initialize の先頭で検査する）.
 	bool IsValid() const {
-		return device != nullptr && srvHeap != nullptr && commandManager != nullptr && shaderLibrary != nullptr;
+		return device != nullptr && srvManager != nullptr && commandManager != nullptr && shaderLibrary != nullptr;
 	}
 };
 

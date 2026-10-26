@@ -18,13 +18,13 @@ constexpr const char* kLogCategory = "TextureManager";
 
 void TextureManager::Initialize(
 	ID3D12Device* device,
-	DescriptorHeap* srvHeap,
+	SrvManager* srvManager,
 	CommandManager* commandManager
 ) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
 	device_ = device;
-	srvHeap_ = srvHeap;
+	srvManager_ = srvManager;
 	commandManager_ = commandManager;
 
 	pool_.reserve(64);
@@ -59,8 +59,8 @@ TextureHandle TextureManager::RegisterTexture(const std::string& filePath, const
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-	const uint32_t srvIndex = nextSrvIndex_++;
-	device_->CreateShaderResourceView(td.resource.Get(), &srvDesc, srvHeap_->GetCPUHandle(srvIndex));
+	const uint32_t srvIndex = srvManager_->Allocate();
+	device_->CreateShaderResourceView(td.resource.Get(), &srvDesc, srvManager_->GetCPUHandle(srvIndex));
 
 	// 追加：ImGuiプレビュー用（UNORM、デコードなし・素通し）
 	D3D12_SHADER_RESOURCE_VIEW_DESC previewDesc = srvDesc;
@@ -68,9 +68,9 @@ TextureHandle TextureManager::RegisterTexture(const std::string& filePath, const
 	                         ? DirectX::MakeLinear(metadata.format) // _SRGBを剥がしたUNORM相当
 	                         : metadata.format;
 
-	const uint32_t previewSrvIndex = nextSrvIndex_++;
-	device_->CreateShaderResourceView(td.resource.Get(), &previewDesc, srvHeap_->GetCPUHandle(previewSrvIndex));
-	td.previewGpuHandle = srvHeap_->GetGPUHandle(previewSrvIndex);
+	const uint32_t previewSrvIndex = srvManager_->Allocate();
+	device_->CreateShaderResourceView(td.resource.Get(), &previewDesc, srvManager_->GetCPUHandle(previewSrvIndex));
+	td.previewGpuHandle = srvManager_->GetGPUHandle(previewSrvIndex);
 
 	// pool_ に載せる位置が index。generation は 1 始まり.
 	const uint32_t index = static_cast<uint32_t>(pool_.size());
@@ -80,7 +80,7 @@ TextureHandle TextureManager::RegisterTexture(const std::string& filePath, const
 	td.textureHeight = static_cast<uint32_t>(metadata.height);
 	td.handle.index = index;
 	td.handle.generation = 1;
-	td.handle.gpuHandle = srvHeap_->GetGPUHandle(srvIndex);
+	td.handle.gpuHandle = srvManager_->GetGPUHandle(srvIndex);
 
 	commandManager_->ExecuteAndWait();
 	commandManager_->ResetForNextFrame();

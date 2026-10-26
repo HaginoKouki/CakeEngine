@@ -25,7 +25,7 @@ namespace Cake {
 
 class SwapChain;
 class DepthBuffer;
-class DescriptorHeap;
+class SrvManager;
 class PipelineState;
 class TextureManager;
 class MaterialManager;
@@ -36,7 +36,7 @@ struct RendererInitDesc {
 	ID3D12Device* device = nullptr;
 	SwapChain* swapChain = nullptr;
 	DepthBuffer* depthBuffer = nullptr;
-	DescriptorHeap* srvHeap = nullptr;
+	SrvManager* srvManager = nullptr;
 	PipelineState* pipelineState = nullptr;
 
 	/* --- Asset層から --- */
@@ -53,7 +53,7 @@ struct RendererInitDesc {
 	uint32_t clientHeight = 0;
 
 	bool IsValid() const {
-		return device != nullptr && swapChain != nullptr && depthBuffer != nullptr && srvHeap != nullptr && pipelineState != nullptr &&
+		return device != nullptr && swapChain != nullptr && depthBuffer != nullptr && srvManager != nullptr && pipelineState != nullptr &&
 			textureManager != nullptr && materialManager != nullptr && modelManager != nullptr &&
 			referenceWidth > 0 && referenceHeight > 0;
 	}
@@ -76,7 +76,7 @@ private:
 	ID3D12Device* device_ = nullptr;
 	SwapChain* swapChain_ = nullptr;
 	DepthBuffer* depthBuffer_ = nullptr;
-	DescriptorHeap* srvHeap_ = nullptr;
+	SrvManager* srvManager_ = nullptr;
 	PipelineState* pipelineState_ = nullptr;
 	TextureManager* textureManager_ = nullptr;   // 非所有.
 	MaterialManager* materialManager_ = nullptr; // マテリアルハンドルの解決に使う（非所有）.

@@ -20,7 +20,7 @@
 #include "Engine/Foundation/Math/Matrix.h"
 #include "Engine/Foundation/Math/Transform.h"
 #include "Engine/Graphics/Device/CommandManager.h"
-#include "Engine/Graphics/Descriptor/DescriptorHeap.h"
+#include "Engine/Graphics/Descriptor/SrvManager.h"
 #include "Engine/Editor/Settings/EditorPreferences.h"
 
 
@@ -37,19 +37,20 @@ private:
 		kThemeCount
 	};
 
-	DescriptorHeap* srvHeap_ = nullptr;
+	SrvManager* srvManager_ = nullptr;
 	HWND hwnd_ = nullptr;         // DPI の問い合わせに使う.
 	float uiScale_ = 1.0f;        // 実際に適用中の倍率.
 	float systemDpiScale_ = 1.0f; // OS から取得した拡大率のキャッシュ.
 
-	// ImGui のテクスチャ用 SRV 枠（Reserved::kSrvImGuiBegin から kSrvImGuiCount 個）.
+	// ImGui のテクスチャ用 SRV 枠（初期化時に SrvManager から kSrvImGuiCount 個確保する）.
 	// バックエンドがテクスチャを作るたびにコールバックから貸し出し、破棄されたら空きに戻す.
 	struct SrvSlot {
 		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle{};
 		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle{};
 		bool inUse = false;
 	};
-	std::array<SrvSlot, Reserved::kSrvImGuiCount> srvSlots_{};
+	static constexpr uint32_t kSrvImGuiCount = 4;
+	std::array<SrvSlot, kSrvImGuiCount> srvSlots_{};
 
 	const float kBaseStyleScale = 0.889f;
 	const float kBaseFontSize = 14.0f;
@@ -73,7 +74,7 @@ public:
 		DirectXDevice* device,
 		CommandManager* commandManager,
 		SwapChain* swapChain,
-		DescriptorHeap* srvHeap
+		SrvManager* srvManager
 	);
 
 	void BeginFrame();              // NewFrame 3点セット

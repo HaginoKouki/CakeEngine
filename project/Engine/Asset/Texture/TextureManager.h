@@ -27,7 +27,7 @@
 #include <d3d12.h>
 #include "externals/DirectXTex/DirectXTex.h"
 
-#include "Engine/Graphics/Descriptor/DescriptorHeap.h"
+#include "Engine/Graphics/Descriptor/SrvManager.h"
 #include "Engine/Asset/Texture/TextureHandle.h"
 
 namespace Cake {
@@ -47,7 +47,7 @@ struct TextureData {
 class TextureManager {
 private:
 	ID3D12Device* device_ = nullptr;
-	DescriptorHeap* srvHeap_ = nullptr;
+	SrvManager* srvManager_ = nullptr;
 	CommandManager* commandManager_ = nullptr;
 
 	// テクスチャ実体を連続配置で所有する.
@@ -56,8 +56,6 @@ private:
 	std::vector<uint32_t> generations_;
 	// パス → ハンドル。重複ロード検出・パス引き用の索引.
 	std::unordered_map<std::string, TextureHandle> byPath_;
-
-	uint32_t nextSrvIndex_ = Reserved::kSrvReservedCount;
 
 public:
 	TextureHandle defaultTexture_{}; // 1x1 白（未割り当てスロット用）.
@@ -82,7 +80,7 @@ private:
 public:
 	void Initialize(
 		ID3D12Device* device,
-		DescriptorHeap* srvHeap,
+		SrvManager* srvManager,
 		CommandManager* commandManager
 	);
 

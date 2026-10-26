@@ -141,7 +141,7 @@ Asset 層は「ファイルを読み込んで GPU リソースを作り、実行
 | 項目 | 内容 |
 | --- | --- |
 | 規則（`Asset.h` のコメント） | Graphics に依存する。下は Graphics、Platform、Foundation。上位層（Render、Scene、Editor）を知らない |
-| 実装上の依存 | Foundation（Identity、Serialize、Math、Debug）、Graphics（`ShaderDefinition`、`ShaderLibrary`、`DescriptorHeap`、`CommandManager`、`CreateBufferResource`） |
+| 実装上の依存 | Foundation（Identity、Serialize、Math、Debug）、Graphics（`ShaderDefinition`、`ShaderLibrary`、`SrvManager`、`CommandManager`、`CreateBufferResource`） |
 | 外部 | DirectXTex、nlohmann/json |
 | 使っていない下位層 | Platform |
 | 逆方向の参照 | Foundation 層の `TypeInfo.h` が `AssetRef` と各 Handle を include している。Graphics 層の `GPUResourceUtility.cpp` が `Material.h` を include している（未使用） |

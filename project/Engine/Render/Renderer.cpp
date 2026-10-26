@@ -6,7 +6,7 @@
 #include "Engine/Foundation/Math/Transform.h"
 
 #include "Engine/Graphics/Device/CommandManager.h"
-#include "Engine/Graphics/Descriptor/DescriptorHeap.h"
+#include "Engine/Graphics/Descriptor/SrvManager.h"
 #include "Engine/Graphics/pipeline/PipelineState.h"
 #include "Engine/Graphics/RenderTarget/SwapChain.h"
 #include "Engine/Graphics/RenderTarget/DepthBuffer.h"
@@ -57,7 +57,7 @@ void Renderer::Initialize(RendererInitDesc desc) {
 	device_ = desc.device;
 	swapChain_ = desc.swapChain;
 	depthBuffer_ = desc.depthBuffer;
-	srvHeap_ = desc.srvHeap;
+	srvManager_ = desc.srvManager;
 	pipelineState_ = desc.pipelineState;
 	textureManager_ = desc.textureManager;
 	materialManager_ = desc.materialManager;
@@ -130,7 +130,7 @@ void Renderer::BeginScene(CommandManager* commandManager, SceneRenderTarget* sce
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// DescriptorHeap.
-	ID3D12DescriptorHeap* heaps[] = {srvHeap_->GetHeap()};
+	ID3D12DescriptorHeap* heaps[] = {srvManager_->GetHeap()};
 	commandList_->SetDescriptorHeaps(1, heaps);
 
 	// ビューポート/シザーはシーンRTのサイズに合わせる.
@@ -158,8 +158,8 @@ void Renderer::PrepareBackbufferToEditor() {
 	float backClear[4] = {0.05f, 0.05f, 0.05f, 1.0f}; // ドッキング背景.
 	commandList_->ClearRenderTargetView(rtvHandle, backClear, 0, nullptr);
 
-	// ImGuiがsrvHeap（フォント・シーンRTのSRV）を使うので必ずバインド.
-	ID3D12DescriptorHeap* heaps[] = {srvHeap_->GetHeap()};
+	// ImGuiがSRVヒープ（フォント・シーンRTのSRV）を使うので必ずバインド.
+	ID3D12DescriptorHeap* heaps[] = {srvManager_->GetHeap()};
 	commandList_->SetDescriptorHeaps(1, heaps);
 }
 void Renderer::PrepareBackbufferToGame(uint32_t clientWidth, uint32_t clientHeight, float gameAspect) {
@@ -174,7 +174,7 @@ void Renderer::PrepareBackbufferToGame(uint32_t clientWidth, uint32_t clientHeig
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// DescriptorHeap.
-	ID3D12DescriptorHeap* heaps[] = {srvHeap_->GetHeap()};
+	ID3D12DescriptorHeap* heaps[] = {srvManager_->GetHeap()};
 	commandList_->SetDescriptorHeaps(1, heaps);
 
 	// クライアント領域内にアスペクト比を保つ最大矩形を求めてビューポートにする.

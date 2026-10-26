@@ -6,7 +6,7 @@ void Asset::Initialize(const AssetInitializeDesc& desc) {
 	// 抜けがあると nullptr のまま各マネージャへ流れ、原因の遠い場所で落ちる.
 	assert(desc.IsValid() && "AssetInitDesc に未設定の項目があります");
 
-	textureManager_.Initialize(desc.device, desc.srvHeap, desc.commandManager);
+	textureManager_.Initialize(desc.device, desc.srvManager, desc.commandManager);
 	materialManager_.Initialize(desc.device, &textureManager_, desc.shaderLibrary);
 	modelManager_.Initialize(desc.device, &textureManager_, &materialManager_);
 

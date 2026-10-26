@@ -6,8 +6,8 @@
  * 主にGameSceneのゲームオブジェクト更新時に更新される。
  *
  * ====================================*/
-#include "Engine/Foundation/Math/Vector.h"
-#include "Engine/Foundation/Math/Matrix.h"
+#include "Vector.h"
+#include "Matrix.h"
 
 namespace Cake {
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*====================================
  *
  * 数学ライブラリの基本：Vector2, Vector3, Vector4を定義する構造体群。
@@ -9,6 +9,7 @@
  * ====================================*/
 #include <cassert>
 #include <type_traits>
+#include <concepts>
 
 
 namespace Cake {
@@ -16,6 +17,8 @@ namespace Cake {
 class Matrix2x2;
 class Matrix3x3;
 class Matrix4x4;
+
+class Quaternion;
 
 class Vector2 {
 public:
@@ -35,52 +38,23 @@ public:
 	static const Vector2 UnitY;
 
 	// 算術演算子.
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2 operator+(const T& other) const {
-		Vector2 num;
-		num.x = x + static_cast<float>(other);
-		num.y = y + static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2 operator-(const T& other) const {
-		Vector2 num;
-		num.x = x - static_cast<float>(other);
-		num.y = y - static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2 operator*(const T& other) const {
-		Vector2 num;
-		num.x = x * static_cast<float>(other);
-		num.y = y * static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2 operator/(const T& other) const {
-		assert(other != 0 && "Division by zero error in Vector2::operator/");
-		Vector2 num;
-		num.x = x / static_cast<float>(other);
-		num.y = y / static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2& operator+=(const T& other) {
-		this->x += static_cast<float>(other);
-		this->y += static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2& operator-=(const T& other) {
-		this->x -= static_cast<float>(other);
-		this->y -= static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2& operator*=(const T& other) {
-		this->x *= static_cast<float>(other);
-		this->y *= static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector2& operator/=(const T& other) {
-		assert(other != 0 && "Division by zero error in Vector2::operator/=");
-		this->x /= static_cast<float>(other);
-		this->y /= static_cast<float>(other);
-		return *this;
-	}
+	template<std::convertible_to<float> T>
+	Vector2 operator+(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector2 operator-(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector2 operator*(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector2 operator/(const T& other) const;
+
+	template<std::convertible_to<float> T>
+	Vector2& operator+=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector2& operator-=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector2& operator*=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector2& operator/=(const T& other);
 
 	Vector2 operator+(const Vector2& other) const;
 	Vector2 operator-(const Vector2& other) const;
@@ -92,19 +66,9 @@ public:
 	bool operator==(const Vector2& other) const;
 
 	// 単項演算子.
-	Vector2 operator-() const {
-		return { -x, -y };
-	}
-	Vector2& operator++() {
-		x++;
-		y++;
-		return *this;
-	}
-	Vector2& operator--() {
-		x--;
-		y--;
-		return *this;
-	}
+	Vector2 operator-() const;
+	Vector2& operator++();
+	Vector2& operator--();
 
 	// 同次座標系に変換.
 	static Vector2 Transform(const Vector2&, const Matrix3x3& matrix);
@@ -141,9 +105,78 @@ inline const Vector2 Vector2::One{ 1.0f, 1.0f };
 inline const Vector2 Vector2::UnitX{ 1.0f, 0.0f };
 inline const Vector2 Vector2::UnitY{ 0.0f, 1.0f };
 
-template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0>
+template<std::convertible_to<float> T>
+Vector2 Vector2::operator+(const T& other) const {
+	Vector2 num;
+	num.x = x + static_cast<float>(other);
+	num.y = y + static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
+Vector2 Vector2::operator-(const T& other) const {
+	Vector2 num;
+	num.x = x - static_cast<float>(other);
+	num.y = y - static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
+Vector2 Vector2::operator*(const T& other) const {
+	Vector2 num;
+	num.x = x * static_cast<float>(other);
+	num.y = y * static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
 Vector2 operator*(T scalar, const Vector2& v) {
 	return v * static_cast<float>(scalar);
+}
+template<std::convertible_to<float> T>
+Vector2 Vector2::operator/(const T& other) const {
+	assert(other != 0 && "Division by zero error in Vector2::operator/");
+	Vector2 num;
+	num.x = x / static_cast<float>(other);
+	num.y = y / static_cast<float>(other);
+	return num;
+}
+
+template<std::convertible_to<float> T>
+Vector2& Vector2::operator+=(const T& other) {
+	this->x += static_cast<float>(other);
+	this->y += static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector2& Vector2::operator-=(const T& other) {
+	this->x -= static_cast<float>(other);
+	this->y -= static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector2& Vector2::operator*=(const T& other) {
+	this->x *= static_cast<float>(other);
+	this->y *= static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector2& Vector2::operator/=(const T& other) {
+	assert(other != 0 && "Division by zero error in Vector2::operator/=");
+	this->x /= static_cast<float>(other);
+	this->y /= static_cast<float>(other);
+	return *this;
+}
+
+Vector2 Vector2::operator-() const {
+	return { -x, -y };
+}
+Vector2& Vector2::operator++() {
+	x++;
+	y++;
+	return *this;
+}
+Vector2& Vector2::operator--() {
+	x--;
+	y--;
+	return *this;
 }
 
 
@@ -166,60 +199,23 @@ public:
 	static const Vector3 UnitY;
 	static const Vector3 UnitZ;
 
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3 operator+(const T& other) const {
-		Vector3 num;
-		num.x = x + static_cast<float>(other);
-		num.y = y + static_cast<float>(other);
-		num.z = z + static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3 operator-(const T& other) const {
-		Vector3 num;
-		num.x = x - static_cast<float>(other);
-		num.y = y - static_cast<float>(other);
-		num.z = z - static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3 operator*(const T& other) const {
-		Vector3 num;
-		num.x = x * static_cast<float>(other);
-		num.y = y * static_cast<float>(other);
-		num.z = z * static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3 operator/(const T& other) const {
-		assert(other != 0 && "Division by zero error in Vector3::operator/");
-		Vector3 num;
-		num.x = x / static_cast<float>(other);
-		num.y = y / static_cast<float>(other);
-		num.z = z / static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3& operator+=(const T& other) {
-		x += static_cast<float>(other);
-		y += static_cast<float>(other);
-		z += static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3& operator-=(const T& other) {
-		x -= static_cast<float>(other);
-		y -= static_cast<float>(other);
-		z -= static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3& operator*=(const T& other) {
-		x *= static_cast<float>(other);
-		y *= static_cast<float>(other);
-		z *= static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector3& operator/=(const T& other) {
-		assert(other != 0 && "Division by zero error in Vector3::operator/=");
-		x /= static_cast<float>(other);
-		y /= static_cast<float>(other);
-		z /= static_cast<float>(other);
-		return *this;
-	}
+	template<std::convertible_to<float> T>
+	Vector3 operator+(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector3 operator-(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector3 operator*(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector3 operator/(const T& other) const;
+
+	template<std::convertible_to<float> T>
+	Vector3& operator+=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector3& operator-=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector3& operator*=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector3& operator/=(const T& other);
 
 	Vector3 operator+(const Vector3& other) const;
 	Vector3 operator-(const Vector3& other) const;
@@ -229,25 +225,18 @@ public:
 
 	bool operator==(const Vector3& other) const;
 
-	Vector3 operator-() const {
-		return { -x, -y, -z };
-	}
-	Vector3& operator++() {
-		x++;
-		y++;
-		z++;
-		return *this;
-	}
-	Vector3& operator--() {
-		x--;
-		y--;
-		z--;
-		return *this;
-	}
+	Vector3 operator-() const;
+	Vector3& operator++();
+	Vector3& operator--();
 
-	// 同次座標系に変換.
-	static Vector3 Transform(const Vector3&, const Matrix4x4& matrix);
-	static Vector3 TransformNormal(const Vector3&, const Matrix4x4& matrix);
+	/// 拡縮、回転、移動を適用
+	static Vector3 Transform(const Vector3&, const Matrix4x4&);
+	/// 拡縮、回転を適用
+	static Vector3 TransformNormal(const Vector3&, const Matrix4x4&);
+
+	/// <param name="v">回転させるベクトル</param>
+	/// <param name="q">正規化済みの Quaternion</param>
+	static Vector3 Rotate(const Vector3& v, const Quaternion& q);
 
 	/// <returns>引数間の距離</returns>
 	static float Length(const Vector3&, const Vector3& = Vector3::Zero);
@@ -269,11 +258,89 @@ inline const Vector3 Vector3::UnitX{ 1.0f, 0.0f, 0.0f };
 inline const Vector3 Vector3::UnitY{ 0.0f, 1.0f, 0.0f };
 inline const Vector3 Vector3::UnitZ{ 0.0f, 0.0f, 1.0f };
 
-template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0>
+template<std::convertible_to<float> T>
+Vector3 Vector3::operator+(const T& other) const {
+	Vector3 num;
+	num.x = x + static_cast<float>(other);
+	num.y = y + static_cast<float>(other);
+	num.z = z + static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
+Vector3 Vector3::operator-(const T& other) const {
+	Vector3 num;
+	num.x = x - static_cast<float>(other);
+	num.y = y - static_cast<float>(other);
+	num.z = z - static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
+Vector3 Vector3::operator*(const T& other) const {
+	Vector3 num;
+	num.x = x * static_cast<float>(other);
+	num.y = y * static_cast<float>(other);
+	num.z = z * static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
 Vector3 operator*(T scalar, const Vector3& v) {
 	return v * static_cast<float>(scalar);
 }
+template<std::convertible_to<float> T>
+Vector3 Vector3::operator/(const T& other) const {
+	assert(other != 0 && "Division by zero error in Vector3::operator/");
+	Vector3 num;
+	num.x = x / static_cast<float>(other);
+	num.y = y / static_cast<float>(other);
+	num.z = z / static_cast<float>(other);
+	return num;
+}
 
+template<std::convertible_to<float> T>
+Vector3& Vector3::operator+=(const T& other) {
+	x += static_cast<float>(other);
+	y += static_cast<float>(other);
+	z += static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector3& Vector3::operator-=(const T& other) {
+	x -= static_cast<float>(other);
+	y -= static_cast<float>(other);
+	z -= static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector3& Vector3::operator*=(const T& other) {
+	x *= static_cast<float>(other);
+	y *= static_cast<float>(other);
+	z *= static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector3& Vector3::operator/=(const T& other) {
+	assert(other != 0 && "Division by zero error in Vector3::operator/=");
+	x /= static_cast<float>(other);
+	y /= static_cast<float>(other);
+	z /= static_cast<float>(other);
+	return *this;
+}
+
+Vector3 Vector3::operator-() const {
+	return { -x, -y, -z };
+}
+Vector3& Vector3::operator++() {
+	x++;
+	y++;
+	z++;
+	return *this;
+}
+Vector3& Vector3::operator--() {
+	x--;
+	y--;
+	z--;
+	return *this;
+}
 
 class Vector4 {
 public:
@@ -296,68 +363,23 @@ public:
 	static const Vector4 UnitZ;
 	static const Vector4 UnitW;
 
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4 operator+(const T& other) const {
-		Vector4 num;
-		num.x = x + static_cast<float>(other);
-		num.y = y + static_cast<float>(other);
-		num.z = z + static_cast<float>(other);
-		num.w = w + static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4 operator-(const T& other) const {
-		Vector4 num;
-		num.x = x - static_cast<float>(other);
-		num.y = y - static_cast<float>(other);
-		num.z = z - static_cast<float>(other);
-		num.w = w - static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4 operator*(const T& other) const {
-		Vector4 num;
-		num.x = x * static_cast<float>(other);
-		num.y = y * static_cast<float>(other);
-		num.z = z * static_cast<float>(other);
-		num.w = w * static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4 operator/(const T& other) const {
-		assert(other != 0 && "Division by zero error in Vector4::operator/");
-		Vector4 num;
-		num.x = x / static_cast<float>(other);
-		num.y = y / static_cast<float>(other);
-		num.z = z / static_cast<float>(other);
-		num.w = w / static_cast<float>(other);
-		return num;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4& operator+=(const T& other) {
-		x += static_cast<float>(other);
-		y += static_cast<float>(other);
-		z += static_cast<float>(other);
-		w += static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4& operator-=(const T& other) {
-		x -= static_cast<float>(other);
-		y -= static_cast<float>(other);
-		z -= static_cast<float>(other);
-		w -= static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4& operator*=(const T& other) {
-		x *= static_cast<float>(other);
-		y *= static_cast<float>(other);
-		z *= static_cast<float>(other);
-		w *= static_cast<float>(other);
-		return *this;
-	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Vector4& operator/=(const T& other) {
-		assert(other != 0 && "Division by zero error in Vector4::operator/=");
-		x /= static_cast<float>(other);
-		y /= static_cast<float>(other);
-		z /= static_cast<float>(other);
-		w /= static_cast<float>(other);
-		return *this;
-	}
+	template<std::convertible_to<float> T>
+	Vector4 operator+(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector4 operator-(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector4 operator*(const T& other) const;
+	template<std::convertible_to<float> T>
+	Vector4 operator/(const T& other) const;
+
+	template<std::convertible_to<float> T>
+	Vector4& operator+=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector4& operator-=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector4& operator*=(const T& other);
+	template<std::convertible_to<float> T>
+	Vector4& operator/=(const T& other);
 
 	Vector4 operator+(const Vector4& other) const;
 	Vector4 operator-(const Vector4& other) const;
@@ -367,23 +389,9 @@ public:
 
 	bool operator==(const Vector4& other) const;
 
-	Vector4 operator-() const {
-		return { -x, -y, -z, -w };
-	}
-	Vector4& operator++() {
-		x++;
-		y++;
-		z++;
-		w++;
-		return *this;
-	}
-	Vector4& operator--() {
-		x--;
-		y--;
-		z--;
-		w--;
-		return *this;
-	}
+	Vector4 operator-() const;
+	Vector4& operator++();
+	Vector4& operator--();
 
 
 	/// <returns>引数間の距離</returns>
@@ -405,9 +413,98 @@ inline const Vector4 Vector4::UnitY{ 0.0f, 1.0f, 0.0f, 0.0f };
 inline const Vector4 Vector4::UnitZ{ 0.0f, 0.0f, 1.0f, 0.0f };
 inline const Vector4 Vector4::UnitW{ 0.0f, 0.0f, 0.0f, 1.0f };
 
-template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0>
+template<std::convertible_to<float> T>
+Vector4 Vector4::operator+(const T& other) const {
+	Vector4 num;
+	num.x = x + static_cast<float>(other);
+	num.y = y + static_cast<float>(other);
+	num.z = z + static_cast<float>(other);
+	num.w = w + static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
+Vector4 Vector4::operator-(const T& other) const {
+	Vector4 num;
+	num.x = x - static_cast<float>(other);
+	num.y = y - static_cast<float>(other);
+	num.z = z - static_cast<float>(other);
+	num.w = w - static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
+Vector4 Vector4::operator*(const T& other) const {
+	Vector4 num;
+	num.x = x * static_cast<float>(other);
+	num.y = y * static_cast<float>(other);
+	num.z = z * static_cast<float>(other);
+	num.w = w * static_cast<float>(other);
+	return num;
+}
+template<std::convertible_to<float> T>
 Vector4 operator*(T scalar, const Vector4& v) {
 	return v * static_cast<float>(scalar);
+}
+template<std::convertible_to<float> T>
+Vector4 Vector4::operator/(const T& other) const {
+	assert(other != 0 && "Division by zero error in Vector4::operator/");
+	Vector4 num;
+	num.x = x / static_cast<float>(other);
+	num.y = y / static_cast<float>(other);
+	num.z = z / static_cast<float>(other);
+	num.w = w / static_cast<float>(other);
+	return num;
+}
+
+template<std::convertible_to<float> T>
+Vector4& Vector4::operator+=(const T& other) {
+	x += static_cast<float>(other);
+	y += static_cast<float>(other);
+	z += static_cast<float>(other);
+	w += static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector4& Vector4::operator-=(const T& other) {
+	x -= static_cast<float>(other);
+	y -= static_cast<float>(other);
+	z -= static_cast<float>(other);
+	w -= static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector4& Vector4::operator*=(const T& other) {
+	x *= static_cast<float>(other);
+	y *= static_cast<float>(other);
+	z *= static_cast<float>(other);
+	w *= static_cast<float>(other);
+	return *this;
+}
+template<std::convertible_to<float> T>
+Vector4& Vector4::operator/=(const T& other) {
+	assert(other != 0 && "Division by zero error in Vector4::operator/=");
+	x /= static_cast<float>(other);
+	y /= static_cast<float>(other);
+	z /= static_cast<float>(other);
+	w /= static_cast<float>(other);
+	return *this;
+}
+
+Vector4 Vector4::operator-() const {
+	return { -x, -y, -z, -w };
+}
+Vector4& Vector4::operator++() {
+	x++;
+	y++;
+	z++;
+	w++;
+	return *this;
+}
+Vector4& Vector4::operator--() {
+	x--;
+	y--;
+	z--;
+	w--;
+	return *this;
 }
 
 } // namespace Cake

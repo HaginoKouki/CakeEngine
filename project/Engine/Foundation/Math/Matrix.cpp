@@ -1,7 +1,7 @@
 #include "Matrix.h"
 
-#include "Engine/Foundation/Math/Vector.h"
-#include "Engine/Foundation/Math/Quaternion.h"
+#include "Vector.h"
+#include "Quaternion.h"
 
 #include <cmath>
 #include <cassert>
@@ -642,30 +642,21 @@ Matrix4x4 Matrix4x4::MakeRotationMatrix(const Quaternion& q) {
 	float xx = q.x * q.x;
 	float yy = q.y * q.y;
 	float zz = q.z * q.z;
-	float xy = q.x * q.y;
-	float xz = q.x * q.z;
-	float yz = q.y * q.z;
+	float ww = q.w * q.w;
+
 	float wx = q.w * q.x;
 	float wy = q.w * q.y;
 	float wz = q.w * q.z;
 
+	float xy = q.x * q.y;
+	float xz = q.x * q.z;
+	float yz = q.y * q.z;
+
 	Matrix4x4 m;
-	m.m[0][0] = 1 - 2 * (yy + zz);
-	m.m[0][1] = 2 * (xy + wz);
-	m.m[0][2] = 2 * (xz - wy);
-	m.m[0][3] = 0;
-	m.m[1][0] = 2 * (xy - wz);
-	m.m[1][1] = 1 - 2 * (xx + zz);
-	m.m[1][2] = 2 * (yz + wx);
-	m.m[1][3] = 0;
-	m.m[2][0] = 2 * (xz + wy);
-	m.m[2][1] = 2 * (yz - wx);
-	m.m[2][2] = 1 - 2 * (xx + yy);
-	m.m[2][3] = 0;
-	m.m[3][0] = 0;
-	m.m[3][1] = 0;
-	m.m[3][2] = 0;
-	m.m[3][3] = 1;
+	m.m[0][0] = ww + xx - yy - zz;	m.m[0][1] = 2 * (xy + wz);		m.m[0][2] = 2 * (xz - wy);		m.m[0][3] = 0;
+	m.m[1][0] = 2 * (xy - wz);		m.m[1][1] = ww - xx + yy - zz;	m.m[1][2] = 2 * (yz + wx);		m.m[1][3] = 0;
+	m.m[2][0] = 2 * (xz + wy);		m.m[2][1] = 2 * (yz - wx);		m.m[2][2] = ww - xx - yy + zz;	m.m[2][3] = 0;
+	m.m[3][0] = 0;					m.m[3][1] = 0;					m.m[3][2] = 0;					m.m[3][3] = 1;
 	return m;
 }
 

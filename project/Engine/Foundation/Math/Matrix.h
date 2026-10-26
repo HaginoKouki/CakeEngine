@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*====================================
  *
  * 数学ライブラリの基本：Matrix2x2, Matrix3x3, Matrix4x4を定義する構造体群。
@@ -39,7 +39,8 @@ public:
 	Matrix2x2& operator-=(const Matrix2x2& other);
 	Matrix2x2& operator*=(const Matrix2x2& other);
 
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Matrix2x2 operator*(const T& other) const {
+	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> 
+	Matrix2x2 operator*(const T& other) const {
 		Matrix2x2 result;
 		for (int y = 0; y < 2; y++) {
 			for (int x = 0; x < 2; x++) {
@@ -48,7 +49,8 @@ public:
 		}
 		return result;
 	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Matrix2x2& operator*=(const T& other) {
+	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> 
+	Matrix2x2& operator*=(const T& other) {
 		Matrix2x2 result;
 		for (int y = 0; y < 2; y++) {
 			for (int x = 0; x < 2; x++) {
@@ -110,7 +112,8 @@ public:
 	Matrix3x3& operator-=(const Matrix3x3& other);
 	Matrix3x3& operator*=(const Matrix3x3& other);
 
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Matrix3x3 operator*(const T& other) const {
+	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0>
+	Matrix3x3 operator*(const T& other) const {
 		Matrix3x3 result;
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
@@ -119,7 +122,8 @@ public:
 		}
 		return result;
 	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Matrix3x3& operator*=(const T& other) {
+	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0>
+	Matrix3x3& operator*=(const T& other) {
 		Matrix3x3 result;
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
@@ -210,7 +214,8 @@ public:
 	Matrix4x4& operator-=(const Matrix4x4& other);
 	Matrix4x4& operator*=(const Matrix4x4& other);
 
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Matrix4x4 operator*(const T& other) const {
+	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0>
+	Matrix4x4 operator*(const T& other) const {
 		Matrix4x4 result;
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
@@ -219,7 +224,8 @@ public:
 		}
 		return result;
 	}
-	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0> Matrix4x4& operator*=(const T& other) {
+	template<typename T, std::enable_if_t<std::is_convertible_v<T, float>, int> = 0>
+	Matrix4x4& operator*=(const T& other) {
 		Matrix4x4 result;
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
@@ -235,23 +241,24 @@ public:
 	/// <returns>転置行列</returns>
 	static Matrix4x4 Transpose(const Matrix4x4& matrix);
 
-	/// <returns>拡大縮小行列.</returns>
+	/// <returns>拡大縮小行列</returns>
 	static Matrix4x4 MakeScalingMatrix(const Vector3& scale);
-	/// <returns>平行移動行列.</returns>
+	/// <returns>平行移動行列</returns>
 	static Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
-	/// <returns>X軸回転行列.</returns>
+	/// <returns>X軸回転行列</returns>
 	static Matrix4x4 MakeXRotationMatrix(const float& theta);
-	/// <returns>Y軸回転行列.</returns>
+	/// <returns>Y軸回転行列</returns>
 	static Matrix4x4 MakeYRotationMatrix(const float& theta);
-	/// <returns>Z軸回転行列.</returns>
+	/// <returns>Z軸回転行列</returns>
 	static Matrix4x4 MakeZRotationMatrix(const float& theta);
-	/// <returns>回転行列.</returns>
+	/// <returns>回転行列</returns>
 	static Matrix4x4 MakeRotationMatrix(const float& rotationX, const float& rotationY, const float& rotationZ);
-	/// <returns>回転行列.</returns>
+	/// <returns>回転行列</returns>
 	static Matrix4x4 MakeRotationMatrix(const Vector3& theta);
-	/// <returns>回転行列.</returns>
+	/// <param name="q">（単位 Quaternion）</param>
+	/// <returns>回転行列</returns>
 	static Matrix4x4 MakeRotationMatrix(const Quaternion& q);
-	/// <returns>アフィン変換行列.</returns>
+	/// <returns>アフィン変換行列</returns>
 	static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotation, const Vector3& translate);
 
 	/// <summary>

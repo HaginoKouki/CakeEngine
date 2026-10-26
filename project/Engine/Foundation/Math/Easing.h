@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include "Vector.h"
 #include <numbers>
 #include <cmath>
 #include <algorithm>
+#include "Vector.h"
+#include "Quaternion.h"
 
 namespace Cake {
 namespace Easing {
@@ -197,6 +198,7 @@ T Ease(const T& start, const T& end, const float& time, EaseType type) {
 	}
 }
 
+#pragma region Template
 template <typename T>
 T Lerp(const T& start, const T& end, const float& time) {
 	return start + (end - start) * time;
@@ -616,10 +618,11 @@ T CatmullRom(const T& p0, const T& p1, const T& p2, const T& p3, const float& ti
 	T temp3 = (-p0 + p2) * time;
 	return (temp1 + temp2 + temp3 + (2 * p1)) * 0.5f;
 }
+#pragma endregion Template
 
-/*
-* Vector2.
-———————————————*/
+
+
+#pragma region Vector2
 template <typename Func>
 Vector2 ApplyComponentWise(const Vector2& start, const Vector2& end, const float& time, Func func) {
 	return {func(start.x, end.x, time), func(start.y, end.y, time)};
@@ -751,10 +754,11 @@ inline Vector2 CatmullRom(const Vector2& p0, const Vector2& p1, const Vector2& p
 	result.y = CatmullRom<float>(p0.y, p1.y, p2.y, p3.y, time);
 	return result;
 }
+#pragma endregion Vector2
 
-/*
-* Vector3.
-———————————————*/
+
+
+#pragma region Vector3
 template <typename Func>
 Vector3 ApplyComponentWise(const Vector3& start, const Vector3& end, const float& time, Func func) {
 	return {func(start.x, end.x, time), func(start.y, end.y, time), func(start.z, end.z, time)};
@@ -927,10 +931,11 @@ inline Vector3 Slerp(const Vector3& start, const Vector3& end, const float& time
 	float length = Cake::Easing::Lerp(Vector3::Length(start), Vector3::Length(end), time);
 	return result * length;
 }
+#pragma endregion Vector3
 
-/*
-* Vector4.
-———————————————*/
+
+
+#pragma region Vector4
 template <typename Func>
 Vector4 ApplyComponentWise(const Vector4& start, const Vector4& end, const float& time, Func func) {
 	return {func(start.x, end.x, time), func(start.y, end.y, time), func(start.z, end.z, time), func(start.w, end.w, time)};
@@ -1065,6 +1070,46 @@ inline Vector4 CatmullRom(const Vector4& start, const Vector4& control1, const V
 	result.w = CatmullRom<float>(start.w, control1.w, control2.w, end.w, time);
 	return result;
 }
+#pragma endregion Vector4
+
+
+
+#pragma region Quaternion
+template <typename Func>
+Quaternion ApplyComponentWise(const Quaternion& start, const Quaternion& end, const float& time, Func func) {
+	return { func(start.x, end.x, time), func(start.y, end.y, time), func(start.z, end.z, time), func(start.w, end.w, time)};
+}
+inline Quaternion Lerp(const Quaternion& start, const Quaternion& end, const float& time) {
+	return ApplyComponentWise(start, end, time, Cake::Easing::Lerp<float>);
+}
+
+inline Quaternion Slerp(const Quaternion& start, const Quaternion& end, const float& time) {
+	Quaternion q0 = start;
+	Quaternion q1 = end;
+
+	float dot = Quaternion::DotProduct(q0, q1);	// q0とq1の内積.
+	if (dot < 0) {
+		q0 = -start;	// もう片方の回転を利用する.
+		dot = -dot;	// 内積も反転.
+	}
+
+	// なす角を求める.
+	float theta = std::acos(dot);
+
+	if (theta < kEpsilon) {
+		return Lerp<Quaternion>(q0, q1, time);
+	} else {
+		// thetaとsinを使って補間係数scale0, scale1を求める.
+		float scale0 = std::sin((1 - time) * theta) / std::sin(theta);
+		float scale1 = std::sin(time * theta) / std::sin(theta);
+
+		// それぞれに補間係数を利用して補間後のQuaternionを求める.
+		return scale0 * q0 + scale1 * q1;
+	}
+}
+
+
+#pragma endregion Quaternion
 
 } // namespace Easing
 

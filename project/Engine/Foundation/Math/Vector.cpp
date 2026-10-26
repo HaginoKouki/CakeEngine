@@ -1,6 +1,7 @@
-#include "Vector.h"
+﻿#include "Vector.h"
 
-#include "Engine/Foundation/Math/Matrix.h"
+#include "Math/Matrix.h"
+#include "Math/Quaternion.h"
 
 #include <algorithm>
 #include <numbers>
@@ -82,6 +83,8 @@ Vector2 Vector2::Normalize(const Vector2& target) {
 };
 
 Vector2 Vector2::Clamp(const Vector2& value, const Vector2& min, const Vector2& max) {
+	assert(min.x <= max.x && "Vector2::Clamp error: min.x is greater than max.x");
+	assert(min.y <= max.y && "Vector2::Clamp error: min.y is greater than max.y");
 	Vector2 result;
 	result.x = std::clamp(value.x, min.x, max.x);
 	result.y = std::clamp(value.y, min.y, max.y);
@@ -193,12 +196,16 @@ Vector3 Vector3::Transform(const Vector3& vector, const Matrix4x4& matrix) {
 
 	return result;
 }
-Vector3 Vector3::TransformNormal(const Vector3& vector, const Matrix4x4& matrix) {
+Vector3 Vector3::TransformNormal(const Vector3& v, const Matrix4x4& m) {
 	Vector3 result;
-	result.x = (vector.x * matrix.m[0][0]) + (vector.y * matrix.m[1][0]) + (vector.z * matrix.m[2][0]);
-	result.y = (vector.x * matrix.m[0][1]) + (vector.y * matrix.m[1][1]) + (vector.z * matrix.m[2][1]);
-	result.z = (vector.x * matrix.m[0][2]) + (vector.y * matrix.m[1][2]) + (vector.z * matrix.m[2][2]);
+	result.x = (v.x * m.m[0][0]) + (v.y * m.m[1][0]) + (v.z * m.m[2][0]);
+	result.y = (v.x * m.m[0][1]) + (v.y * m.m[1][1]) + (v.z * m.m[2][1]);
+	result.z = (v.x * m.m[0][2]) + (v.y * m.m[1][2]) + (v.z * m.m[2][2]);
 	return result;
+}
+
+Vector3 Vector3::Rotate(const Vector3& v, const Quaternion& q) {
+	return Quaternion::Multiply(Quaternion::Multiply(q, Quaternion{v.x,v.y,v.z,0}),Quaternion::Conjugate(q)).v();
 }
 
 float Vector3::Length(const Vector3& a, const Vector3& b) {
@@ -215,6 +222,9 @@ Vector3 Vector3::Normalize(const Vector3& target) {
 };
 
 Vector3 Vector3::Clamp(const Vector3& value, const Vector3& min, const Vector3& max) {
+	assert(min.x <= max.x && "Vector3::Clamp error: min.x is greater than max.x");
+	assert(min.y <= max.y && "Vector3::Clamp error: min.y is greater than max.y");
+	assert(min.z <= max.z && "Vector3::Clamp error: min.z is greater than max.z");
 	Vector3 result;
 	result.x = std::clamp(value.x, min.x, max.x);
 	result.y = std::clamp(value.y, min.y, max.y);
@@ -300,6 +310,10 @@ Vector4 Vector4::Normalize(const Vector4& target) {
 };
 
 Vector4 Vector4::Clamp(const Vector4& value, const Vector4& min, const Vector4& max) {
+	assert(min.x <= max.x && "Vector4::Clamp error: min.x is greater than max.x");
+	assert(min.y <= max.y && "Vector4::Clamp error: min.y is greater than max.y");
+	assert(min.z <= max.z && "Vector4::Clamp error: min.z is greater than max.z");
+	assert(min.w <= max.w && "Vector4::Clamp error: min.w is greater than max.w");
 	Vector4 result;
 	result.x = std::clamp(value.x, min.x, max.x);
 	result.y = std::clamp(value.y, min.y, max.y);

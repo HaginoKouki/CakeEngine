@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Foundation/Math/Vector.h"
-#include "Engine/Foundation/Math/Matrix.h"
-#include "Engine/Foundation/Math/Geometry.h"
+#include "Vector.h"
+#include "Matrix.h"
+#include "Geometry.h"
 
 namespace Cake {
 

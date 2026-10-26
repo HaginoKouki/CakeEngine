@@ -5,8 +5,8 @@
  * 当たり判定や可視化、空間クエリに必要な基本図形を提供する。
  *
  * ====================================*/
-#include "Engine/Foundation/Math/Vector.h"
-#include "Engine/Foundation/Math/Matrix.h"
+#include "Vector.h"
+#include "Matrix.h"
 
 namespace Cake {
 

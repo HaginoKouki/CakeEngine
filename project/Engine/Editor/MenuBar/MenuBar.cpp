@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Application/ProjectSettings.h"
 #include "Engine/Asset/Asset.h"

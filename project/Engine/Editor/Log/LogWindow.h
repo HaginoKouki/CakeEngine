@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Foundation/Debug/DebugLog.h"
 

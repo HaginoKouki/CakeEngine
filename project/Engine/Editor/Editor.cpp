@@ -32,7 +32,7 @@ void Editor::Initialize(
 	settings_ = &settings;
 	preferences_ = &preferences;
 
-	imguiManager_.Initialize(hwnd, graphics_->GetDevice()->GetD3DDevice(), graphics_->GetSwapChain(), graphics_->GetSrvHeap());
+	imguiManager_.Initialize(hwnd, graphics_->GetDevice(), graphics_->GetCommandManager(), graphics_->GetSwapChain(), graphics_->GetDepthBuffer(), graphics_->GetSrvHeap());
 
 	// 保存されていた表示設定を適用する（ImGuiManager::Initialize は Dark・等倍で初期化済み）.
 	imguiManager_.ApplyUIScaleFromPreferences(*preferences_);

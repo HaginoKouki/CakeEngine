@@ -21,8 +21,8 @@
 
 #include <cstdint>
 
-#include "externals/imgui/imgui.h"
-#include "externals/imgui/ImGuizmo.h"
+#include <imgui.h>
+#include <ImGuizmo.h>
 
 #include "Engine/Graphics/RenderTarget/SceneRenderTarget.h"
 

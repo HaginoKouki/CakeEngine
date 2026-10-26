@@ -2,7 +2,7 @@
 
 #ifdef ENABLE_EDITOR
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Asset/Asset.h"
 #include "Engine/Editor/PlayMode/PlayModeController.h"

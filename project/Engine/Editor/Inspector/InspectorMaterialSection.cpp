@@ -6,7 +6,7 @@
 #include <format>
 #include <unordered_set>
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Material/MaterialManager.h"

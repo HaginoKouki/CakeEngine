@@ -4,9 +4,15 @@
 
 #include <format>
 
-#include "Engine/Graphics/RenderTarget/SwapChain.h"
-#include "Engine/Graphics/Descriptor/DescriptorHeap.h"
+#include <imgui_impl_dx12.h>
+#include <imgui_impl_win32.h>
+
 #include "Engine/Foundation/Debug/DebugLog.h"
+#include "Engine/Graphics/Device/DirectXDevice.h"
+#include "Engine/Graphics/Device/CommandManager.h"
+#include "Engine/Graphics/RenderTarget/SwapChain.h"
+#include "Engine/Graphics/RenderTarget/DepthBuffer.h"
+#include "Engine/Graphics/Descriptor/DescriptorHeap.h"
 #include "Engine/Editor/imgui/Icons.h"
 
 namespace Cake {
@@ -33,8 +39,10 @@ ImVec4 WithAlpha(const ImVec4& base, float alpha) {
 
 void ImGuiManager::Initialize(
 	HWND hwnd,
-	ID3D12Device* device,
+	DirectXDevice* device,
+	CommandManager* commandManager,
 	SwapChain* swapChain,
+	DepthBuffer* depthBuffer,
 	DescriptorHeap* srvHeap
 ) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
@@ -70,23 +78,32 @@ void ImGuiManager::Initialize(
 	consoleFont_ = io.Fonts->AddFontFromFileTTF(kLogFont, kLoadFontSize, nullptr, io.Fonts->GetGlyphRangesJapanese());
 	io.Fonts->AddFontFromFileTTF(kIconFont, kLoadFontSize, &iconConfig, kIconRanges);
 
-	// フォントを確定.
-	io.Fonts->Build();
-
 
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // ドッキング有効化.
 	// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // OSウィンドウ外へ引き出す機能。DX12は追加実装が要るので今回はOFF.
 
 	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX12_Init(
-		device,
-		swapChain->GetBufferCount(),
-		swapChain->GetRTVFormat(),
-		srvHeap->GetHeap(),
-		srvHeap->GetCPUHandle(0),
-		srvHeap->GetGPUHandle(0)
-	);
 
+	ImGui_ImplDX12_InitInfo initInfo = {};
+	initInfo.Device = device->GetD3DDevice();                  // DX12デバイス.
+	initInfo.CommandQueue = commandManager->GetCommandQueue(); // DX12コマンドキュー.
+	initInfo.NumFramesInFlight = swapChain->GetBufferCount();  // バックバッファの数.
+	initInfo.RTVFormat = swapChain->GetRTVFormat();            // RTVのフォーマット.
+	initInfo.DSVFormat = depthBuffer->GetFormat();             // DSVのフォーマット.
+	initInfo.UserData = srvHeap;                               // コールバックへ渡すSRVヒープ.
+	initInfo.SrvDescriptorHeap = srvHeap->GetHeap();           // SRV用ディスクリプタヒープ.
+	initInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) {
+		// SRV確保関数. ImGui用の予約枠(0番)に固定する.
+		DescriptorHeap* heap = static_cast<DescriptorHeap*>(info->UserData);
+		*out_cpu_handle = heap->GetCPUHandle(Reserved::kSrvImGui);
+		*out_gpu_handle = heap->GetGPUHandle(Reserved::kSrvImGui);
+	};
+	initInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE) {
+		// 固定枠なので解放処理は不要.
+	};
+	ImGui_ImplDX12_Init(&initInfo);
+
+	// 既定のテーマを適用.
 	ApplyDarkTheme();
 
 	// ImGui 既定のスタイルを「スケール 1.0 の基準」として控える.

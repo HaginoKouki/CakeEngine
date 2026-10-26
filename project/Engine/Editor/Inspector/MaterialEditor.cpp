@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Asset/Database/AssetDatabase.h"
 #include "Engine/Asset/Database/AssetRef.h"

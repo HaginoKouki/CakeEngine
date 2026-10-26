@@ -12,9 +12,7 @@
 #include <algorithm>
 #include <d3d12.h>
 
-#include "externals/imgui/imgui.h"
-#include "externals/imgui/imgui_impl_dx12.h"
-#include "externals/imgui/imgui_impl_win32.h"
+#include <imgui.h>
 #include "externals/IconFontCppHeaders/IconsFontAwesome7.h"
 
 #include "Engine/Foundation/Math/Vector.h"
@@ -26,7 +24,10 @@
 
 namespace Cake {
 
+class DirectXDevice;
+class CommandManager;
 class SwapChain;
+class DepthBuffer;
 class DescriptorHeap;
 
 class ImGuiManager {
@@ -60,8 +61,10 @@ public:
 
 	void Initialize(
 		HWND hwnd,
-		ID3D12Device* device,
+		DirectXDevice* device,
+		CommandManager* commandManager,
 		SwapChain* swapChain,
+		DepthBuffer* depthBuffer,
 		DescriptorHeap* srvHeap
 	);
 

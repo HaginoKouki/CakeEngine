@@ -289,17 +289,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <ExternalIncludePath>$(ProjectDir)externals;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(ProjectDir)externals;$(ProjectDir)externals\imgui\imgui-1.93.0-docking;$(ProjectDir)externals\imgui\imgui-1.93.0-docking\backends;$(ProjectDir)externals\imgui\ImGuizmo-1.10-source;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>\(SolutionDir)DirectXTex;\(SolutionDir)imgui;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>\(SolutionDir)DirectXTex;\(SolutionDir)imgui;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Application/ProjectSettings.h"
 #include "Engine/Editor/ImGui/ImGuiManager.h"

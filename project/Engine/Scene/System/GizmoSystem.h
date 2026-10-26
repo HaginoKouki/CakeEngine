@@ -12,8 +12,8 @@
  * 実行前に Scene::UpdateTransforms() でワールド行列が確定していること。
  *
  * ====================================*/
-#include "externals/imgui/imgui.h"
-#include "externals/imgui/ImGuizmo.h"
+#include <imgui.h>
+#include <ImGuizmo.h>
 
 #include "Engine/Render/Gizmo/GizmoDrawList.h"
 #include "Engine/Scene/Object/GameObjectId.h"

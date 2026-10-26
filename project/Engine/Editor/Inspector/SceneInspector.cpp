@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Platform/File/FileDialog.h"
 #include "Engine/Asset/Database/AssetDatabase.h"

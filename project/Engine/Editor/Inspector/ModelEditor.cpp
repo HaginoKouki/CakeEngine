@@ -6,7 +6,7 @@
 #include <format>
 #include <vector>
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Asset/Texture/TextureManager.h"
 

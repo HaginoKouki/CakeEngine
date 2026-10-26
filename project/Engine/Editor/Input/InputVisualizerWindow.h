@@ -15,7 +15,7 @@
 
 #ifdef USE_IMGUI
 
-#include "externals/imgui/imgui.h"
+#include <imgui.h>
 
 #include "Engine/Platform/Input/InputManager.h"
 

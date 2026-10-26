@@ -27,8 +27,8 @@
 
 #include <Windows.h>
 
-#include "externals/imgui/imgui.h"
-#include "externals/imgui/ImGuizmo.h"
+#include <imgui.h>
+#include <ImGuizmo.h>
 
 #include "Engine/Platform/Time/Time.h"
 

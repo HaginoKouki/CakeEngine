@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Render/CameraView.h"
 #include "Engine/Render/Gizmo/GizmoDrawList.h"
 
@@ -113,7 +114,7 @@ void CollectSceneGizmos(Scene& scene, const GizmoSettings& settings, GizmoDrawLi
 				}
 				const Matrix4x4& world = object->GetTransform().GetWorldMatrix();
 				const Vector3 origin{world.m[3][0], world.m[3][1], world.m[3][2]};
-				const Vector3 forward = Vector3::Normalize({world.m[2][0], world.m[2][1], world.m[2][2]});
+				const Vector3 forward = Math::Normalize({world.m[2][0], world.m[2][1], world.m[2][2]});
 
 				const Vector4 color = PickColor(settings, owner, GizmoColor::kLight);
 				out.AddWireSphere(Matrix4x4::MakeTranslateMatrix(origin), Vector3::Zero, 0.25f, color, 12);
@@ -135,9 +136,9 @@ void CollectSceneGizmos(Scene& scene, const GizmoSettings& settings, GizmoDrawLi
 				out.AddWireBox(world, field.center, field.size, color);
 
 				// 風の向き。強さに関係なく長さ 2 で出す（強いと画面の外まで伸びてしまうため）.
-				const float strength = Vector3::Length(field.acceleration);
+				const float strength = Math::Length(field.acceleration);
 				if (strength > 0.0f) {
-					const Vector3 origin = Vector3::Transform(field.center, world);
+					const Vector3 origin = Math::TransformCoord(field.center, world);
 					out.AddRay(origin, field.acceleration / strength * 2.0f, color);
 				}
 			}

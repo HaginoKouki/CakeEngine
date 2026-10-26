@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <numbers>
+#include "Engine/Foundation/Math/Math.h"
 
 namespace Cake {
 
@@ -48,7 +49,7 @@ void GizmoDrawList::AddWireBox(const Matrix4x4& world, const Vector3& center, co
 			center.y + ((i & 4) ? half.y : -half.y),
 			center.z + ((i & 2) ? half.z : -half.z),
 		};
-		corner[i] = Vector3::Transform(local, world);
+		corner[i] = Math::TransformCoord(local, world);
 	}
 
 	// 下面（0,1,3,2 の順に一周）.
@@ -71,7 +72,7 @@ void GizmoDrawList::AddWireSphere(const Matrix4x4& world, const Vector3& center,
 	// world から受け取るのは中心の位置だけ。
 	// CollisionSystem 側も「中心は world で移す・半径は素のまま」で判定しているので、
 	// ここで world のスケールを掛けると絵と判定が食い違う.
-	AddWireSphere(Vector3::Transform(center, world), radius, color, segments);
+	AddWireSphere(Math::TransformCoord(center, world), radius, color, segments);
 }
 
 void GizmoDrawList::AddWireSphere(const Vector3& center, float radius, const Vector4& color, uint32_t segments) {
@@ -108,17 +109,17 @@ void GizmoDrawList::AddWireSphere(const Vector3& center, float radius, const Vec
 }
 
 void GizmoDrawList::AddFrustum(const Matrix4x4& viewProjection, const Vector4& color) {
-	const Matrix4x4 inverse = Matrix4x4::Inverse(viewProjection);
+	const Matrix4x4 inverse = Math::Inverse(viewProjection);
 
 	// DirectXのNDCは xy が -1..1、z が 0..1（0が手前）.
-	// Vector3::Transform は w で割ってくれるので、そのまま隅が戻る.
+	// Math::TransformCoord は w で割ってくれるので、そのまま隅が戻る.
 	const Vector2 ndc[4] = {{-1.0f, -1.0f}, {1.0f, -1.0f}, {1.0f, 1.0f}, {-1.0f, 1.0f}};
 
 	Vector3 nearCorner[4];
 	Vector3 farCorner[4];
 	for (int i = 0; i < 4; ++i) {
-		nearCorner[i] = Vector3::Transform(Vector3{ndc[i].x, ndc[i].y, 0.0f}, inverse);
-		farCorner[i] = Vector3::Transform(Vector3{ndc[i].x, ndc[i].y, 1.0f}, inverse);
+		nearCorner[i] = Math::TransformCoord(Vector3{ndc[i].x, ndc[i].y, 0.0f}, inverse);
+		farCorner[i] = Math::TransformCoord(Vector3{ndc[i].x, ndc[i].y, 1.0f}, inverse);
 	}
 
 	for (int i = 0; i < 4; ++i) {
@@ -133,9 +134,9 @@ void GizmoDrawList::AddAxes(const Matrix4x4& world, float length) {
 	const Vector3 origin{world.m[3][0], world.m[3][1], world.m[3][2]};
 
 	// 各行が回転＋スケール込みのローカル軸。正規化して長さを揃える.
-	const Vector3 axisX = Vector3::Normalize({world.m[0][0], world.m[0][1], world.m[0][2]});
-	const Vector3 axisY = Vector3::Normalize({world.m[1][0], world.m[1][1], world.m[1][2]});
-	const Vector3 axisZ = Vector3::Normalize({world.m[2][0], world.m[2][1], world.m[2][2]});
+	const Vector3 axisX = Math::Normalize({world.m[0][0], world.m[0][1], world.m[0][2]});
+	const Vector3 axisY = Math::Normalize({world.m[1][0], world.m[1][1], world.m[1][2]});
+	const Vector3 axisZ = Math::Normalize({world.m[2][0], world.m[2][1], world.m[2][2]});
 
 	AddLine(origin, origin + axisX * length, Vector4{1.0f, 0.25f, 0.25f, 1.0f});
 	AddLine(origin, origin + axisY * length, Vector4{0.35f, 1.0f, 0.25f, 1.0f});

@@ -5,6 +5,7 @@
 #include <vector>
 #include <cmath>
 
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Scene/Component/Particle/ParticleSystemComponent.h"
 #include "Engine/Scene/Component/Particle/ParticleForceFieldComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
@@ -43,7 +44,7 @@ constexpr float kMinAxisScale = 1.0e-6f;
 bool IsDegenerate(const Matrix4x4& world) {
 	for (int i = 0; i < 3; ++i) {
 		const Vector3 row{world.m[i][0], world.m[i][1], world.m[i][2]};
-		if (Vector3::Length(row) <= kMinAxisScale) {
+		if (Math::Length(row) <= kMinAxisScale) {
 			return true;
 		}
 	}
@@ -76,7 +77,7 @@ std::vector<FieldEntry> CollectForceFields(Scene& scene) {
 			}
 
 			FieldEntry entry;
-			entry.inverseWorld = Matrix4x4::Inverse(world);
+			entry.inverseWorld = Math::Inverse(world);
 			entry.center = field.center;
 			// 負の size を入れられても壊れないよう絶対値で受ける（BoxCollider と同じ）.
 			entry.halfSize = {std::fabs(field.size.x) * 0.5f, std::fabs(field.size.y) * 0.5f, std::fabs(field.size.z) * 0.5f};
@@ -89,7 +90,7 @@ std::vector<FieldEntry> CollectForceFields(Scene& scene) {
 
 // 箱の中にいるか。Field のローカルに直せば、回転・拡大した箱でも軸ごとの比較で済む.
 bool IsInside(const FieldEntry& field, const Vector3& worldPosition) {
-	const Vector3 local = Vector3::Transform(worldPosition, field.inverseWorld) - field.center;
+	const Vector3 local = Math::TransformCoord(worldPosition, field.inverseWorld) - field.center;
 	return std::fabs(local.x) <= field.halfSize.x && std::fabs(local.y) <= field.halfSize.y && std::fabs(local.z) <= field.halfSize.z;
 }
 
@@ -122,13 +123,13 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 			const Matrix4x4& emitterWorld = object->GetTransform().GetWorldMatrix();
 			// エミッターが潰れている（拡大率 0）と逆行列が作れないので、そのときは Field を効かせない.
 			const bool applyFields = !fields.empty() && !IsDegenerate(emitterWorld);
-			const Matrix4x4 emitterInverse = applyFields ? Matrix4x4::Inverse(emitterWorld) : Matrix4x4::Identity;
+			const Matrix4x4 emitterInverse = applyFields ? Math::Inverse(emitterWorld) : Matrix4x4::Identity;
 
 			// Field の加速度を足し、経過時間を進めて移動する.
 		    // 速度を先に変えてから位置を動かすので、加速度はそのフレームのうちに位置へ反映される.
 			for (Particle& particle : particles) {
 				if (applyFields) {
-					const Vector3 worldPosition = Vector3::Transform(particle.translate, emitterWorld);
+					const Vector3 worldPosition = Math::TransformCoord(particle.translate, emitterWorld);
 					Vector3 worldAcceleration = Vector3::Zero;
 					for (const FieldEntry& field : fields) {
 						if (IsInside(field, worldPosition)) {
@@ -136,7 +137,7 @@ void UpdateParticleSystems(Scene& scene, float deltaTime) {
 						}
 					}
 					// 粒の速度はエミッターから見た向きなので、ワールドの加速度を変換してから足す.
-					particle.velocity += Vector3::TransformNormal(worldAcceleration, emitterInverse) * deltaTime;
+					particle.velocity += Math::TransformNormal(worldAcceleration, emitterInverse) * deltaTime;
 				}
 				particle.currentTime += deltaTime;
 				particle.translate += particle.velocity * deltaTime;

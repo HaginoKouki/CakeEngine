@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <format>
 
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Foundation/Debug/DebugLog.h"
 
 namespace Cake {
@@ -16,14 +17,14 @@ constexpr float kTriggerMax = 255.0f;
 // 軸ごとに切り捨てるやり方と違い、斜め入力でも大きさが素直に伸びる.
 Vector2 ApplyStickDeadZone(SHORT rawX, SHORT rawY, float deadZone) {
 	Vector2 raw{static_cast<float>(rawX), static_cast<float>(rawY)};
-	float length = Vector2::Length(raw);
+	float length = Math::Length(raw);
 	if (length <= deadZone) {
 		return Vector2::Zero;
 	}
 	// 負方向は-32768まで来るので、1.0を超えないようにクランプ.
 	length = std::min<float>(length, kThumbMax);
 	float scale = (length - deadZone) / (kThumbMax - deadZone);
-	return Vector2::Normalize(raw) * scale;
+	return Math::Normalize(raw) * scale;
 }
 
 // トリガーも閾値未満を切って0〜1へ再マップする.

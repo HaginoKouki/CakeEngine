@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Foundation/Debug/DebugLog.h"
 #include "Engine/Graphics/Buffer/GPUResourceUtility.h"
 #include "Engine/Asset/Material/Material.h"
@@ -89,9 +90,9 @@ void MakePlaneUVAxis(const Cake::Vector3& normal, Cake::Vector3& outU, Cake::Vec
 	                               : Cake::Vector3(0.0f, -1.0f, 0.0f);
 
 	// 法線成分を抜いて面へ寝かせる.
-	outV = Vector3::Normalize(down - normal * Vector3::DotProduct(down, normal));
+	outV = Math::Normalize(down - normal * Math::DotProduct(down, normal));
 	// (outU, outV, normal) が右手系になる軸。単位ベクトルの直交外積なので正規化は不要.
-	outU = Vector3::CrossProduct(outV, normal);
+	outU = Math::CrossProduct(outV, normal);
 }
 
 // 同一平面上の点列から、オモテ面が kPlaneFacingZ 側を向く三角形リストを作る。
@@ -107,8 +108,8 @@ std::vector<VertexData> BuildPlanePolygon(const Cake::Vector3* points, size_t co
 	}
 
 	// 巻き順 0→1→2 に対するオモテ側の法線（右手系の外積＝この規約でのオモテ）.
-	Cake::Vector3 normal = Vector3::Normalize(
-		Vector3::CrossProduct(points[1] - points[0], points[2] - points[0])
+	Cake::Vector3 normal = Math::Normalize(
+		Math::CrossProduct(points[1] - points[0], points[2] - points[0])
 	);
 
 	// 逆側を向いていたら、巻き順ごと裏返す.
@@ -121,13 +122,13 @@ std::vector<VertexData> BuildPlanePolygon(const Cake::Vector3* points, size_t co
 	MakePlaneUVAxis(normal, uAxis, vAxis);
 
 	// 面上での外接矩形を求める.
-	float uMin = Vector3::DotProduct(points[0], uAxis);
+	float uMin = Math::DotProduct(points[0], uAxis);
 	float uMax = uMin;
-	float vMin = Vector3::DotProduct(points[0], vAxis);
+	float vMin = Math::DotProduct(points[0], vAxis);
 	float vMax = vMin;
 	for (size_t i = 1; i < count; ++i) {
-		const float u = Vector3::DotProduct(points[i], uAxis);
-		const float v = Vector3::DotProduct(points[i], vAxis);
+		const float u = Math::DotProduct(points[i], uAxis);
+		const float v = Math::DotProduct(points[i], vAxis);
 		uMin = (std::min)(uMin, u);
 		uMax = (std::max)(uMax, u);
 		vMin = (std::min)(vMin, v);
@@ -144,8 +145,8 @@ std::vector<VertexData> BuildPlanePolygon(const Cake::Vector3* points, size_t co
 		VertexData vertex;
 		vertex.position = {points[i].x, points[i].y, points[i].z, 1.0f};
 		vertex.texcoord = {
-			(Vector3::DotProduct(points[i], uAxis) - uMin) / uRange,
-			(Vector3::DotProduct(points[i], vAxis) - vMin) / vRange
+			(Math::DotProduct(points[i], uAxis) - uMin) / uRange,
+			(Math::DotProduct(points[i], vAxis) - vMin) / vRange
 		};
 		vertex.normal = normal;
 		ring.push_back(vertex);
@@ -324,7 +325,7 @@ std::vector<VertexData> BuildTetrahedronVertices(float circumRadius) {
 	vertices.reserve(12);
 
 	for (const Face& f : faces) {
-		const Cake::Vector3 normal = Vector3::Normalize(Vector3::CrossProduct(f.p1 - f.p0, f.p2 - f.p0));
+		const Cake::Vector3 normal = Math::Normalize(Math::CrossProduct(f.p1 - f.p0, f.p2 - f.p0));
 
 		auto makeVertex = [&](const Cake::Vector3& p, float u, float v) {
 			VertexData vertex;

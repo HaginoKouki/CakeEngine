@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Render/Renderer.h"
 #include "Engine/Scene/Component/Particle/ParticleSystemComponent.h"
 #include "Engine/Scene/Component/Particle/ParticleRendererComponent.h"
@@ -44,7 +45,7 @@ void ParticlePass::Execute(RenderContext& ctx) {
 			instances.clear();
 			instances.reserve(emitter->particles.size());
 			for (const Particle& particle : emitter->particles) {
-				const Vector3 worldPosition = Vector3::Transform(particle.translate, emitterWorld);
+				const Vector3 worldPosition = Math::TransformCoord(particle.translate, emitterWorld);
 				// スケール → 画面内の回転 → カメラへ向ける → 位置へ移動.
 				const Matrix4x4 world =
 					Matrix4x4::MakeScalingMatrix({particle.scale.x, particle.scale.y, 1.0f}) *

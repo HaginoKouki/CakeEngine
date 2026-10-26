@@ -4,8 +4,8 @@
 
 #include <algorithm>
 
-#include "Engine/Application/ProjectSettings.h"
 #include "Engine/Foundation/Math/Transform.h"
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Graphics/Graphics.h"
 #include "Engine/Graphics/Descriptor/DescriptorHeap.h"
 #include "Engine/Graphics/Device/CommandManager.h"
@@ -16,6 +16,7 @@
 #include "Engine/Scene/Object/GameObject.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneManager.h"
+#include "Engine/Application/ProjectSettings.h"
 
 #include "Engine/Editor/Settings/EditorCache.h"
 
@@ -203,7 +204,7 @@ void SceneWindow::DrawTransformGizmo(const ImVec2& imageMin, const ImVec2& image
 				parentWorld = parentObject->GetTransform().GetWorldMatrix();
 			}
 		}
-		object->GetTransform().GetLocalMutable() = Math::DecomposeAffine(world * Matrix4x4::Inverse(parentWorld));
+		object->GetTransform().GetLocalMutable() = Math::DecomposeAffine(world * Math::Inverse(parentWorld));
 	}
 }
 
@@ -230,7 +231,7 @@ void SceneWindow::DrawViewGizmo(const ImVec2& imageMin, const ImVec2& imageMax) 
 
 	// 世界軸→カメラ空間→スクリーンへ落とす.
 	auto makeAxis = [&](const Vector3& worldDir, ImU32 col, char label) {
-		Vector3 d = Vector3::TransformNormal(worldDir, view);
+		Vector3 d = Math::TransformNormal(worldDir, view);
 		Marker m;
 		m.pos = ImVec2(center.x + d.x * kAxisLen, center.y - d.y * kAxisLen); // スクリーンYは下向きなので反転.
 		m.depth = d.z;

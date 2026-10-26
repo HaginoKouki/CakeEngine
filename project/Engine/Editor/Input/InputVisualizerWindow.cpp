@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <vector>
+#include "Engine/Foundation/Math/Math.h"
 
 namespace Cake {
 namespace {
@@ -436,7 +437,7 @@ void InputVisualizerWindow::DrawGamePad(ImDrawList* drawList, const ImVec2& orig
 		const ImVec2 center = ToScreen(cx, cy);
 		const float radius = 32.0f * scale;
 		const float glow = Glow(thumb);
-		const float tiltLength = std::min<float>(Vector2::Length(tilt), 1.0f);
+		const float tiltLength = std::min<float>(Math::Length(tilt), 1.0f);
 
 		drawList->AddCircleFilled(center, radius, GlowFill(0.0f), 32);
 		drawList->AddCircle(center, radius, GlowBorder(glow), 32, 1.0f);

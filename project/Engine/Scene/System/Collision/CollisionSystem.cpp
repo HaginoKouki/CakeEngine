@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Engine/Foundation/Math/Matrix.h"
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Scene/Component/Collider/BoxColliderComponent.h"
 #include "Engine/Scene/Component/Collider/SphereColliderComponent.h"
 #include "Engine/Scene/Object/GameObject.h"
@@ -93,7 +94,7 @@ void AddHit(const ColliderEntry& entry, GameObjectId other) {
 bool IntersectSphereSphere(const Vector3& centerA, float radiusA, const Vector3& centerB, float radiusB) {
 	const Vector3 diff = centerB - centerA;
 	const float sumRadius = radiusA + radiusB;
-	return Vector3::DotProduct(diff, diff) <= sumRadius * sumRadius;
+	return Math::DotProduct(diff, diff) <= sumRadius * sumRadius;
 }
 
 // 球×箱。箱のローカル軸へ射影し、はみ出した分だけを距離に足していく。
@@ -103,7 +104,7 @@ bool IntersectSphereObb(const Vector3& center, float radius, const Obb& box) {
 
 	float distanceSq = 0.0f;
 	for (int i = 0; i < 3; ++i) {
-		const float projection = Vector3::DotProduct(diff, box.axis[i]);
+		const float projection = Math::DotProduct(diff, box.axis[i]);
 		const float excess = std::fabs(projection) - box.half[i];
 		if (excess > 0.0f) {
 			distanceSq += excess * excess;
@@ -122,7 +123,7 @@ bool IntersectObbObb(const Obb& a, const Obb& b) {
 	float absR[3][3];
 	for (int i = 0; i < 3; ++i) {
 		for (int j = 0; j < 3; ++j) {
-			R[i][j] = Vector3::DotProduct(a.axis[i], b.axis[j]);
+			R[i][j] = Math::DotProduct(a.axis[i], b.axis[j]);
 			absR[i][j] = std::fabs(R[i][j]) + kParallelEpsilon;
 		}
 	}
@@ -130,9 +131,9 @@ bool IntersectObbObb(const Obb& a, const Obb& b) {
 	// 中心間ベクトルを A のローカル軸へ移す.
 	const Vector3 diff = b.center - a.center;
 	const float t[3] = {
-		Vector3::DotProduct(diff, a.axis[0]),
-		Vector3::DotProduct(diff, a.axis[1]),
-		Vector3::DotProduct(diff, a.axis[2]),
+		Math::DotProduct(diff, a.axis[0]),
+		Math::DotProduct(diff, a.axis[1]),
+		Math::DotProduct(diff, a.axis[2]),
 	};
 
 	// --- 軸 = A の各軸 ---
@@ -296,7 +297,7 @@ void CollectBoxes(Scene& scene, std::vector<ColliderEntry>& out) {
 
 			for (int i = 0; i < 3; ++i) {
 				const Vector3 row = GetAxisRow(world, i);
-				const float scale = Vector3::Length(row);
+				const float scale = Math::Length(row);
 				if (scale <= kMinAxisScale) {
 					return; // 潰れた変換。向きが決まらないので参加させない.
 				}
@@ -354,7 +355,7 @@ void RunCollisionDetection(Scene& scene) {
 			// 箱同士は分離軸を15本調べるので、届かない組をここで止める効果が大きい.
 			const Vector3 diff = b.center - a.center;
 			const float sumRadius = a.boundRadius + b.boundRadius;
-			if (Vector3::DotProduct(diff, diff) > sumRadius * sumRadius) {
+			if (Math::DotProduct(diff, diff) > sumRadius * sumRadius) {
 				continue;
 			}
 

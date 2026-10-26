@@ -2,6 +2,8 @@
 
 #include <numbers>
 
+#include "Engine/Foundation/Math/Math.h"
+
 namespace Cake {
 
 CameraView MakeCameraView(
@@ -19,9 +21,9 @@ CameraView MakeCameraView(
 	}
 
 	// world から回転と位置を取り出す。スケールを打ち消すため各軸を正規化する.
-	const Vector3 right = Vector3::Normalize({world.m[0][0], world.m[0][1], world.m[0][2]});
-	const Vector3 up = Vector3::Normalize({world.m[1][0], world.m[1][1], world.m[1][2]});
-	const Vector3 forward = Vector3::Normalize({world.m[2][0], world.m[2][1], world.m[2][2]});
+	const Vector3 right = Math::Normalize({world.m[0][0], world.m[0][1], world.m[0][2]});
+	const Vector3 up = Math::Normalize({world.m[1][0], world.m[1][1], world.m[1][2]});
+	const Vector3 forward = Math::Normalize({world.m[2][0], world.m[2][1], world.m[2][2]});
 	const Vector3 position = {world.m[3][0], world.m[3][1], world.m[3][2]};
 
 	Matrix4x4 rotation = Matrix4x4::Identity;
@@ -39,7 +41,7 @@ CameraView MakeCameraView(
 	CameraView out;
 	out.rotationMatrix = rotation;
 	out.position = position;
-	out.viewMatrix = Matrix4x4::Inverse(rotation * Matrix4x4::MakeTranslateMatrix(position));
+	out.viewMatrix = Math::Inverse(rotation * Matrix4x4::MakeTranslateMatrix(position));
 
 	// アスペクト比は出力先から。ゼロ割りだけ避ける.
 	const float aspect = (targetHeight >= 1e-05f)

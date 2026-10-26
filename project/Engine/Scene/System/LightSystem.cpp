@@ -2,6 +2,7 @@
 
 #include "Engine/Foundation/Math/Matrix.h"
 #include "Engine/Foundation/Math/Vector.h"
+#include "Engine/Foundation/Math/Math.h"
 
 #include "Engine/Render/Light.h"
 
@@ -36,7 +37,7 @@ bool CollectDirectionalLight(Scene& scene, DirectionalLight& out) {
 			const Vector3 forward = {world.m[2][0], world.m[2][1], world.m[2][2]};
 
 			result.color = light.color;
-			result.direction = Vector3::Normalize(forward);
+			result.direction = Math::Normalize(forward);
 			result.intensity = light.intensity;
 
 			bestPriority = light.priority;

@@ -1,9 +1,10 @@
-﻿#pragma once
+#pragma once
 #include <numbers>
 #include <cmath>
 #include <algorithm>
 #include "Vector.h"
 #include "Quaternion.h"
+#include "Math.h"
 
 namespace Cake {
 namespace Easing {
@@ -895,14 +896,14 @@ inline Vector3 CatmullRom(const Vector3& p0, const Vector3& p1, const Vector3& p
 // 球面線形補間.
 inline Vector3 Slerp(const Vector3& start, const Vector3& end, const float& time) {
 	// 正規化.
-	Vector3 nStart = Vector3::Normalize(start);
-	Vector3 nEnd = Vector3::Normalize(end);
+	Vector3 nStart = Math::Normalize(start);
+	Vector3 nEnd = Math::Normalize(end);
 
 	// 球面線形補間したベクトル.
 	Vector3 result;
 
 	// cosθを内積から求める.
-	float dot = Vector3::DotProduct(nStart, nEnd);
+	float dot = Math::DotProduct(nStart, nEnd);
 	// 誤差でdotが[-1,1]を超えないようにクランプ.
 	dot = std::clamp(dot, -1.0f, 1.0f);
 
@@ -911,7 +912,7 @@ inline Vector3 Slerp(const Vector3& start, const Vector3& end, const float& time
 		result = nEnd;
 	} else if (dot < -1.0f + kEpsilon) {
 		// ほぼ真逆の方向.
-		result = Vector3::Normalize(Cake::Easing::Lerp(nStart, nEnd, time));
+		result = Math::Normalize(Cake::Easing::Lerp(nStart, nEnd, time));
 	} else {
 		// acosでθを求める.
 		float theta = std::acos(dot);
@@ -928,7 +929,7 @@ inline Vector3 Slerp(const Vector3& start, const Vector3& end, const float& time
 	}
 
 	// ベクトルの長さを線形補間して反映.
-	float length = Cake::Easing::Lerp(Vector3::Length(start), Vector3::Length(end), time);
+	float length = Cake::Easing::Lerp(Math::Length(start), Math::Length(end), time);
 	return result * length;
 }
 #pragma endregion Vector3
@@ -1087,7 +1088,7 @@ inline Quaternion Slerp(const Quaternion& start, const Quaternion& end, const fl
 	Quaternion q0 = start;
 	Quaternion q1 = end;
 
-	float dot = Quaternion::DotProduct(q0, q1);	// q0とq1の内積.
+	float dot = std::clamp(Math::DotProduct(q0, q1), -1.0f, 1.0f);	// q0とq1の内積.
 	if (dot < 0) {
 		q0 = -start;	// もう片方の回転を利用する.
 		dot = -dot;	// 内積も反転.

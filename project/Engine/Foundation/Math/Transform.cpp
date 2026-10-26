@@ -1,6 +1,7 @@
-﻿#include "Transform.h"
+#include "Transform.h"
 
 #include <cmath>
+#include "Engine/Foundation/Math/Math.h"
 
 namespace Cake {
 
@@ -53,10 +54,10 @@ Transform Math::DecomposeAffine(const Matrix4x4& m) {
 	Vector3 axisY = {m.m[1][0], m.m[1][1], m.m[1][2]};
 	Vector3 axisZ = {m.m[2][0], m.m[2][1], m.m[2][2]};
 
-	out.scale = {Vector3::Length(axisX), Vector3::Length(axisY), Vector3::Length(axisZ)};
+	out.scale = {Math::Length(axisX), Math::Length(axisY), Math::Length(axisZ)};
 
 	// 行列式が負なら鏡映が含まれる。1軸に負号を寄せる.
-	if (Vector3::DotProduct(Vector3::CrossProduct(axisX, axisY), axisZ) < 0.0f) {
+	if (Math::DotProduct(Math::CrossProduct(axisX, axisY), axisZ) < 0.0f) {
 		out.scale.x = -out.scale.x;
 		axisX = -axisX;
 	}

@@ -315,9 +315,6 @@
     <ClCompile Include="Engine\Foundation\Math\Transform.cpp">
       <Filter>Engine\Foundation\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Foundation\Math\Vector.cpp">
-      <Filter>Engine\Foundation\Math</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Foundation\Serialize\JsonFile.cpp">
       <Filter>Engine\Foundation\Serialize</Filter>
     </ClCompile>
@@ -494,6 +491,21 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Descriptor\SrvManager.cpp">
       <Filter>Engine\Graphics\Descriptor</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Foundation\Math\VectorMath.cpp">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Foundation\Math\Math.cpp">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Foundation\Math\MatrixMath.cpp">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Foundation\Math\QuaternionMath.cpp">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Foundation\Math\Vector.cpp">
+      <Filter>Engine\Foundation\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -916,6 +928,18 @@
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Descriptor\SrvManager.h">
       <Filter>Engine\Graphics\Descriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Foundation\Math\VectorMath.h">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Foundation\Math\Math.h">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Foundation\Math\MatrixMath.h">
+      <Filter>Engine\Foundation\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Foundation\Math\QuaternionMath.h">
+      <Filter>Engine\Foundation\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

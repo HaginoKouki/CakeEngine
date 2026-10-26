@@ -205,7 +205,7 @@ void DrawInspectorWindow(Scene& scene, GameObjectId& selected, EditorDrawContext
 
 	// --- Transform ---
 	// 組み込みフィールドでリフレクション対象外なので、ここだけ個別に描く.
-	if (ImGui::CollapsingHeader((kTransformIcon + " " + "Transform").c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+	if (ImGui::CollapsingHeader((kTransformIcon + " " + "TransformCoord").c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Indent();
 		ImGui::Spacing();
 		DrawTransformProperty("", &object->GetTransform().GetLocalMutable());

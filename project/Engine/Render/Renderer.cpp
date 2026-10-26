@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Foundation/Debug/DebugLog.h"
 #include "Engine/Foundation/Math/Transform.h"
 
@@ -246,8 +247,8 @@ void Renderer::DrawSkybox(const CameraView& cameraView) {
 	}
 
 	// 平行移動を除いたビュー射影の逆行列。PSでレイ方向の再構築に使う.
-	Matrix4x4 rotOnlyView = Matrix4x4::Inverse(cameraView.rotationMatrix);
-	Matrix4x4 invVP = Matrix4x4::Inverse(rotOnlyView * cameraView.projectionMatrix);
+	Matrix4x4 rotOnlyView = Math::Inverse(cameraView.rotationMatrix);
+	Matrix4x4 invVP = Math::Inverse(rotOnlyView * cameraView.projectionMatrix);
 
 	commandList_->SetPipelineState(shader->pso);
 
@@ -305,7 +306,7 @@ void Renderer::DrawModel(
 	}
 
 	Matrix4x4 viewProj = cameraView.viewMatrix * cameraView.projectionMatrix;
-	TransformationMatrix wvp{world * viewProj, world, Matrix4x4::Transpose(Matrix4x4::Inverse(world))};
+	TransformationMatrix wvp{world * viewProj, world, Math::Transpose(Math::Inverse(world))};
 	commandList_->SetGraphicsRootConstantBufferView(1, frameConstants_.Allocate(&wvp, sizeof(wvp)));
 
 	for (const Mesh& mesh : meshes) {

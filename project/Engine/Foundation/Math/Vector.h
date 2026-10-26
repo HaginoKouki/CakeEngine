@@ -1,9 +1,7 @@
-﻿#pragma once
+#pragma once
 /*====================================
  *
  * 数学ライブラリの基本：Vector2, Vector3, Vector4を定義する構造体群。
- * 算術演算（加減乗除）、内積・外積、正規化、クランプ等の
- * 各種ベクトル操作を静的メソッドとして提供する。
  * 行列演算等のすべての幾何学的計算の基盤となる。
  *
  * ====================================*/
@@ -14,124 +12,89 @@
 
 namespace Cake {
 
-class Matrix2x2;
-class Matrix3x3;
-class Matrix4x4;
-
-class Quaternion;
-
-class Vector2 {
-public:
+struct Vector2 {
 	float x;
 	float y;
 
-public:
-	Vector2() : x(0.0f), y(0.0f) {}
-	Vector2(float nX, float nY) : x(nX), y(nY) {}
-	Vector2(const Vector2&) = default;
-	Vector2& operator=(const Vector2&) = default;
+	constexpr Vector2() : x(0.0f), y(0.0f) {}
+	constexpr Vector2(float nX, float nY) : x(nX), y(nY) {}
 
 	static const Vector2 Zero;
 	static const Vector2 One;
-
 	static const Vector2 UnitX;
 	static const Vector2 UnitY;
 
 	// 算術演算子.
+	template <std::convertible_to<float> T>
+	constexpr Vector2 operator+(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector2 operator+(const T& other) const;
+	constexpr Vector2 operator-(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector2 operator-(const T& other) const;
+	constexpr Vector2 operator*(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector2 operator*(const T& other) const;
-	template<std::convertible_to<float> T>
-	Vector2 operator/(const T& other) const;
+	constexpr Vector2 operator/(const T& other) const;
 
 	template<std::convertible_to<float> T>
-	Vector2& operator+=(const T& other);
+	constexpr Vector2& operator+=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector2& operator-=(const T& other);
+	constexpr Vector2& operator-=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector2& operator*=(const T& other);
+	constexpr Vector2& operator*=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector2& operator/=(const T& other);
+	constexpr Vector2& operator/=(const T& other);
 
-	Vector2 operator+(const Vector2& other) const;
-	Vector2 operator-(const Vector2& other) const;
-	Vector2& operator+=(const Vector2& other);
-	Vector2& operator-=(const Vector2& other);
-	static Vector2 Multiply(const Vector2&, const Vector2&);
+	constexpr Vector2 operator+(const Vector2& other) const;
+	constexpr Vector2 operator-(const Vector2& other) const;
+	constexpr Vector2& operator+=(const Vector2& other);
+	constexpr Vector2& operator-=(const Vector2& other);
+	static constexpr Vector2 Multiply(const Vector2&, const Vector2&);
 
 	// 比較演算子.
-	bool operator==(const Vector2& other) const;
+	constexpr bool operator==(const Vector2& other) const = default;
 
 	// 単項演算子.
-	Vector2 operator-() const;
-	Vector2& operator++();
-	Vector2& operator--();
+	constexpr Vector2 operator-() const;
+	constexpr Vector2& operator++();
+	constexpr Vector2& operator--();
 
-	// 同次座標系に変換.
-	static Vector2 Transform(const Vector2&, const Matrix3x3& matrix);
-
-	/// <returns>引数間の距離</returns>
-	static float Length(const Vector2&, const Vector2& = Vector2::Zero);
-
-	/// <returns>正規化済みベクトル</returns>
-	static Vector2 Normalize(const Vector2&);
-
-	/// <returns>valueをminとmaxの範囲に収めたベクトル</returns>
-	static Vector2 Clamp(const Vector2& value, const Vector2& min, const Vector2& max);
-
-	/// <returns>a, bの内積</returns>
-	static float DotProduct(const Vector2& a, const Vector2& b);
-	/// <returns>a, bの外積</returns>
-	static float CrossProduct(const Vector2& a, const Vector2& b);
-
-	/// <returns>角度(度数法)</returns>
-	static float ToDegree(const Vector2&);
 	/// <param name="degree">角度(度数法)</param>
-	static Vector2 FromDegreeUnit(const float& degree);
-
-	/// <returns>ラジアン</returns>
-	static float ToRadian(const Vector2&);
+	static Vector2 FromDegreeUnit(float degree);
 	/// <param name="radian">ラジアン</param>
-	static Vector2 FromRadianUnit(const float& radian);
+	static Vector2 FromRadianUnit(float radian);
 
-	/// <returns>targetとの符号付き角度差</returns>
-	float SignedAngleDifference(const Vector2& target) const;
 };
-inline const Vector2 Vector2::Zero{ 0.0f, 0.0f };
-inline const Vector2 Vector2::One{ 1.0f, 1.0f };
-inline const Vector2 Vector2::UnitX{ 1.0f, 0.0f };
-inline const Vector2 Vector2::UnitY{ 0.0f, 1.0f };
+inline constexpr Vector2 Vector2::Zero{0.0f, 0.0f};
+inline constexpr Vector2 Vector2::One{1.0f, 1.0f};
+inline constexpr Vector2 Vector2::UnitX{1.0f, 0.0f};
+inline constexpr Vector2 Vector2::UnitY{0.0f, 1.0f};
 
 template<std::convertible_to<float> T>
-Vector2 Vector2::operator+(const T& other) const {
+constexpr Vector2 Vector2::operator+(const T& other) const {
 	Vector2 num;
 	num.x = x + static_cast<float>(other);
 	num.y = y + static_cast<float>(other);
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector2 Vector2::operator-(const T& other) const {
+constexpr Vector2 Vector2::operator-(const T& other) const {
 	Vector2 num;
 	num.x = x - static_cast<float>(other);
 	num.y = y - static_cast<float>(other);
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector2 Vector2::operator*(const T& other) const {
+constexpr Vector2 Vector2::operator*(const T& other) const {
 	Vector2 num;
 	num.x = x * static_cast<float>(other);
 	num.y = y * static_cast<float>(other);
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector2 operator*(T scalar, const Vector2& v) {
+constexpr Vector2 operator*(const T& scalar, const Vector2& v) {
 	return v * static_cast<float>(scalar);
 }
 template<std::convertible_to<float> T>
-Vector2 Vector2::operator/(const T& other) const {
+constexpr Vector2 Vector2::operator/(const T& other) const {
 	assert(other != 0 && "Division by zero error in Vector2::operator/");
 	Vector2 num;
 	num.x = x / static_cast<float>(other);
@@ -140,126 +103,118 @@ Vector2 Vector2::operator/(const T& other) const {
 }
 
 template<std::convertible_to<float> T>
-Vector2& Vector2::operator+=(const T& other) {
+constexpr Vector2& Vector2::operator+=(const T& other) {
 	this->x += static_cast<float>(other);
 	this->y += static_cast<float>(other);
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector2& Vector2::operator-=(const T& other) {
+constexpr Vector2& Vector2::operator-=(const T& other) {
 	this->x -= static_cast<float>(other);
 	this->y -= static_cast<float>(other);
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector2& Vector2::operator*=(const T& other) {
+constexpr Vector2& Vector2::operator*=(const T& other) {
 	this->x *= static_cast<float>(other);
 	this->y *= static_cast<float>(other);
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector2& Vector2::operator/=(const T& other) {
+constexpr Vector2& Vector2::operator/=(const T& other) {
 	assert(other != 0 && "Division by zero error in Vector2::operator/=");
 	this->x /= static_cast<float>(other);
 	this->y /= static_cast<float>(other);
 	return *this;
 }
 
-Vector2 Vector2::operator-() const {
+constexpr Vector2 Vector2::operator+(const Vector2& other) const {
+	return {x + other.x, y + other.y};
+}
+constexpr Vector2 Vector2::operator-(const Vector2& other) const {
+	return {x - other.x, y - other.y};
+}
+constexpr Vector2& Vector2::operator+=(const Vector2& other) {
+	x += other.x;
+	y += other.y;
+	return *this;
+}
+constexpr Vector2& Vector2::operator-=(const Vector2& other) {
+	x -= other.x;
+	y -= other.y;
+	return *this;
+}
+constexpr Vector2 Vector2::Multiply(const Vector2& a, const Vector2& b) {
+	return {a.x * b.x, a.y * b.y};
+}
+
+constexpr Vector2 Vector2::operator-() const {
 	return { -x, -y };
 }
-Vector2& Vector2::operator++() {
+constexpr Vector2& Vector2::operator++() {
 	x++;
 	y++;
 	return *this;
 }
-Vector2& Vector2::operator--() {
+constexpr Vector2& Vector2::operator--() {
 	x--;
 	y--;
 	return *this;
 }
 
 
-class Vector3 {
-public:
+struct Vector3 {
 	float x;
 	float y;
 	float z;
 
-public:
-	Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
-	Vector3(float nX, float nY, float nZ) : x(nX), y(nY), z(nZ) {}
-	Vector3(const Vector3&) = default;
-	Vector3& operator=(const Vector3&) = default;
+	constexpr Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
+	constexpr Vector3(float nX, float nY, float nZ) : x(nX), y(nY), z(nZ) {}
 
 	static const Vector3 Zero;
 	static const Vector3 One;
-
 	static const Vector3 UnitX;
 	static const Vector3 UnitY;
 	static const Vector3 UnitZ;
 
 	template<std::convertible_to<float> T>
-	Vector3 operator+(const T& other) const;
+	constexpr Vector3 operator+(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector3 operator-(const T& other) const;
+	constexpr Vector3 operator-(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector3 operator*(const T& other) const;
+	constexpr Vector3 operator*(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector3 operator/(const T& other) const;
+	constexpr Vector3 operator/(const T& other) const;
 
 	template<std::convertible_to<float> T>
-	Vector3& operator+=(const T& other);
+	constexpr Vector3& operator+=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector3& operator-=(const T& other);
+	constexpr Vector3& operator-=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector3& operator*=(const T& other);
+	constexpr Vector3& operator*=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector3& operator/=(const T& other);
+	constexpr Vector3& operator/=(const T& other);
 
-	Vector3 operator+(const Vector3& other) const;
-	Vector3 operator-(const Vector3& other) const;
-	Vector3& operator+=(const Vector3& other);
-	Vector3& operator-=(const Vector3& other);
-	static Vector3 Multiply(const Vector3&, const Vector3&);
+	constexpr Vector3 operator+(const Vector3& other) const;
+	constexpr Vector3 operator-(const Vector3& other) const;
+	constexpr Vector3& operator+=(const Vector3& other);
+	constexpr Vector3& operator-=(const Vector3& other);
+	constexpr static Vector3 Multiply(const Vector3&, const Vector3&);
 
-	bool operator==(const Vector3& other) const;
+	constexpr bool operator==(const Vector3& other) const = default;
 
-	Vector3 operator-() const;
-	Vector3& operator++();
-	Vector3& operator--();
-
-	/// 拡縮、回転、移動を適用
-	static Vector3 Transform(const Vector3&, const Matrix4x4&);
-	/// 拡縮、回転を適用
-	static Vector3 TransformNormal(const Vector3&, const Matrix4x4&);
-
-	/// <param name="v">回転させるベクトル</param>
-	/// <param name="q">正規化済みの Quaternion</param>
-	static Vector3 Rotate(const Vector3& v, const Quaternion& q);
-
-	/// <returns>引数間の距離</returns>
-	static float Length(const Vector3&, const Vector3& = Vector3::Zero);
-
-	/// <returns>正規化済みベクトル</returns>
-	static Vector3 Normalize(const Vector3&);
-
-	/// <returns>valueをminとmaxの範囲内に収めたベクトル</returns>
-	static Vector3 Clamp(const Vector3& value, const Vector3& min, const Vector3& max);
-
-	/// <returns>a, bの内積</returns>
-	static float DotProduct(const Vector3& a, const Vector3& b);
-	/// <returns>a, bの外積</returns>
-	static Vector3 CrossProduct(const Vector3& a, const Vector3& b);
+	constexpr Vector3 operator-() const;
+	constexpr Vector3& operator++();
+	constexpr Vector3& operator--();
 };
-inline const Vector3 Vector3::Zero{ 0.0f, 0.0f, 0.0f };
-inline const Vector3 Vector3::One{ 1.0f, 1.0f, 1.0f };
-inline const Vector3 Vector3::UnitX{ 1.0f, 0.0f, 0.0f };
-inline const Vector3 Vector3::UnitY{ 0.0f, 1.0f, 0.0f };
-inline const Vector3 Vector3::UnitZ{ 0.0f, 0.0f, 1.0f };
+inline constexpr Vector3 Vector3::Zero{ 0.0f, 0.0f, 0.0f };
+inline constexpr Vector3 Vector3::One{ 1.0f, 1.0f, 1.0f };
+inline constexpr Vector3 Vector3::UnitX{ 1.0f, 0.0f, 0.0f };
+inline constexpr Vector3 Vector3::UnitY{ 0.0f, 1.0f, 0.0f };
+inline constexpr Vector3 Vector3::UnitZ{ 0.0f, 0.0f, 1.0f };
 
 template<std::convertible_to<float> T>
-Vector3 Vector3::operator+(const T& other) const {
+constexpr Vector3 Vector3::operator+(const T& other) const {
 	Vector3 num;
 	num.x = x + static_cast<float>(other);
 	num.y = y + static_cast<float>(other);
@@ -267,7 +222,7 @@ Vector3 Vector3::operator+(const T& other) const {
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector3 Vector3::operator-(const T& other) const {
+constexpr Vector3 Vector3::operator-(const T& other) const {
 	Vector3 num;
 	num.x = x - static_cast<float>(other);
 	num.y = y - static_cast<float>(other);
@@ -275,7 +230,7 @@ Vector3 Vector3::operator-(const T& other) const {
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector3 Vector3::operator*(const T& other) const {
+constexpr Vector3 Vector3::operator*(const T& other) const {
 	Vector3 num;
 	num.x = x * static_cast<float>(other);
 	num.y = y * static_cast<float>(other);
@@ -283,11 +238,11 @@ Vector3 Vector3::operator*(const T& other) const {
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector3 operator*(T scalar, const Vector3& v) {
+constexpr Vector3 operator*(const T& scalar, const Vector3& v) {
 	return v * static_cast<float>(scalar);
 }
 template<std::convertible_to<float> T>
-Vector3 Vector3::operator/(const T& other) const {
+constexpr Vector3 Vector3::operator/(const T& other) const {
 	assert(other != 0 && "Division by zero error in Vector3::operator/");
 	Vector3 num;
 	num.x = x / static_cast<float>(other);
@@ -297,28 +252,28 @@ Vector3 Vector3::operator/(const T& other) const {
 }
 
 template<std::convertible_to<float> T>
-Vector3& Vector3::operator+=(const T& other) {
+constexpr Vector3& Vector3::operator+=(const T& other) {
 	x += static_cast<float>(other);
 	y += static_cast<float>(other);
 	z += static_cast<float>(other);
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector3& Vector3::operator-=(const T& other) {
+constexpr Vector3& Vector3::operator-=(const T& other) {
 	x -= static_cast<float>(other);
 	y -= static_cast<float>(other);
 	z -= static_cast<float>(other);
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector3& Vector3::operator*=(const T& other) {
+constexpr Vector3& Vector3::operator*=(const T& other) {
 	x *= static_cast<float>(other);
 	y *= static_cast<float>(other);
 	z *= static_cast<float>(other);
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector3& Vector3::operator/=(const T& other) {
+constexpr Vector3& Vector3::operator/=(const T& other) {
 	assert(other != 0 && "Division by zero error in Vector3::operator/=");
 	x /= static_cast<float>(other);
 	y /= static_cast<float>(other);
@@ -326,95 +281,112 @@ Vector3& Vector3::operator/=(const T& other) {
 	return *this;
 }
 
-Vector3 Vector3::operator-() const {
+constexpr Vector3 Vector3::operator+(const Vector3& other) const {
+	Vector3 num;
+	num.x = x + other.x;
+	num.y = y + other.y;
+	num.z = z + other.z;
+	return num;
+}
+constexpr Vector3 Vector3::operator-(const Vector3& other) const {
+	Vector3 num;
+	num.x = x - other.x;
+	num.y = y - other.y;
+	num.z = z - other.z;
+	return num;
+}
+constexpr Vector3& Vector3::operator+=(const Vector3& other) {
+	x += other.x;
+	y += other.y;
+	z += other.z;
+	return *this;
+}
+constexpr Vector3& Vector3::operator-=(const Vector3& other) {
+	x -= other.x;
+	y -= other.y;
+	z -= other.z;
+	return *this;
+}
+constexpr Vector3 Vector3::Multiply(const Vector3& v1, const Vector3& v2) {
+	Vector3 result = {
+		v1.x * v2.x,
+		v1.y * v2.y,
+		v1.z * v2.z
+	};
+	return result;
+}
+
+constexpr Vector3 Vector3::operator-() const {
 	return { -x, -y, -z };
 }
-Vector3& Vector3::operator++() {
+constexpr Vector3& Vector3::operator++() {
 	x++;
 	y++;
 	z++;
 	return *this;
 }
-Vector3& Vector3::operator--() {
+constexpr Vector3& Vector3::operator--() {
 	x--;
 	y--;
 	z--;
 	return *this;
 }
 
-class Vector4 {
-public:
+struct Vector4 {
 	float x;
 	float y;
 	float z;
 	float w;
 
-public:
-	Vector4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
-	Vector4(float nX, float nY, float nZ, float nW) : x(nX), y(nY), z(nZ), w(nW) {}
-	Vector4(const Vector4&) = default;
-	Vector4& operator=(const Vector4&) = default;
+	constexpr Vector4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
+	constexpr Vector4(float nX, float nY, float nZ, float nW) : x(nX), y(nY), z(nZ), w(nW) {}
 
 	static const Vector4 Zero;
 	static const Vector4 One;
-
 	static const Vector4 UnitX;
 	static const Vector4 UnitY;
 	static const Vector4 UnitZ;
 	static const Vector4 UnitW;
 
 	template<std::convertible_to<float> T>
-	Vector4 operator+(const T& other) const;
+	constexpr Vector4 operator+(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector4 operator-(const T& other) const;
+	constexpr Vector4 operator-(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector4 operator*(const T& other) const;
+	constexpr Vector4 operator*(const T& other) const;
 	template<std::convertible_to<float> T>
-	Vector4 operator/(const T& other) const;
+	constexpr Vector4 operator/(const T& other) const;
 
 	template<std::convertible_to<float> T>
-	Vector4& operator+=(const T& other);
+	constexpr Vector4& operator+=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector4& operator-=(const T& other);
+	constexpr Vector4& operator-=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector4& operator*=(const T& other);
+	constexpr Vector4& operator*=(const T& other);
 	template<std::convertible_to<float> T>
-	Vector4& operator/=(const T& other);
+	constexpr Vector4& operator/=(const T& other);
 
-	Vector4 operator+(const Vector4& other) const;
-	Vector4 operator-(const Vector4& other) const;
-	Vector4& operator+=(const Vector4& other);
-	Vector4& operator-=(const Vector4& other);
-	static Vector4 Multiply(const Vector4&, const Vector4&);
+	constexpr Vector4 operator+(const Vector4& other) const;
+	constexpr Vector4 operator-(const Vector4& other) const;
+	constexpr Vector4& operator+=(const Vector4& other);
+	constexpr Vector4& operator-=(const Vector4& other);
+	constexpr static Vector4 Multiply(const Vector4&, const Vector4&);
 
-	bool operator==(const Vector4& other) const;
+	constexpr bool operator==(const Vector4& other) const = default;
 
-	Vector4 operator-() const;
-	Vector4& operator++();
-	Vector4& operator--();
-
-
-	/// <returns>引数間の距離</returns>
-	static float Length(const Vector4&, const Vector4& = Vector4::Zero);
-
-	/// <returns>正規化済みベクトル</returns>
-	static Vector4 Normalize(const Vector4&);
-
-	/// <returns>valueをminとmaxの範囲内に収めたベクトル</returns>
-	static Vector4 Clamp(const Vector4& value, const Vector4& min, const Vector4& max);
-
-	/// <returns>a, bの内積</returns>
-	static float DotProduct(const Vector4& a, const Vector4& b);
+	constexpr Vector4 operator-() const;
+	constexpr Vector4& operator++();
+	constexpr Vector4& operator--();
 };
-inline const Vector4 Vector4::Zero{ 0.0f, 0.0f, 0.0f, 0.0f };
-inline const Vector4 Vector4::One{ 1.0f, 1.0f, 1.0f, 1.0f };
-inline const Vector4 Vector4::UnitX{ 1.0f, 0.0f, 0.0f, 0.0f };
-inline const Vector4 Vector4::UnitY{ 0.0f, 1.0f, 0.0f, 0.0f };
-inline const Vector4 Vector4::UnitZ{ 0.0f, 0.0f, 1.0f, 0.0f };
-inline const Vector4 Vector4::UnitW{ 0.0f, 0.0f, 0.0f, 1.0f };
+inline constexpr Vector4 Vector4::Zero{ 0.0f, 0.0f, 0.0f, 0.0f };
+inline constexpr Vector4 Vector4::One{ 1.0f, 1.0f, 1.0f, 1.0f };
+inline constexpr Vector4 Vector4::UnitX{ 1.0f, 0.0f, 0.0f, 0.0f };
+inline constexpr Vector4 Vector4::UnitY{ 0.0f, 1.0f, 0.0f, 0.0f };
+inline constexpr Vector4 Vector4::UnitZ{ 0.0f, 0.0f, 1.0f, 0.0f };
+inline constexpr Vector4 Vector4::UnitW{ 0.0f, 0.0f, 0.0f, 1.0f };
 
 template<std::convertible_to<float> T>
-Vector4 Vector4::operator+(const T& other) const {
+constexpr Vector4 Vector4::operator+(const T& other) const {
 	Vector4 num;
 	num.x = x + static_cast<float>(other);
 	num.y = y + static_cast<float>(other);
@@ -423,7 +395,7 @@ Vector4 Vector4::operator+(const T& other) const {
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector4 Vector4::operator-(const T& other) const {
+constexpr Vector4 Vector4::operator-(const T& other) const {
 	Vector4 num;
 	num.x = x - static_cast<float>(other);
 	num.y = y - static_cast<float>(other);
@@ -432,7 +404,7 @@ Vector4 Vector4::operator-(const T& other) const {
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector4 Vector4::operator*(const T& other) const {
+constexpr Vector4 Vector4::operator*(const T& other) const {
 	Vector4 num;
 	num.x = x * static_cast<float>(other);
 	num.y = y * static_cast<float>(other);
@@ -441,11 +413,11 @@ Vector4 Vector4::operator*(const T& other) const {
 	return num;
 }
 template<std::convertible_to<float> T>
-Vector4 operator*(T scalar, const Vector4& v) {
+constexpr Vector4 operator*(const T& scalar, const Vector4& v) {
 	return v * static_cast<float>(scalar);
 }
 template<std::convertible_to<float> T>
-Vector4 Vector4::operator/(const T& other) const {
+constexpr Vector4 Vector4::operator/(const T& other) const {
 	assert(other != 0 && "Division by zero error in Vector4::operator/");
 	Vector4 num;
 	num.x = x / static_cast<float>(other);
@@ -456,7 +428,7 @@ Vector4 Vector4::operator/(const T& other) const {
 }
 
 template<std::convertible_to<float> T>
-Vector4& Vector4::operator+=(const T& other) {
+constexpr Vector4& Vector4::operator+=(const T& other) {
 	x += static_cast<float>(other);
 	y += static_cast<float>(other);
 	z += static_cast<float>(other);
@@ -464,7 +436,7 @@ Vector4& Vector4::operator+=(const T& other) {
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector4& Vector4::operator-=(const T& other) {
+constexpr Vector4& Vector4::operator-=(const T& other) {
 	x -= static_cast<float>(other);
 	y -= static_cast<float>(other);
 	z -= static_cast<float>(other);
@@ -472,7 +444,7 @@ Vector4& Vector4::operator-=(const T& other) {
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector4& Vector4::operator*=(const T& other) {
+constexpr Vector4& Vector4::operator*=(const T& other) {
 	x *= static_cast<float>(other);
 	y *= static_cast<float>(other);
 	z *= static_cast<float>(other);
@@ -480,7 +452,7 @@ Vector4& Vector4::operator*=(const T& other) {
 	return *this;
 }
 template<std::convertible_to<float> T>
-Vector4& Vector4::operator/=(const T& other) {
+constexpr Vector4& Vector4::operator/=(const T& other) {
 	assert(other != 0 && "Division by zero error in Vector4::operator/=");
 	x /= static_cast<float>(other);
 	y /= static_cast<float>(other);
@@ -489,17 +461,57 @@ Vector4& Vector4::operator/=(const T& other) {
 	return *this;
 }
 
-Vector4 Vector4::operator-() const {
+constexpr Vector4 Vector4::operator+(const Vector4& other) const {
+	Vector4 num;
+	num.x = x + other.x;
+	num.y = y + other.y;
+	num.z = z + other.z;
+	num.w = w + other.w;
+	return num;
+}
+constexpr Vector4 Vector4::operator-(const Vector4& other) const {
+	Vector4 num;
+	num.x = x - other.x;
+	num.y = y - other.y;
+	num.z = z - other.z;
+	num.w = w - other.w;
+	return num;
+}
+constexpr Vector4& Vector4::operator+=(const Vector4& other) {
+	x += other.x;
+	y += other.y;
+	z += other.z;
+	w += other.w;
+	return *this;
+}
+constexpr Vector4& Vector4::operator-=(const Vector4& other) {
+	x -= other.x;
+	y -= other.y;
+	z -= other.z;
+	w -= other.w;
+	return *this;
+}
+constexpr Vector4 Vector4::Multiply(const Vector4& a, const Vector4& b) {
+	Vector4 result = {
+		a.x * b.x,
+		a.y * b.y,
+		a.z * b.z,
+		a.w * b.w
+	};
+	return result;
+}
+
+constexpr Vector4 Vector4::operator-() const {
 	return { -x, -y, -z, -w };
 }
-Vector4& Vector4::operator++() {
+constexpr Vector4& Vector4::operator++() {
 	x++;
 	y++;
 	z++;
 	w++;
 	return *this;
 }
-Vector4& Vector4::operator--() {
+constexpr Vector4& Vector4::operator--() {
 	x--;
 	y--;
 	z--;

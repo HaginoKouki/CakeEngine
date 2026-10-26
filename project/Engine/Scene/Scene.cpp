@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "Engine/Foundation/Math/Math.h"
 #include "Engine/Foundation/Debug/DebugLog.h"
 
 namespace Cake {
@@ -172,7 +173,7 @@ void Scene::SetParent(GameObjectId child, GameObjectId parent, bool worldPositio
 			}
 		}
 		// world = local × parentWorld なので、local = world × inverse(parentWorld).
-		const Matrix4x4 newLocal = worldBefore * Matrix4x4::Inverse(parentWorld);
+		const Matrix4x4 newLocal = worldBefore * Math::Inverse(parentWorld);
 		childObject->transform_.GetLocalMutable() = Math::DecomposeAffine(newLocal);
 	}
 

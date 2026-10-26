@@ -66,6 +66,7 @@ private:
 	};
 
 	/* Editor層が所有するもの */
+
 	ImGuiManager imguiManager_;
 	PlayModeController playMode_;
 
@@ -75,6 +76,7 @@ private:
 	GameWindow gameWindow_;   // ゲームカメラ視点。RT を内包する.
 
 	/* Editor層が依存する層 */
+
 	ProjectSettings* settings_ = nullptr;
 	EditorPreferences* preferences_ = nullptr; // 非所有。Application が持つ.
 	Platform* platform_ = nullptr;
@@ -88,6 +90,7 @@ private:
 	EditorDrawContext ctx_;
 
 	/* ウィンドウをまたいで共有する状態。個々のウィンドウには持たせない */
+
 	GameObjectId selected_;
 	InputContext inputContext_ = InputContext::None; // 前フレームのフォーカスで確定した入力先.
 

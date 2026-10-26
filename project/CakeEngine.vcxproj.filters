@@ -169,9 +169,6 @@
     <Filter Include="externals\nlohmann">
       <UniqueIdentifier>{d9b19c59-0846-4b91-bcfd-cdec812d2900}</UniqueIdentifier>
     </Filter>
-    <Filter Include="externals\imgui">
-      <UniqueIdentifier>{42a37c7d-4b42-49d8-a404-b352b56e6b0c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game">
       <UniqueIdentifier>{20bfbfdc-e16e-4acd-afbf-a24bc31512ef}</UniqueIdentifier>
     </Filter>
@@ -195,9 +192,6 @@
     </Filter>
     <Filter Include="Engine\Scene\System\Render">
       <UniqueIdentifier>{c6e5ca3c-3954-4f76-9d60-eb8b2c277afb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="externals\imgradient">
-      <UniqueIdentifier>{d96ad2dd-0d0b-4b15-a093-047bce56f132}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Render\Sprite">
       <UniqueIdentifier>{ff2d7fe6-a698-4a14-b6cf-717c9ba62965}</UniqueIdentifier>
@@ -459,30 +453,6 @@
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp">
       <Filter>Engine\Scene\System</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\imgui.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\ImGuizmo.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Components\RotatorComponent.cpp">
       <Filter>Game\Components</Filter>
     </ClCompile>
@@ -491,18 +461,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\GraphEditor.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\ImCurveEdit.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\ImSequencer.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\ImVectorEditor.cpp">
-      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Render\Pass\ParticlePass.cpp">
       <Filter>Engine\Render\Pass</Filter>
@@ -521,12 +479,6 @@
     </ClCompile>
     <ClCompile Include="Engine\Foundation\Math\Gradient.cpp">
       <Filter>Engine\Foundation\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgradient\imgradient.cpp">
-      <Filter>externals\imgradient</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\ImGradient.cpp">
-      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Render\Pass\SpritePass.cpp">
       <Filter>Engine\Render\Pass</Filter>
@@ -893,33 +845,6 @@
     <ClInclude Include="Engine\Scene\System\UpdateContext.h">
       <Filter>Engine\Scene\System</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imconfig.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\ImGuizmo.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_win32.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_internal.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_rectpack.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_textedit.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_truetype.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="externals\nlohmann\json.hpp">
       <Filter>externals\nlohmann</Filter>
     </ClInclude>
@@ -931,24 +856,6 @@
     </ClInclude>
     <ClInclude Include="Game\GameModule.h">
       <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\GraphEditor.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\ImCurveEdit.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\ImLightRig.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\ImSequencer.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\ImVectorEditor.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\ImZoomSlider.h">
-      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Foundation\Identity\AssetId.h">
       <Filter>Engine\Foundation\Identity</Filter>
@@ -989,15 +896,6 @@
     <ClInclude Include="Engine\Scene\Component\Particle\ParticleForceFieldComponent.h">
       <Filter>Engine\Scene\Component\Particle</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgradient\imgradient_internal.h">
-      <Filter>externals\imgradient</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgradient\imgradient.h">
-      <Filter>externals\imgradient</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\ImGradient.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Render\Pass\SpritePass.h">
       <Filter>Engine\Render\Pass</Filter>
     </ClInclude>
@@ -1013,10 +911,5 @@
     <ClInclude Include="Game\Components\Tester\SpriteTesterComponent.h">
       <Filter>Game\Components\Tester</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="externals\imgui\LICENSE.txt">
-      <Filter>externals\imgui</Filter>
-    </Text>
   </ItemGroup>
 </Project>

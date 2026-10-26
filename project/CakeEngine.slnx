@@ -2,11 +2,16 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
+  <Folder Name="/externals/">
+    <Project Path="externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj" Id="371b9fa9-4c90-4ac6-a123-aced756d6c77" />
+    <Project Path="externals/imgui/imgui.vcxproj" Id="29d5b099-85fe-4e5f-bb8c-209fed2e7b47" />
+  </Folder>
   <Folder Name="/ソリューション項目/">
     <File Path=".clang-format" />
     <File Path=".editorconfig" />
     <File Path="exclusion.dic" />
   </Folder>
-  <Project Path="CakeEngine.vcxproj" Id="a702f300-e9e8-4841-b195-1006a251d9d8" />
-  <Project Path="externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj" Id="371b9fa9-4c90-4ac6-a123-aced756d6c77" />
+  <Project Path="CakeEngine.vcxproj" Id="a702f300-e9e8-4841-b195-1006a251d9d8">
+    <BuildDependency Project="externals/imgui/imgui.vcxproj" />
+  </Project>
 </Solution>

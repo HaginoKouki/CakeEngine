@@ -164,6 +164,14 @@
     <ClInclude Include="imgui-1.93.0-docking\imstb_rectpack.h" />
     <ClInclude Include="imgui-1.93.0-docking\imstb_textedit.h" />
     <ClInclude Include="imgui-1.93.0-docking\imstb_truetype.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\GraphEditor.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\ImCurveEdit.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\ImGradient.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\ImGuizmo.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\ImLightRig.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\ImSequencer.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\ImVectorEditor.h" />
+    <ClInclude Include="ImGuizmo-1.10-source\ImZoomSlider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui-1.93.0-docking\backends\imgui_impl_dx12.cpp" />
@@ -173,6 +181,15 @@
     <ClCompile Include="imgui-1.93.0-docking\imgui_draw.cpp" />
     <ClCompile Include="imgui-1.93.0-docking\imgui_tables.cpp" />
     <ClCompile Include="imgui-1.93.0-docking\imgui_widgets.cpp" />
+    <ClCompile Include="ImGuizmo-1.10-source\GraphEditor.cpp" />
+    <ClCompile Include="ImGuizmo-1.10-source\ImCurveEdit.cpp" />
+    <ClCompile Include="ImGuizmo-1.10-source\ImGradient.cpp" />
+    <ClCompile Include="ImGuizmo-1.10-source\ImGuizmo.cpp" />
+    <ClCompile Include="ImGuizmo-1.10-source\ImSequencer.cpp" />
+    <ClCompile Include="ImGuizmo-1.10-source\ImVectorEditor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ImGuizmo-1.10-source\LICENSE" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

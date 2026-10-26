@@ -1,69 +1,113 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ソース ファイル">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="ImGuizmo">
+      <UniqueIdentifier>{0f0c7cd0-e775-4687-9464-1ed7820e1851}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="imgui-1.93.0-docking">
+      <UniqueIdentifier>{3d2a2eb5-76e4-4010-8cd4-03f21c9eef07}</UniqueIdentifier>
     </Filter>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="imgui-1.93.0-docking\backends">
+      <UniqueIdentifier>{719390f3-7d6c-4474-81cd-57a97f3cf809}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="imgui-1.93.0-docking\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="imgui-1.93.0-docking\imconfig.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ImGuizmo-1.10-source\GraphEditor.h">
+      <Filter>ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-1.93.0-docking\imgui.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ImGuizmo-1.10-source\ImCurveEdit.h">
+      <Filter>ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-1.93.0-docking\imgui_internal.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ImGuizmo-1.10-source\ImGradient.h">
+      <Filter>ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-1.93.0-docking\imstb_rectpack.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ImGuizmo-1.10-source\ImGuizmo.h">
+      <Filter>ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-1.93.0-docking\imstb_textedit.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ImGuizmo-1.10-source\ImLightRig.h">
+      <Filter>ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuizmo-1.10-source\ImSequencer.h">
+      <Filter>ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuizmo-1.10-source\ImVectorEditor.h">
+      <Filter>ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuizmo-1.10-source\ImZoomSlider.h">
+      <Filter>ImGuizmo</Filter>
     </ClInclude>
     <ClInclude Include="imgui-1.93.0-docking\imstb_truetype.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>imgui-1.93.0-docking</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-1.93.0-docking\backends\imgui_impl_dx12.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="imgui-1.93.0-docking\imconfig.h">
+      <Filter>imgui-1.93.0-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui-1.93.0-docking\imgui.h">
+      <Filter>imgui-1.93.0-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui-1.93.0-docking\imgui_internal.h">
+      <Filter>imgui-1.93.0-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui-1.93.0-docking\imstb_rectpack.h">
+      <Filter>imgui-1.93.0-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui-1.93.0-docking\imstb_textedit.h">
+      <Filter>imgui-1.93.0-docking</Filter>
     </ClInclude>
     <ClInclude Include="imgui-1.93.0-docking\backends\imgui_impl_win32.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>imgui-1.93.0-docking\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui-1.93.0-docking\backends\imgui_impl_dx12.h">
+      <Filter>imgui-1.93.0-docking\backends</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ImGuizmo-1.10-source\GraphEditor.cpp">
+      <Filter>ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuizmo-1.10-source\ImCurveEdit.cpp">
+      <Filter>ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuizmo-1.10-source\ImGradient.cpp">
+      <Filter>ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuizmo-1.10-source\ImGuizmo.cpp">
+      <Filter>ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuizmo-1.10-source\ImSequencer.cpp">
+      <Filter>ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuizmo-1.10-source\ImVectorEditor.cpp">
+      <Filter>ImGuizmo</Filter>
+    </ClCompile>
     <ClCompile Include="imgui-1.93.0-docking\imgui.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>imgui-1.93.0-docking</Filter>
     </ClCompile>
     <ClCompile Include="imgui-1.93.0-docking\imgui_demo.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>imgui-1.93.0-docking</Filter>
     </ClCompile>
     <ClCompile Include="imgui-1.93.0-docking\imgui_draw.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>imgui-1.93.0-docking</Filter>
     </ClCompile>
     <ClCompile Include="imgui-1.93.0-docking\imgui_tables.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>imgui-1.93.0-docking</Filter>
     </ClCompile>
     <ClCompile Include="imgui-1.93.0-docking\imgui_widgets.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>imgui-1.93.0-docking</Filter>
     </ClCompile>
     <ClCompile Include="imgui-1.93.0-docking\backends\imgui_impl_dx12.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>imgui-1.93.0-docking\backends</Filter>
     </ClCompile>
     <ClCompile Include="imgui-1.93.0-docking\backends\imgui_impl_win32.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>imgui-1.93.0-docking\backends</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ImGuizmo-1.10-source\LICENSE">
+      <Filter>ImGuizmo</Filter>
+    </None>
   </ItemGroup>
 </Project>

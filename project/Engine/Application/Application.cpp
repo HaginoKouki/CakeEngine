@@ -15,7 +15,9 @@
 #pragma comment(lib, "dxguid.lib")
 #include <dxgidebug.h>
 
+#ifdef USE_IMGUI
 #include <imgui_impl_win32.h>
+#endif
 
 #include "Engine/Foundation/Utility/Convert.h"
 #include "Engine/Scene/Component/ComponentRegistration.h"

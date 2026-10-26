@@ -15,6 +15,7 @@ IndentWidth: 4          	# インデント1段の幅. タブ幅と揃えてい�
 ColumnLimit: 0          	# 1行の最大の長さ. 超えると折り返し対象になる.
 
 # --- 波括弧の位置：K&R（開き波括弧は同じ行） ---
+InsertBraces: true
 BreakBeforeBraces: Custom		# 波括弧の配置を自分で決める. 詳細は下の BraceWrapping で指定.
 BraceWrapping:
   AfterNamespace: false       	# 名前空間の開き波括弧を宣言と同じ行に置く.

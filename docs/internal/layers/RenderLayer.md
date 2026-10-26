@@ -33,7 +33,7 @@ Render 層は「視点と描画先が決まった状態で、シーンの中身�
 | 描画先 | `BeginScene` / `EndScene` | オフスクリーンの `SceneRenderTarget` を描画先にし、終わったら ImGui が読める状態へ戻す。エディタの 2 ビューが使う |
 | 描画先 | `PrepareBackbufferToEditor` | ImGui だけを描くためにバックバッファを用意する（深度無し） |
 | 描画先 | `PrepareBackbufferToGame` | ゲームをバックバッファへ直接描く。黒でクリアし、設計アスペクト比を保つビューポートを置く（レターボックス） |
-| 描画 | `DrawModel` | 共有モデルを world 行列と視点で描く。`materialOverride` が有効なら全サブメッシュをそれ 1 枚で描く |
+| 描画 | `DrawModel` | 共有モデルを world 行列と視点で描く。VS の `b0` には `TransformationMatrix`（WVP、World、World の逆転置）を送る。`materialOverride` が有効なら全サブメッシュをそれ 1 枚で描く |
 | 描画 | `DrawModelInstanced` | 同じモデルをインスタンシングで描く（パーティクル用）。マテリアルのシェーダーが `requiresInstancing` でなければ 1 個ずつ `DrawModel` で描く |
 | 描画 | `DrawSkybox`、`DrawGizmos` | 専用の描き方 |
 | 描画 | `DrawSprite` | `SpriteDrawItem` を基準解像度のピクセル座標（左上が原点、y は下向き）で描く。world と正射影を掛けた行列を `SpriteForGPU` に詰めて VS の `b0` に送り、テクスチャは `t0` に直接設定する。表示サイズは、`useTextureSize` が true でテクスチャがあればテクスチャのピクセルサイズ × `uvRect` の zw、それ以外は `size`。テクスチャが未設定なら既定テクスチャ（白）、参照先が見つからない（`isTextureMissing`）ならエラー用テクスチャで描く |

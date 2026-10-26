@@ -14,8 +14,8 @@ CakeEngine は、**「プロトタイプ作成から本番環境までをもっ�
 | 分野                   | 現在の機能                                                                                                                 |
 | :--------------------- | :------------------------------------------------------------------------------------------------------------------------- |
 | シーン                 | GameObject と親子階層、データだけを持つコンポーネント、JSON（`.scene`）での保存と復元                                     |
-| コンポーネント         | Transform、Camera、Light、MeshRenderer、球と箱の Collider、パーティクル（System、Renderer、Force Field）。ゲーム側で自由に追加できる |
-| 描画                   | DirectX 12。モデル描画、パノラマ Skybox、ビルボードのパーティクル（インスタンシング）、デバッグ用の線（ギズモ）           |
+| コンポーネント         | Transform、Camera、Light、MeshRenderer、SpriteRenderer、球と箱の Collider、パーティクル（System、Renderer、Force Field）。ゲーム側で自由に追加できる |
+| 描画                   | DirectX 12。モデル描画、パノラマ Skybox、ビルボードのパーティクル（インスタンシング）、画面に重ねるスプライト、デバッグ用の線（ギズモ）。60 FPS 固定 |
 | アセット               | OBJ と MTL、テクスチャ（PNG、JPG、DDS など）、`.mat` マテリアル。GUID と `.meta` による参照                                |
 | エディタ（Debug 構成） | Scene と Game の 2 ビュー、Hierarchy と Inspector、Play / Pause / Step / Stop、マテリアル編集、ログ、プロファイラ          |
 | 入力と音               | キーボード、マウス（Raw Input）、ゲームパッド（XInput）、XAudio2 による再生                                                |

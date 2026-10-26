@@ -11,7 +11,6 @@
 #include "Engine/Graphics/Device/DirectXDevice.h"
 #include "Engine/Graphics/Device/CommandManager.h"
 #include "Engine/Graphics/RenderTarget/SwapChain.h"
-#include "Engine/Graphics/RenderTarget/DepthBuffer.h"
 #include "Engine/Graphics/Descriptor/DescriptorHeap.h"
 #include "Engine/Editor/imgui/Icons.h"
 
@@ -42,7 +41,6 @@ void ImGuiManager::Initialize(
 	DirectXDevice* device,
 	CommandManager* commandManager,
 	SwapChain* swapChain,
-	DepthBuffer* depthBuffer,
 	DescriptorHeap* srvHeap
 ) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
@@ -84,22 +82,48 @@ void ImGuiManager::Initialize(
 
 	ImGui_ImplWin32_Init(hwnd);
 
+	// ImGui 用の予約枠のハンドルを控えておく. コールバックはこの配列だけを見る.
+	for (uint32_t i = 0; i < Reserved::kSrvImGuiCount; ++i) {
+		srvSlots_[i].cpuHandle = srvHeap->GetCPUHandle(Reserved::kSrvImGuiBegin + i);
+		srvSlots_[i].gpuHandle = srvHeap->GetGPUHandle(Reserved::kSrvImGuiBegin + i);
+		srvSlots_[i].inUse = false;
+	}
+
 	ImGui_ImplDX12_InitInfo initInfo = {};
-	initInfo.Device = device->GetD3D12Device();                  // DX12デバイス.
+	initInfo.Device = device->GetD3D12Device();                // DX12デバイス.
 	initInfo.CommandQueue = commandManager->GetCommandQueue(); // DX12コマンドキュー.
 	initInfo.NumFramesInFlight = swapChain->GetBufferCount();  // バックバッファの数.
 	initInfo.RTVFormat = swapChain->GetRTVFormat();            // RTVのフォーマット.
-	initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;                  // DSVのフォーマット.
-	initInfo.UserData = srvHeap;                               // コールバックへ渡すSRVヒープ.
+	initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;                  // DSVのフォーマット. ImGuiは深度なしのパスで描くので未設定.
+	initInfo.UserData = this;                                  // コールバックへ渡す自分自身.
 	initInfo.SrvDescriptorHeap = srvHeap->GetHeap();           // SRV用ディスクリプタヒープ.
 	initInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) {
-		// SRV確保関数. ImGui用の予約枠(0番)に固定する.
-		DescriptorHeap* heap = static_cast<DescriptorHeap*>(info->UserData);
-		*out_cpu_handle = heap->GetCPUHandle(Reserved::kSrvImGui);
-		*out_gpu_handle = heap->GetGPUHandle(Reserved::kSrvImGui);
+		// SRV確保関数. ImGui用の予約枠から空いている枠を1つ渡す.
+		// フォントアトラスを作り直すと、古いテクスチャが破棄されるまで一時的に複数枚が同時に存在する.
+		ImGuiManager* self = static_cast<ImGuiManager*>(info->UserData);
+		for (auto& slot : self->srvSlots_) {
+			if (!slot.inUse) {
+				slot.inUse = true;
+				*out_cpu_handle = slot.cpuHandle;
+				*out_gpu_handle = slot.gpuHandle;
+				return;
+			}
+		}
+		IM_ASSERT(false && "ImGui用のSRV予約枠が足りません. Reserved::kSrvImGuiCount を増やしてください.");
+		// assert が無効な構成でも不正なハンドルを返さないよう、先頭の枠を渡す.
+		*out_cpu_handle = self->srvSlots_[0].cpuHandle;
+		*out_gpu_handle = self->srvSlots_[0].gpuHandle;
 	};
-	initInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE) {
-		// 固定枠なので解放処理は不要.
+	initInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE) {
+		// SRV解放関数. 返された枠を空きに戻す.
+		ImGuiManager* self = static_cast<ImGuiManager*>(info->UserData);
+		for (auto& slot : self->srvSlots_) {
+			if (slot.cpuHandle.ptr == cpu_handle.ptr) {
+				slot.inUse = false;
+				return;
+			}
+		}
+		IM_ASSERT(false && "ImGui用の予約枠ではないSRVが解放されました.");
 	};
 	ImGui_ImplDX12_Init(&initInfo);
 
@@ -144,14 +168,7 @@ ImGuiManager::~ImGuiManager() {
 void ImGuiManager::ApplyUIScale(float scale) {
 	uiScale_ = std::clamp(scale, EditorPreferences::kMinUIScale, EditorPreferences::kMaxUIScale);
 
-	ImGuiIO& io = ImGui::GetIO();
-
-	// 1. 文字（フォント）のグローバルスケール。
-	// 「基本サイズ / ロードサイズ」をベースに、指定倍率を掛ける。
-	// 36px で生成した輪郭を維持したまま、見た目だけを変える.
-	io.FontGlobalScale = (kBaseFontSize / kLoadFontSize) * uiScale_;
-
-	// 2. ボタン・ウィンドウ・隙間のサイズを連動させる。
+	// 1. ボタン・ウィンドウ・隙間のサイズを連動させる。
 	// ScaleAllSizes は呼ぶたびに乗算されるため、必ず一度基準へ戻してから掛ける.
 	ImGuiStyle& style = ImGui::GetStyle();
 
@@ -165,6 +182,12 @@ void ImGuiManager::ApplyUIScale(float scale) {
 	}
 
 	style.ScaleAllSizes(uiScale_ * kBaseStyleScale);
+
+	// 2. 文字（フォント）のグローバルスケール。
+	// 「基本サイズ / ロードサイズ」をベースに、指定倍率を掛ける。
+	// ImGui 1.92 以降は表示するサイズで文字を焼き直すため、拡大しても輪郭はぼやけない.
+	// FontScaleMain は style の一部なので、基準へ戻した後に設定する.
+	style.FontScaleMain = (kBaseFontSize / kLoadFontSize) * uiScale_;
 }
 
 void ImGuiManager::ApplyUIScaleFromPreferences(const EditorPreferences& preferences) {

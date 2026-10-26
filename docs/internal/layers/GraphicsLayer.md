@@ -92,10 +92,12 @@ SRV ヒープと RTV ヒープの先頭は、エディタ固有の描画先の�
 
 | 構成 | SRV | RTV |
 | --- | --- | --- |
-| `ENABLE_EDITOR` あり | 0 = ImGui フォント、1 = SceneRT、2 = DebugSceneRT。`kSrvReservedCount` = 3 | 0 と 1 = SwapChain、2 = SceneRT、3 = DebugSceneRT |
+| `ENABLE_EDITOR` あり | 0〜3 = ImGui のテクスチャ（`kSrvImGuiCount` = 4）、4 = SceneRT、5 = DebugSceneRT。`kSrvReservedCount` = 6 | 0 と 1 = SwapChain、2 = SceneRT、3 = DebugSceneRT |
 | `ENABLE_EDITOR` なし | `kSrvReservedCount` = 0 | 0 と 1 = SwapChain |
 
 `TextureManager` のように動的に確保する側は、必ず `kSrvReservedCount` から始めます。
+
+ImGui のテクスチャに 4 枠あるのは、ImGui 1.92 以降のバックエンドがテクスチャごとに SRV を確保するためです。フォントアトラスを作り直すと、古いテクスチャが破棄されるまで新旧が同時に存在します。`ImGuiManager` は確保のコールバックで空いている枠を貸し出し、解放のコールバックで空きに戻します。
 
 ### フレーム内の使い捨てバッファ
 

@@ -7,15 +7,18 @@ namespace Cake {
 
 /*
  * ディスクリプタヒープの先頭を予約する枠。
- * エディタ固有の描画先（ImGui フォント・ビューポート2枚）がここを使う。
+ * エディタ固有の描画先（ImGui のテクスチャ・ビューポート2枚）がここを使う。
  * TextureManager など動的に確保する側は、必ず kSrvReservedCount から始めること。
  */
 namespace Reserved {
 #ifdef ENABLE_EDITOR
-constexpr uint32_t kSrvImGui = 0;
-constexpr uint32_t kSrvSceneRT = 1;
-constexpr uint32_t kSrvDebugSceneRT = 2;
-constexpr uint32_t kSrvReservedCount = 3;
+// ImGui のテクスチャ（フォントアトラス）用.
+// アトラスを作り直すと、古いテクスチャが破棄されるまで一時的に複数枚が同時に存在するため、数枠持っておく.
+constexpr uint32_t kSrvImGuiBegin = 0;
+constexpr uint32_t kSrvImGuiCount = 4;
+constexpr uint32_t kSrvSceneRT = kSrvImGuiBegin + kSrvImGuiCount;
+constexpr uint32_t kSrvDebugSceneRT = kSrvSceneRT + 1;
+constexpr uint32_t kSrvReservedCount = kSrvDebugSceneRT + 1;
 
 constexpr uint32_t kRtvSceneRT = 2; // 0,1 は SwapChain
 constexpr uint32_t kRtvDebugSceneRT = 3;

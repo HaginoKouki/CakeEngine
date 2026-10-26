@@ -75,7 +75,7 @@ Stop、New、Open でシーンが作り直されるため、既存の `GameObjec
 
 ### UI スケールとテーマ
 
-フォントは 36 px で 1 回だけ焼き、`FontGlobalScale` で見た目のサイズを変えます。`ApplyUIScale` は ImGui のスタイルを基準値へ戻してから `ScaleAllSizes` を掛け、`ApplyTheme` はテーマが決めたサイズを新しい基準として控え直します。`followSystemDpi` が true の間は毎フレーム OS の拡大率と実適用値を突き合わせ、差があるときだけ組み直します。
+フォントは 36 px で読み込み、`style.FontScaleMain` で見た目のサイズを変えます。ImGui 1.92 以降は表示するサイズで文字をその都度焼くため、拡大しても輪郭はぼやけません。`ApplyUIScale` は ImGui のスタイルを基準値へ戻してから `ScaleAllSizes` を掛け、`ApplyTheme` はテーマが決めたサイズを新しい基準として控え直します。`followSystemDpi` が true の間は毎フレーム OS の拡大率と実適用値を突き合わせ、差があるときだけ組み直します。
 
 ### 操作
 
@@ -98,7 +98,7 @@ Stop、New、Open でシーンが作り直されるため、既存の `GameObjec
 | 規則 | Scene 層以下にのみ依存する。Application 層はこの層の上 |
 | 実装上の依存 | Platform、Graphics、Asset、Render、Scene、Foundation の各層と、ImGui、ImGuizmo、IconFontCppHeaders |
 | 規則との食い違い | ほぼすべてのヘッダが Application 層の `BuildConfig.h` を include している。`Editor.h`、`MenuBar.cpp`、`SettingsWindow.cpp`、`GameWindow.cpp`、`SceneWindow.cpp` が `ProjectSettings.h` を使う。`BuildConfig` と `ProjectSettings` は Application フォルダにあるが、実質は下位層と共有する設定の置き場になっている |
-| 外部ライブラリ | `externals/imgradient`（グラデーション編集ウィジェット）は vcxproj に登録されているが、Engine と Game からは使われていない。ImGuizmo 同梱の `externals/imgui/ImGradient.*` とは別物 |
+| 外部ライブラリ | ImGui（1.93.0 docking）と ImGuizmo は `externals/imgui/imgui.vcxproj` の静的ライブラリにまとめている。ImGuizmo に同梱の GraphEditor、ImCurveEdit、ImSequencer なども同じライブラリに入っているが、Engine と Game からは使われていない |
 | ゲームコード | `Game/` は知らない |
 
 ## 守るべき規則

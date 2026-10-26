@@ -118,7 +118,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | 構成 | 定義 | 含まれるもの |
 | --- | --- | --- |
 | Debug | `_DEBUG`、`_WINDOWS`、`ENABLE_EDITOR`、`USE_IMGUI` | エディタ、ImGui、プロファイラの HUD。警告はエラー扱い |
-| Release | `NDEBUG`、`_WINDOWS` | ゲームのみ。`externals/imgui` と `externals/imgradient` の `.cpp` はビルドから除外される |
+| Release | `NDEBUG`、`_WINDOWS` | ゲームのみ。`imgui.lib` は Debug と同じくリンクする |
 
 `USE_IMGUI` は ImGui ライブラリを使うかどうか、`ENABLE_EDITOR` はエディタ機能を有効にするかどうかを表します。エディタは ImGui に依存するため、`ENABLE_EDITOR` を定義して `USE_IMGUI` を定義しない構成はコンパイルエラーになります。
 
@@ -127,7 +127,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | `USE_IMGUI` | ImGui ライブラリを使うか（include、リンク、API 呼び出しの可否） | 純粋に ImGui API を叩くだけの箇所 |
 | `ENABLE_EDITOR` | エディタ機能を有効にするか | `Editor` クラス、ビューポート、インスペクタなど、エディタ機能そのもの |
 
-ソリューションには `CakeEngine` と `externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj` の 2 プロジェクトが入り、DirectXTex は静的ライブラリとして一緒にビルドされます。ビルド後イベントで Windows SDK の `dxcompiler.dll` と `dxil.dll` を出力フォルダへコピーします。HLSL は起動時に DXC で実行時コンパイルされるため、この 2 つが無いと起動できません。ビルドの手順と実行時の前提は [README.md](../../README.md) にあります。
+ソリューションには `CakeEngine`、`externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj`、`externals/imgui/imgui.vcxproj` の 3 プロジェクトが入り、DirectXTex と imgui は静的ライブラリとして一緒にビルドされます。DirectXTex はプロジェクト参照でリンクし、imgui は追加のライブラリ ディレクトリと追加の依存ファイル（`imgui.lib`）でリンクします。imgui プロジェクトには ImGui 本体、DX12 と Win32 のバックエンド、ImGuizmo が入っています。ビルド後イベントで Windows SDK の `dxcompiler.dll` と `dxil.dll` を出力フォルダへコピーします。HLSL は起動時に DXC で実行時コンパイルされるため、この 2 つが無いと起動できません。ビルドの手順と実行時の前提は [README.md](../../README.md) にあります。
 
 ### CI
 

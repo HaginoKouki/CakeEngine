@@ -103,7 +103,7 @@ SRV ヒープと RTV ヒープの先頭は、エディタ固有の描画先の�
 
 | バッファ | 用途 | 枯渇時の動き |
 | --- | --- | --- |
-| `FrameConstantBuffer`（1 MiB） | モデルごとの変換行列、パーティクルのインスタンスデータ、カメラ | `offset` を先頭へ戻して続行する。描画は乱れるが落ちない。ただし 1 回の `Allocate` が容量を超える場合は検出しない |
+| `FrameConstantBuffer`（1 MiB） | モデルごとの変換行列、パーティクルのインスタンスデータ、カメラ、スプライト 1 枚ごとの `SpriteForGPU` | `offset` を先頭へ戻して続行する。描画は乱れるが落ちない。ただし 1 回の `Allocate` が容量を超える場合は検出しない |
 | `FrameVertexBuffer`（4 MiB） | ギズモの線分 | `SizeInBytes` が 0 の VBV を返す。呼び出し側はそれを見て描画を諦める |
 
 ### プロファイラ
@@ -126,7 +126,7 @@ SRV ヒープと RTV ヒープの先頭は、エディタ固有の描画先の�
 | レジスタ | ステージ | 内容 |
 | --- | --- | --- |
 | `b0` | PS | マテリアルのパラメータ<br>`ShaderDefinition::params` の並びと一致させる |
-| `b0` | VS | 変換行列<br>`TransformationMatrix`（`WVP` と `World` の `float4x4` が 2 つ）<br>`Sprite` は `SpriteForGPU` |
+| `b0` | VS | 変換行列<br>`TransformationMatrix`（`WVP`、`World`、`WorldInverseTranspose` の `float4x4` が 3 つ）。エンジンの `Standard` は先頭の 2 つだけを宣言し、3 つ目はゲーム側の `Object3D` が法線行列として読む<br>`Sprite` は `SpriteForGPU` |
 | `b1` | PS | 平行光源。`DirectionalLight`（`float4 color`、`float3 direction`、`float intensity`） |
 | `b2` | PS | カメラ。`float3 worldPosition` と `float` のパディング |
 | `t0` から `t3` | PS | テクスチャスロット。`TextureSlotDesc::registerIndex` と一致させる |

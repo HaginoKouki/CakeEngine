@@ -14,8 +14,8 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 
 | フォルダ | 主な型 | 役割 |
 | --- | --- | --- |
-| 直下 | `Platform` | `Time`、`InputManager`、`SoundManager` を所有する層の入口。`Initialize(hInstance, hwnd)` と `BeginFrame` を持つ |
-| `Time/` | `Time` | エンジン内で唯一、経過時間を測る場所。scaled と unscaled の 2 系統、`timeScale`、一時停止、フレーム数 |
+| 直下 | `Platform` | `Time`、`InputManager`、`SoundManager` を所有する層の入口。`Initialize(hInstance, hwnd, initialTime)`、`BeginFrame`、`EndFrame` を持つ。初期化でタイマーの分解能を 1 ms に上げ、破棄で戻す |
+| `Time/` | `Time` | エンジン内で唯一、経過時間を測る場所。scaled と unscaled の 2 系統、`timeScale`、一時停止、フレーム数、目標フレームレートまでの待機 |
 | `Input/` | `InputManager` | キーボード、マウス、ゲームパッドを束ね、ゲーム用とエディタ用の問い合わせ口を分ける |
 | `Input/` | `KeyBoard` | Win32 メッセージによるキーボード入力。添字はスキャンコード |
 | `Input/` | `Mouse` | ボタン、ホイール、カーソル位置は WndProc から、相対移動量は Raw Input から取る。押下中はウィンドウ外でも離した通知が届くようキャプチャする |
@@ -34,10 +34,24 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 
 | 系統 | 取得関数 | 用途 |
 | --- | --- | --- |
-| scaled | `GetDeltaTime`、`GetTotalTime` | ゲームロジック。`timeScale` が掛かり、Stop 中は 0 になる |
+| scaled | `GetScaledDeltaTime`、`GetScaledTotalTime` | ゲームロジック。`timeScale` が掛かり、Stop 中は 0 になる |
 | unscaled | `GetUnscaledDeltaTime`、`GetUnscaledTotalTime` | エディタカメラや UI のアニメーション。Stop 中も進む |
 
 実測の経過時間は `kMaxDeltaTime`（0.1 秒）で頭打ちにします。デバッガで止めた直後などに巨大な値が流れると、オブジェクトが飛び、当たり判定もすり抜けるためです。捨てた分は取り戻しません。シーン読み込みのように止まっていた時間を混ぜたくない場面では `Reset` を呼びます。
+
+一時停止と `timeScale` は `RequestSetPaused` と `RequestSetTimeScale` で変えます。どちらも値を控えるだけで、次の `Tick` から効きます。呼んだフレームの `GetScaledDeltaTime` は変わりません。
+
+### フレームレートの固定
+
+`Platform::EndFrame` が `Time::WaitForTargetFrame` を呼び、フレームの長さを目標フレームレート（`targetFrameRate_`、60）に合わせます。呼ぶのは Present の後で、`Application::RunFrame` の末尾です。
+
+| 手順 | 内容 |
+| --- | --- |
+| 1 | フレーム開始（直前の `Tick` の時刻）からの経過が 1/65 秒以上なら、VSync がすでに刻んだとみなして待たない |
+| 2 | 1/60 秒の期限の 2 ms 前まで `sleep_until` で休む |
+| 3 | 残りは `yield` を繰り返して待ち、Sleep の寝過ごしで期限を過ぎないようにする |
+
+Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(1)` を呼び、`~Platform` で `timeEndPeriod(1)` を呼びます。`timeBeginPeriod` に失敗した場合は警告ログを出して続行します。`Platform` はコピーを禁止していて、`timeEndPeriod` が二重に呼ばれないようにしています。
 
 ### 入力
 
@@ -74,9 +88,10 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 ### 時間
 
 - 経過時間は `Time` 1 箇所でしか測らない。`InputManager` や `PerformanceProfiler` も自前で測らず、`Time` から受け取る。
-- `Time::Tick` はフレーム先頭で 1 回だけ呼ぶ。
+- `Time::Tick` はフレーム先頭で 1 回だけ呼ぶ。`Time::WaitForTargetFrame` はフレーム末尾（Present の後）で 1 回だけ呼ぶ。どちらも `Platform` の `BeginFrame` と `EndFrame` が担当する。
 - ゲームロジックは scaled、エディタカメラや UI は unscaled を使う。
 - `deltaTime` は `kMaxDeltaTime` で頭打ちにし、捨てた分は取り戻さない。
+- 一時停止と `timeScale` の変更は次の `Tick` から効く。呼んだフレームの経過時間は変わらない。
 
 ### 入力
 
@@ -92,3 +107,5 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 
 - `SoundManager` は `SoundData` を生ポインタで返し、解放は呼び出し側が `SoundUnload` で行います。エンジン内で `SoundManager` を使っている箇所は、`UpdateContext` へ参照を載せている部分のみです。`SoundPlay` が作る `IXAudio2SourceVoice` は破棄されません。
 - `SoundManager` はコンストラクタで MediaFoundation と XAudio2 を初期化します。ほかの部品のように `Initialize` を持たないため、`Platform` のメンバとして構築された時点で動き始めます。
+- `Time::targetFrameRate_` は 60 で固定です。変える関数も `ProjectSettings` の項目も無く、`std::optional` の「未設定なら待たない」経路は外から選べません。
+- `Time::initialTime_` は `Initialize` で受け取って保持していますが、使っている箇所はありません。

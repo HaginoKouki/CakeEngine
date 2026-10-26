@@ -45,7 +45,7 @@ Editor 層は、`SceneManager` が持つ現在のシーンを更新・描画し�
 | --- | --- | --- |
 | 1 | `PrepareRenderTargets` | 2 枚の描画先の遅延リサイズ要求を取り出し、どちらかがあれば `WaitForGPU` を 1 回だけ行って作り直す。深度バッファは 2 ビューの最大サイズに合わせる |
 | 2 | `BeginFrame` | ImGui と ImGuizmo の NewFrame、DockSpace、DPI の追従、プロファイラの開始 |
-| 3 | `Update` | `PlayModeController::Tick` で `Time` の一時停止を更新 → 前フレームのフォーカスで決めた入力先を反映 → `SceneManager::Update` → エディタカメラの更新 → UI 一式の構築（`DrawEditorUI`） |
+| 3 | `Update` | `PlayModeController::Tick` で次フレームからの `Time` の一時停止を予約（`RequestSetPaused`） → 前フレームのフォーカスで決めた入力先を反映 → `SceneManager::Update` → エディタカメラの更新 → UI 一式の構築（`DrawEditorUI`） |
 | 4 | `Draw` | Game ウィンドウの描画先へゲームカメラ視点、Scene ウィンドウの描画先へエディタカメラ視点でシーンを描く |
 | 5 | `EndFrame` | バックバッファを ImGui 用に用意し、ImGui を描く。プロファイラの終了 |
 
@@ -59,7 +59,7 @@ UI の構築（`Update`）が描画（`Draw`）より前にあるのは、ImGui 
 
 ### Play / Stop
 
-`PlayModeController` は Play を押した時点のシーンを JSON 文字列で控え、Stop でそこへ戻します。Play 中の変更（インスペクタの編集もゲームロジックによる移動も）はすべて巻き戻ります。Paused 中に Step を押すと、そのフレームだけ `Time` の一時停止を解除して 1 フレーム進めます。復元に失敗した場合は Play 状態のまま留まり、控えを捨てません。
+`PlayModeController` は Play を押した時点のシーンを JSON 文字列で控え、Stop でそこへ戻します。Play 中の変更（インスペクタの編集もゲームロジックによる移動も）はすべて巻き戻ります。Paused 中に Step を押すと、次のフレームだけ `Time` の一時停止を解除して 1 フレーム進めます。`RequestSetPaused` は次の `Tick` から効くため、Play、Pause、Stop の切り替えも `Time` には 1 フレーム遅れて届きます。復元に失敗した場合は Play 状態のまま留まり、控えを捨てません。
 
 Stop、New、Open でシーンが作り直されるため、既存の `GameObjectId` はすべて無効になり、`Editor` は選択を解除します。Play 中はファイル操作を止めます。
 

@@ -226,6 +226,5 @@ Debug 構成で起動し、MaterialList ウィンドウの Create ボタンか�
 
 ## 未実装・要確認
 
-- `GetBlendDesc` の `kBlendModeMultiply` に `break` が無く、`kBlendModeScreen` へフォールスルーします。現状 Multiply を使うシェーダーは無いため見えていません（[issue.md](../../review/issue.md) を参照）。
 - `ShaderCompiler::Compile` はコンパイル失敗時に Debug 構成では `assert` で止まり、Release 構成では空のブロブを返します。HLSL は実行時にコンパイルされるため、CI ではシェーダーの誤りを検出できません。
 - PSO の RTV フォーマットは `R8G8B8A8_UNORM_SRGB` で固定ですが、エディタ構成のスワップチェーンの RTV は `UNORM` です。エディタ構成ではバックバッファへ描くのは ImGui だけなので実害はありません。

@@ -36,12 +36,15 @@
   </ItemDefinitionGroup>
   <!-- テストのコード -->
   <ItemGroup>
+    <ClCompile Include="Foundation\JobSystemTests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Foundation\IdentityTests.cpp" />
   </ItemGroup>
-  <!-- テストする Engine/ 側の .cpp。上の層の関数を呼んでいればリンクで失敗する -->
+    <!-- テストする Engine/ 側の .cpp。上の層の関数を呼んでいればリンクで失敗する -->
   <ItemGroup>
     <ClCompile Include="..\Engine\Foundation\Identity\Guid.cpp" />
+    <ClCompile Include="..\Engine\Foundation\Job\JobSystem.cpp" />
+    <ClCompile Include="..\Engine\Foundation\Debug\DebugLog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\externals\doctest\doctest.h" />

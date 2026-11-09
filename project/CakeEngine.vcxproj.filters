@@ -199,6 +199,9 @@
     <Filter Include="Game\Components\Tester">
       <UniqueIdentifier>{06abb648-49d7-41ea-80bb-628f36c8f222}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Foundation\Job">
+      <UniqueIdentifier>{6563ecb8-c07c-48c9-a45a-567bbf6be88a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -506,6 +509,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Foundation\Math\Vector.cpp">
       <Filter>Engine\Foundation\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Foundation\Job\JobSystem.cpp">
+      <Filter>Engine\Foundation\Job</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -940,6 +946,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Foundation\Math\QuaternionMath.h">
       <Filter>Engine\Foundation\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Foundation\Job\JobSystem.h">
+      <Filter>Engine\Foundation\Job</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

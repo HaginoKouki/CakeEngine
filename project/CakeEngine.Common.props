@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CakeEngine.vcxproj と Tests.vcxproj（フェーズ3からは AssetPipeline.vcxproj も）で共通の設定。
+  パスは $(ProjectDir) と $(SolutionDir) を使わず、この props の場所（project/）を起点にする。
+  vcxproj を単体でビルドすると $(SolutionDir) が定まらず、Tests は $(ProjectDir) が project/Tests/ になるため。
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="CakePaths">
+    <CakeProjectRoot>$(MSBuildThisFileDirectory)</CakeProjectRoot>
+    <CakeRepoRoot>$(MSBuildThisFileDirectory)..\</CakeRepoRoot>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>$(CakeRepoRoot)generated\outputs\$(Configuration)\</OutDir>
+    <IntDir>$(CakeRepoRoot)generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <ExternalIncludePath>$(CakeProjectRoot)externals;$(CakeProjectRoot)externals\imgui\imgui-1.93.0-docking;$(CakeProjectRoot)externals\imgui\imgui-1.93.0-docking\backends;$(CakeProjectRoot)externals\imgui\ImGuizmo-1.10-source;$(ExternalIncludePath)</ExternalIncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>$(CakeProjectRoot);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalLibraryDirectories>$(CakeRepoRoot)generated\outputs\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;ENABLE_EDITOR;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

@@ -14,7 +14,7 @@
   <Project Path="CakeEngine.vcxproj" Id="a702f300-e9e8-4841-b195-1006a251d9d8">
     <BuildDependency Project="externals/imgui/imgui.vcxproj" />
   </Project>
-  <Project Path="Test/Tests.vcxproj" Id="eaa9ce1e-5dbf-4d68-88fb-a6d8a3a8c147">
+  <Project Path="Tests/Tests.vcxproj" Id="eaa9ce1e-5dbf-4d68-88fb-a6d8a3a8c147">
     <BuildType Project="Debug" />
     <Build Solution="Release|*" Project="false" />
   </Project>

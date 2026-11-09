@@ -61,7 +61,7 @@ msbuild project/CakeEngine.slnx /p:Platform=x64,Configuration=Debug
 | 構成    | 内容                                                           |
 | :------ | :------------------------------------------------------------- |
 | Debug   | エディタ付き。`ENABLE_EDITOR` と `USE_IMGUI` が定義される      |
-| Release | ゲームのみ。ImGui はビルドされず、`ProjectSettings` の `fullscreen` が有効になる |
+| Release | ゲームのみ。エディタと ImGui の UI は含まれず、`ProjectSettings` の `fullscreen` が有効になる。`imgui.lib` 自体は Debug と同じくビルドしてリンクする |
 
 実行ファイルは `generated/outputs/<構成>/` に出力されます。コード内のパスはすべて `project/` からの相対パスなので、実行時のカレントディレクトリは `project/` にしてください。Visual Studio からデバッグ実行すればそのまま動きます。<br>
 HLSL は起動時に DXC で実行時コンパイルされるため、ビルド後イベントでコピーされる `dxcompiler.dll` と `dxil.dll` が出力フォルダに必要です。CI は C++ しかビルドしないので、シェーダーの誤りは起動して確認します。<br>

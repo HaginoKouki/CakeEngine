@@ -14,10 +14,12 @@ Foundation 層は、ほかのすべての層が使う値型と小さな道具を
 
 | フォルダ | 主な型 | 役割 |
 | --- | --- | --- |
-| `Math/` | `Vector2/3/4`、`Matrix2x2/3x3/4x4`、`Quaternion`、`Transform` | ベクトル、行列、姿勢の計算。行列は行ベクトル規約で、`Vector3::Transform` は `v * M` の順に掛ける |
+| `Math/` | `Vector.h`（`Vector2/3/4`）、`Matrix.h`（`Matrix2x2/3x3/4x4`）、`Quaternion.h`（`Quaternion`） | 値型の定義。算術演算子と、型を作る静的関数（`Make～`、`FromEuler`、`FromDegreeUnit` など）だけを持つ。行列は行ベクトル規約 |
+| `Math/` | `VectorMath.h`、`MatrixMath.h`、`QuaternionMath.h`（`Math` 名前空間） | 型に対する計算関数（`Length`、`Normalize`、`DotProduct`、`Inverse`、`TransformCoord` など）。`Math.h` が上記をまとめて include する |
+| `Math/` | `Transform.h`（`Transform`、`TransformationMatrix`、`Math::DecomposeAffine`） | 姿勢（scale / rotate / translate）と、GPU へ送る変換行列の組 |
 | `Math/` | `Geometry.h`（`Line`、`Ray`、`Segment`、`Triangle`、`Quad`、`Plane`、`Sphere`、`Capsule`、`AABB`、`OBB`） | 当たり判定や可視化に使う基本図形 |
 | `Math/` | `IsCollision` | 図形同士の衝突判定（球、平面、三角形、AABB、OBB の組み合わせ） |
-| `Math/` | `Easing.h` | イージング関数群と `Lerp` |
+| `Math/` | `Easing.h`（`Easing` 名前空間） | イージング関数群、`Lerp`、`Bezier`、`CatmullRom`、`Vector3` と `Quaternion` の `Slerp` |
 | `Math/` | `Gradient` | 0 から 1 の位置に対して色と透明度を返す。パーティクルの Color over Lifetime 用 |
 | `Math/` | `Math::DecomposeAffine` | アフィン行列を scale / rotate / translate へ分解する。親の張り替えとギズモ操作で使う |
 | `Identity/` | `Guid` | 128 ビットの識別子。アセットのファイルごとに 1 つ |
@@ -31,6 +33,22 @@ Foundation 層は、ほかのすべての層が使う値型と小さな道具を
 | `Utility/` | `Convert` | `std::string` と `std::wstring` の相互変換（UTF-8） |
 
 ## 主要な仕組み
+
+### 数学ライブラリ
+
+型の定義と計算関数を別のヘッダに分けています。`Vector.h`、`Matrix.h`、`Quaternion.h` は値型と算術演算子、型を作る静的関数だけを持ち、長さや正規化、逆行列のような「型に対する計算」は `Math` 名前空間のフリー関数として `VectorMath.h`、`MatrixMath.h`、`QuaternionMath.h` に置きます。使う側は `Engine/Foundation/Math/Math.h` を include すれば、型と計算関数の両方が揃います。
+
+| 分類 | 置き場所 | 例 |
+| --- | --- | --- |
+| 型を作る | 型の静的関数 | `Matrix4x4::MakeAffineMatrix`、`Matrix4x4::MakePerspectiveFovMatrix`、`Quaternion::FromEuler`、`Quaternion::MakeRotateAxisAngleQuaternion`、`Vector2::FromDegreeUnit` |
+| 型を計算する | `Math` 名前空間 | `Math::Length`、`Math::Distance`、`Math::Normalize`、`Math::DotProduct`、`Math::CrossProduct`、`Math::Clamp`、`Math::Inverse`、`Math::Transpose`、`Math::TransformCoord`、`Math::TransformNormal`、`Math::Rotate`、`Math::Conjugate`、`Math::ToEuler` |
+| 補間 | `Easing` 名前空間 | `Easing::Lerp`、`Easing::Slerp`、`Easing::Ease` |
+
+構造体のコンストラクタ、定数（`Zero`、`One`、`Identity` など）、算術演算子、内積と外積、転置、`Clamp` は `constexpr` です。引数は `float` とベクトルを値渡し、行列を `const` 参照で受けます。
+
+行列は行ベクトル規約で、座標変換は `Math::TransformCoord(v, M)` が `v * M` の順に掛けて w で割ります。`Math::TransformNormal` は平行移動を掛けません。`Vector3` の `TransformCoord` は w が 0 のとき `assert` で止まり、`Math::Inverse(Matrix4x4)` は行列式が 0 のとき `Matrix4x4::Zero` を返します。
+
+`Quaternion` どうしの積は `Quaternion::Multiply(q1, q2)` で、演算子 `*` はスカラー倍にだけ使います。
 
 ### 識別子
 
@@ -92,6 +110,12 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 
 ## 守るべき規則
 
+### 数学ライブラリ
+
+- 型を作る関数は型の静的関数、型に対する計算は `Math` 名前空間のフリー関数に置く。計算関数を型のメンバに戻さない。
+- `Transform` という名前は `Cake::Transform`（姿勢の構造体）が使うため、座標変換の関数は `TransformCoord` と呼ぶ。
+- 引数は `float` とベクトルを値渡し、行列を `const` 参照で受ける。
+
 ### 識別子
 
 - `Guid` は乱数で生成して `.meta` に永続化する。パスや内容から計算しない。
@@ -128,4 +152,7 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 
 - `BinaryStream` を使う Import 系の型（Asset 層）は定義のみで、まだ接続されていません。
 - `DebugLog.h` のコメントは「JobSystem の終了処理で保証する」と書いていますが、JobSystem は存在しません。
-- `Easing.h` の `Lerp` は `Gradient` が使っていますが、`Ease` 系の関数を使っている箇所はエンジン内にありません。
+- `Easing.h` の `Lerp` は `Gradient` が使っていますが、`Ease` 系、`Bezier`、`CatmullRom`、`Slerp` を使っている箇所はエンジン内にありません。`Quaternion` を使っている箇所も `Math/` の外にはありません。
+- `Math/` 以下のヘッダは同じフォルダのヘッダを `#include "Vector.h"` のように相対パスで include しています。[InternalDesign.md](../InternalDesign.md) の「include は `project/` を基準にした絶対パスで書く」とは一致していません。`Transform.cpp` と `Gradient.cpp` だけは絶対パスです。
+- `Math.h` は include をまとめるだけのヘッダで、対になる `Math.cpp` は空です。
+- `Math::Inverse` の `Matrix2x2` と `Matrix3x3` 版は行列式が 0 でも検査せずに割ります（`Matrix4x4` 版だけが `Zero` を返します）。どちらも呼び出し元はありません。

@@ -1,0 +1,25 @@
+# 層の規則の例外（まだ残っている層違反の一覧）
+# 書式: 違反しているファイル|include 先（どちらも project/ からの相対パス）
+# 違反を解消したら、その行を消す。消し忘れると CI が失敗する。
+
+# フェーズ4で解消する（11章）
+Engine/Foundation/Reflection/TypeInfo.h|Engine/Asset/Database/AssetRef.h
+Engine/Foundation/Reflection/TypeInfo.h|Engine/Asset/Material/MaterialHandle.h
+Engine/Foundation/Reflection/TypeInfo.h|Engine/Asset/Model/ModelHandle.h
+Engine/Foundation/Reflection/TypeInfo.h|Engine/Asset/Texture/TextureHandle.h
+Engine/Foundation/Reflection/TypeInfo.h|Engine/Scene/Object/GameObjectId.h
+
+# フェーズ5で解消する（15章の削除）
+Engine/Graphics/Buffer/GPUResourceUtility.cpp|Engine/Asset/Material/Material.h
+
+# フェーズ5で解消する（12章）
+Engine/Render/Pass/GizmoPass.cpp|Engine/Scene/System/GizmoSystem.h
+Engine/Render/Pass/LightSetupPass.cpp|Engine/Scene/System/LightSystem.h
+Engine/Render/Pass/OpaquePass.cpp|Engine/Scene/System/Render/RenderSystem.h
+Engine/Render/Pass/ParticlePass.cpp|Engine/Scene/Component/Particle/ParticleRendererComponent.h
+Engine/Render/Pass/ParticlePass.cpp|Engine/Scene/Component/Particle/ParticleSystemComponent.h
+Engine/Render/Pass/ParticlePass.cpp|Engine/Scene/Object/GameObject.h
+Engine/Render/Pass/ParticlePass.cpp|Engine/Scene/Object/ParticleStorage.h
+Engine/Render/Pass/ParticlePass.cpp|Engine/Scene/Scene.h
+Engine/Render/Pass/SpritePass.cpp|Engine/Scene/System/Render/SpriteSystem.h
+Engine/Render/SceneRenderer.cpp|Engine/Scene/System/CameraSystem.h

@@ -1,0 +1,30 @@
+# Tests をビルドして実行するための GitHub Action。
+name: Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+  pull_request:
+
+jobs:
+  test:
+    name: Tests のビルドと実行
+    runs-on: windows-2025-vs2026
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v6
+
+      - name: MSBuild を PATH に追加
+        uses: microsoft/setup-msbuild@v3
+        with:
+          msbuild-architecture: x64
+
+      - name: Tests をビルド
+        run: msbuild project/Tests/Tests.vcxproj /p:Configuration=Debug /p:Platform=x64
+
+      - name: Tests を実行
+        # doctest は失敗したテストがあると 0 以外で終わるので、そのままジョブが失敗する.
+        run: '& ./generated/outputs/Debug/Tests.exe'

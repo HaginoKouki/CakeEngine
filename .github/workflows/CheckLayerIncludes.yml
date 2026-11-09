@@ -1,0 +1,87 @@
+# 層の規則（docs/plans/AssetSystem.md の2章）に反する include が無いか調べるための GitHub Action。
+name: CheckLayerIncludes
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+  pull_request:
+
+jobs:
+  check-includes:
+    name: 層の規則に反する include を検索
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v6
+
+      - name: 層の規則に反する include を検索
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXCEPTIONS_FILE="$GITHUB_WORKSPACE/.github/layer-include-exceptions.txt"
+          cd "$GITHUB_WORKSPACE/project"
+
+          # 層ごとに include してはいけないフォルダ（2章の依存の規則）.
+          declare -A FORBIDDEN=(
+            [Foundation]="Platform Graphics Asset Render Scene Editor Application AssetPipeline"
+            [Platform]="Graphics Asset Render Scene Editor Application AssetPipeline"
+            [Graphics]="Asset Render Scene Editor Application AssetPipeline"
+            [Asset]="Render Scene Editor Application AssetPipeline"
+            [Render]="Scene Editor Application AssetPipeline"
+            [Scene]="Editor Application AssetPipeline"
+            [Editor]="Application"
+            [AssetPipeline]="Graphics Render Scene Editor Application"
+          )
+
+          # 検査しない include 先（2章でこの設計の範囲外としたもの）.
+          IGNORED_TARGETS=(
+            "Engine/Application/BuildConfig.h"
+            "Engine/Application/ProjectSettings.h"
+          )
+
+          # 例外の一覧を読む（コメントと空行を除き、Windows の改行も落とす）.
+          mapfile -t EXCEPTIONS < <(tr -d '\r' < "$EXCEPTIONS_FILE" | grep -vE '^\s*(#|$)' || true)
+
+          found=()
+          for layer in "${!FORBIDDEN[@]}"; do
+            [ -d "Engine/$layer" ] || continue
+            pattern=$(echo "${FORBIDDEN[$layer]}" | tr ' ' '|')
+            while IFS= read -r hit; do
+              [ -n "$hit" ] || continue
+              file=${hit%%:*}
+              target=$(echo "$hit" | sed -E 's/.*#[[:space:]]*include[[:space:]]*[<"]([^>"]+)[>"].*/\1/')
+              found+=("$file|$target")
+            done < <(grep -rnE "^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"]Engine/($pattern)/" "Engine/$layer" \
+                       --include='*.h' --include='*.hpp' --include='*.inl' --include='*.cpp' || true)
+          done
+
+          errors=0
+          for entry in "${found[@]}"; do
+            target=${entry#*|}
+            skip=0
+            for ignored in "${IGNORED_TARGETS[@]}"; do
+              [ "$target" = "$ignored" ] && skip=1
+            done
+            [ $skip -eq 1 ] && continue
+            if ! printf '%s\n' "${EXCEPTIONS[@]}" | grep -Fxq "$entry"; then
+              echo "::error file=project/${entry%%|*}::層の規則に反する include: ${target}"
+              errors=$((errors + 1))
+            fi
+          done
+
+          # 解消済みなのに例外に残っている行を探す（一覧を残りの層違反と一致させるため）.
+          for exception in "${EXCEPTIONS[@]}"; do
+            if ! printf '%s\n' "${found[@]}" | grep -Fxq "$exception"; then
+              echo "::error::例外の一覧に、もう存在しない違反が残っています（行を消してください）: ${exception}"
+              errors=$((errors + 1))
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            echo "層の規則の検査で ${errors} 件の問題が見つかりました。"
+            exit 1
+          fi
+          echo "層の規則に反する include はありません（例外 ${#EXCEPTIONS[@]} 件）。"

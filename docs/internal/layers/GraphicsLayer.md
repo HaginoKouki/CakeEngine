@@ -226,6 +226,5 @@ Debug 構成で起動し、MaterialList ウィンドウの Create ボタンか�
 
 ## 未実装・要確認
 
-- `SrvManager::Allocate` の上限検査は `assert` だけです。Release 構成で 512 個を超えると、ヒープの外の番号を返します。
 - `ShaderCompiler::Compile` はコンパイル失敗時に Debug 構成では `assert` で止まり、Release 構成では空のブロブを返します。HLSL は実行時にコンパイルされるため、CI ではシェーダーの誤りを検出できません。
 - PSO の RTV フォーマットは `R8G8B8A8_UNORM_SRGB` で固定ですが、エディタ構成のスワップチェーンの RTV は `UNORM` です。エディタ構成ではバックバッファへ描くのは ImGui だけなので実害はありません。

@@ -20,6 +20,7 @@
 #include <string>
 
 #include <unordered_set>
+#include <algorithm>
 
 namespace Cake {
 
@@ -70,9 +71,14 @@ private:
 	// Initialize を呼んだスレッド（メインスレッド）の番号.
 	std::thread::id mainThreadId_;
 
-	std::mutex mutex_;                      // 作業キューと完了処理キューを守るカギ.
-	std::condition_variable workAvailable_; // 作業が積まれた、または止める知らせ.
-	bool stopping_ = false;                 // 止める知らせ。mutex_ を取ってから触る.
+	// 作業キューと完了処理キューを守るカギ.
+	std::mutex mutex_;
+	// 作業が積まれた、または止める知らせ.
+	std::condition_variable workAvailable_;
+	// 作業が1つ終わった知らせ。WaitFor が待つ.
+	std::condition_variable jobFinished_;
+	// Shutdown が呼ばれたら true になる.
+	bool stopping_ = false;
 
 	// 優先度ごとの、まだ実行していない作業。mutex_ を取ってから触る.
 	std::array<std::deque<Job>, kJobPriorityCount> queues_;
@@ -110,6 +116,11 @@ public:
 	/// <param name="complete">引数の <code>JobResult&lt;T&gt;</code> には work の結果の JobResult が渡される</param>
 	template <typename T>
 	JobHandle Submit(JobPriority priority, std::function<T()> work, std::function<void(JobResult<T>)> complete);
+
+	// handle の作業の完了処理が終わるまで待つ。メインスレッド専用.
+	// 待つ間は、メインスレッドもキューの作業を手伝う。ほかの作業の完了処理は実行しない.
+	// エディタの道具と、起動時に必要なアセット用。ゲームのフレーム中には使わない.
+	void WaitFor(JobHandle handle);
 
 	// 溜まっている完了処理を実行する。メインスレッドから毎フレーム1回呼ぶ.
 	// 使った時間が budget を超えたら、残りは次のフレームに回す。ただし最低1つは実行する.

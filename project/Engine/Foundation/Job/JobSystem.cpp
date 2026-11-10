@@ -65,6 +65,9 @@ JobHandle JobSystem::Submit(JobPriority priority, std::function<void()> work, st
 	// 作業と完了処理をキューに移す.
 	{
 		std::lock_guard lock(mutex_);
+		if (stopping_) {
+			return JobHandle{};
+		}
 		id = nextId_++;
 		live_.insert(id); // 受け付けた作業の番号を記録する.
 		queues_[index].push_back(Job{id, std::move(work), std::move(complete)});
@@ -77,7 +80,7 @@ JobHandle JobSystem::Submit(JobPriority priority, std::function<void()> work, st
 }
 
 void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
-	// メインスレッド以外から呼ばれたら例外を投げる.
+	// メインスレッド以外から呼ばれたら Debug ビルドで、実行中のプログラムを止める.
 	assert(std::this_thread::get_id() == mainThreadId_ && "メインスレッドから呼ぶこと");
 
 	const auto start = std::chrono::steady_clock::now(); // 開始時刻を記録する.
@@ -89,7 +92,7 @@ void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
 				break;
 			}
 			completion = std::move(completions_.front()); // 完了処理を移す.
-			completions_.pop_front();                   // キューから抜く.
+			completions_.pop_front();                     // キューから抜く.
 		} // カギを返す.
 
 		// カギの外で完了処理を実行する.
@@ -107,8 +110,6 @@ void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
 		}
 	}
 }
-
-
 
 void JobSystem::WorkerMain(uint32_t index) {
 	// このスレッドの名前を決める.
@@ -158,6 +159,54 @@ void JobSystem::RunJob(Job& job) {
 		std::lock_guard lock(mutex_);
 		completions_.push_back(Completion{job.id, std::move(job.complete)}); // 完了処理をキューに移す.
 	} // カギを返す.
+
+	jobFinished_.notify_all(); // 眠っている WaitFor を起こす.
+}
+
+void JobSystem::WaitFor(JobHandle handle) {
+	// handleが無効なら何もしない.
+	if (!handle.IsValid()) {
+		return;
+	}
+	// メインスレッド以外から呼ばれたら Debug ビルドで、実行中のプログラムを止める.
+	assert(std::this_thread::get_id() == mainThreadId_ && "メインスレッドから呼ぶこと");
+
+	std::unique_lock lock(mutex_);
+	for (;;) {
+		// live_ に handle.id が入っていなければ return する.
+		if (!live_.contains(handle.id)) {
+			return;
+		}
+
+		// completions_ から id == handle.id の Completion を探す.
+		auto it = std::find_if(completions_.begin(), completions_.end(), [&handle](const Completion& c) { return c.id == handle.id; });
+		if (it != completions_.end()) {
+			Completion completion = std::move(*it);
+			completions_.erase(it);
+
+			// カギを返して完了処理を実行する.
+			lock.unlock();
+			completion.complete();
+
+			// カギを取り返し、 live_ から handle.id を消す.
+			lock.lock();
+			live_.erase(handle.id);
+			return;
+		}
+
+		// キューに作業があるなら.
+		if (HasQueuedLocked()) {
+			Job job = PopLocked();
+			// カギを返して作業を実行する.
+			lock.unlock();
+			RunJob(job);
+			lock.lock();
+			continue;
+		}
+
+		// どれでもなければ.
+		jobFinished_.wait(lock);
+	}
 }
 
 bool JobSystem::HasQueuedLocked() const {

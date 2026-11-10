@@ -78,11 +78,16 @@ TEST_CASE("JobSystem: 優先度の高い作業から実行する") {
 	// ▼ 止めの作業を Normal で積む。中身は次のとおり.
 	//    gateStarted を true にする.
 	//    gateReleased が true になるまで、1 ミリ秒ずつ眠りながら待つ.
-	jobSystem.Submit(JobPriority::Normal, [&] {
-		gateStarted = true;
-		while (!gateReleased) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		} }, [] {});
+	jobSystem.Submit(
+		JobPriority::Normal,
+		[&] {
+			gateStarted = true;
+			while (!gateReleased) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+		},
+		[] {}
+	);
 
 	// ▼ gateStarted が true になるまで、1 ミリ秒ずつ眠りながら待つ（最大 5000 回）.
 	for (size_t i = 0; i < 5000; i++) {
@@ -328,4 +333,116 @@ TEST_CASE("JobSystem: Submit は作業ごとに違う番号を返す") {
 	CHECK(a.id != b.id);
 
 	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: WaitFor は完了処理が終わるまで待つ") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	bool completed = false;
+
+	// ▼ 作業「10 ミリ秒眠る」、完了処理「completed を true にする」を Submit して、handle に入れる.
+	JobHandle handle = jobSystem.Submit(
+		JobPriority::Normal,
+		[]() { std::this_thread::sleep_for(std::chrono::milliseconds(10)); },
+		[&]() { completed = true; }
+	);
+	// ▼ WaitFor(handle) を呼ぶ.
+	jobSystem.WaitFor(handle);
+	// ▼ completed が true であることを確かめる（PumpMainThread は呼ばない）.
+	CHECK(completed);
+
+	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: ワーカーが埋まっていても WaitFor はメインスレッドで実行して戻る") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	// ▼ 優先度のテストと同じ「止めの作業」を積み、ワーカーが止めの作業を始めるまで待つ.
+	std::atomic<bool> gateStarted = false;  // 止めの作業が始まったか.
+	std::atomic<bool> gateReleased = false; // 止めの作業に出す合図.
+	jobSystem.Submit(
+		JobPriority::Normal,
+		[&] {
+			gateStarted = true;
+			while (!gateReleased) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+		},
+		[] {}
+	);
+	for (size_t i = 0; i < 5000; i++) {
+		if (gateStarted) {
+			break;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+
+	std::thread::id ranOn; // 作業を実行したスレッドの番号.
+	bool completed = false;
+
+	// ▼ 作業「ranOn に std::this_thread::get_id() を入れる」、完了処理「completed を true にする」を Submit する.
+	JobHandle handle = jobSystem.Submit(
+		JobPriority::Normal,
+		[&]() { ranOn = std::this_thread::get_id(); },
+		[&]() { completed = true; }
+	);
+	// ▼ WaitFor を呼ぶ。ワーカーは止めの作業の中にいるので、メインスレッドが実行するはず.
+	jobSystem.WaitFor(handle);
+	// ▼ completed が true で、ranOn がこのテストのスレッドの番号と同じことを確かめる.
+	CHECK(completed);
+	CHECK(ranOn == std::this_thread::get_id());
+
+	// ▼ 止めの作業に合図を出してから、Shutdown を呼ぶ.
+	//    （合図を出さないと、止めの作業が終わらず、Shutdown の join がいつまでも戻らない）
+	gateReleased = true;
+	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: WaitFor はほかの作業の完了処理を実行しない") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	bool otherCompleted = false;
+
+	// ▼ 作業「何もしない」、完了処理「otherCompleted を true にする」を Submit する（こちらが「ほか」）.
+	jobSystem.Submit(
+		JobPriority::Normal,
+		[]() {},
+		[&]() { otherCompleted = true; }
+	);
+	// ▼ 作業も完了処理も何もしないものを Submit して、その handle を target に入れる.
+	JobHandle target = jobSystem.Submit(
+		JobPriority::Normal,
+		[]() {},
+		[]() {}
+	);
+	// ▼ WaitFor(target) を呼ぶ.
+	jobSystem.WaitFor(target);
+	// ▼ otherCompleted が false のままであることを確かめる.
+	CHECK_FALSE(otherCompleted);
+
+	// ▼ PumpMainThread を呼んでから、otherCompleted が true になったことを確かめる.
+	//    （ほかの完了処理は、PumpMainThread で実行される）
+	for (uint32_t i = 0; i < 5000; i++) {
+		if (otherCompleted == true) {
+			break;
+		}
+		jobSystem.PumpMainThread(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+	CHECK(otherCompleted);
+
+	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: Shutdown のあとの Submit は受け付けない") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+	jobSystem.Shutdown();
+
+	// ▼ Submit して、返ってきた handle が IsValid() で false であることを確かめる.
+	JobHandle handle = jobSystem.Submit(JobPriority::Normal, []() {}, []() {});
+	CHECK_FALSE(handle.IsValid());
 }

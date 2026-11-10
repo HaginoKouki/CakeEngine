@@ -15,6 +15,15 @@ JobSystem::~JobSystem() {
 void JobSystem::Initialize(uint32_t workerCount) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
+	// メインスレッドのスレッドIDを記録する.
+	mainThreadId_ = std::this_thread::get_id();
+
+	{
+		std::lock_guard lock(mutex_); // カギを取る.
+		stopping_ = false;
+	} // カギを返す.
+
+	// スレッドの本数を決めて起動する.
 	const uint32_t count = (workerCount == 0 ? ComputeWorkerCount(std::thread::hardware_concurrency()) : workerCount);
 	for (uint32_t i = 0; i < count; i++) {
 		workers_.emplace_back(&JobSystem::WorkerMain, this, i);
@@ -25,14 +34,91 @@ void JobSystem::Initialize(uint32_t workerCount) {
 }
 
 void JobSystem::Shutdown() {
+	// 眠っているワーカーを起こす.
+	{
+		std::lock_guard lock(mutex_); // カギを取る.
+		stopping_ = true;             // 条件を変える.
+		for (size_t i = 0; i < kJobPriorityCount; i++) {
+			queues_[i].clear(); // キューを空にする.
+		}
+	} // カギを返す.
+	workAvailable_.notify_all(); // 眠っている全員を起こす.
+
+	// 全ワーカーを join し、解放する.
 	for (auto& worker : workers_) {
 		worker.join();
 	}
 	workers_.clear();
+
+	{
+		std::lock_guard lock(mutex_); // カギを取る.
+		completions_.clear(); // 完了処理を空にする.
+	} // カギを返す.
+}
+
+void JobSystem::Submit(JobPriority priority, std::function<void()> work, std::function<void()> complete) {
+	// 優先度をキューの添字に変換する.
+	const size_t index = static_cast<size_t>(priority);
+
+	// 作業と完了処理をキューに移す.
+	{
+		std::lock_guard lock(mutex_);
+		queues_[index].push_back({std::move(work), std::move(complete)});
+	} // カギを返す
+
+	// 眠っているワーカーを1本だけ起こす.
+	workAvailable_.notify_one();
+}
+
+void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
+	// メインスレッド以外から呼ばれたら例外を投げる.
+	assert(std::this_thread::get_id() == mainThreadId_ && "メインスレッドから呼ぶこと");
+
+	const auto start = std::chrono::steady_clock::now(); // 開始時刻を記録する.
+	while (true) {
+		std::function<void()> complete; // 完了処理を入れる変数.
+		{
+			std::lock_guard lock(mutex_); // カギを取る.
+			if (completions_.empty()) {   // 完了処理がなければループを抜ける.
+				break;
+			}
+			complete = std::move(completions_.front()); // 完了処理を移す.
+			completions_.pop_front();                   // キューから抜く.
+		} // カギを返す.
+
+		// カギの外で完了処理を実行する.
+		complete();
+
+		const auto now = std::chrono::steady_clock::now(); // 現在時刻を記録する.
+		if (now - start >= budget) {                        // 使った時間が予算を超えたらループを抜ける.
+			break;
+		}
+	}
 }
 
 uint32_t JobSystem::ComputeWorkerCount(uint32_t hardwareConcurrency) {
 	return hardwareConcurrency > 1 ? hardwareConcurrency - 1 : 1;
+}
+
+bool JobSystem::HasQueuedLocked() const {
+	// queues_ を順にみて、1つでも空でないキューがあれば true を返す.
+	for (const auto& queue : queues_) {
+		if (!queue.empty()) {
+			return true;
+		}
+	}
+	return false;
+}
+JobSystem::Job JobSystem::PopLocked() {
+	// 優先度の高いキューから順にみて、空でなければ作業を取り出す.
+	for (auto& queue : queues_) {
+		if (!queue.empty()) {
+			auto job = std::move(queue.front());
+			queue.pop_front();
+			return job;
+		}
+	}
+	return {}; // 作業がないのに呼ばれた.
 }
 
 void JobSystem::WorkerMain(uint32_t index) {
@@ -40,6 +126,36 @@ void JobSystem::WorkerMain(uint32_t index) {
 	DebugLog::SetCurrentThreadName(std::format("Worker{:02}", index + 1));
 	// 起動したことをログに出す.
 	DebugLog::GetInstance().Log(LogLevel::Info, kLogCategory, std::format("スレッドが起動しました"));
+
+	while (true) {
+		Job job; // 取り出した作業を入れる変数.
+		{
+			// カギを取る.
+			std::unique_lock lock(mutex_);
+			// stopping_ が true または、どれかのキューに作業がある状態になるまで眠る.
+			workAvailable_.wait(lock, [this] { return stopping_ || HasQueuedLocked(); });
+
+			// stopping_ が true ならループから抜ける.
+			if (stopping_) {
+				break;
+			}
+
+			// 作業を移し、キューから抜く.
+			job = PopLocked();
+		} // カギを返す.
+
+		// カギの外で作業を実行する.
+		job.work();
+
+		{
+			// カギを取る.
+			std::lock_guard lock(mutex_);
+			completions_.push_back(std::move(job.complete)); // 完了処理をキューに移す.
+		} // カギを返す.
+	}
+
+	// 停止したことをログに出す.
+	DebugLog::GetInstance().Log(LogLevel::Info, kLogCategory, std::format("スレッドが停止しました"));
 }
 
-}
+} // namespace Cake

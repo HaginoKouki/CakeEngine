@@ -39,7 +39,6 @@
     <ClCompile Include="Foundation\JobSystemTests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Foundation\IdentityTests.cpp" />
-    <ClCompile Include="Practice\ThreadPractice.cpp" />
   </ItemGroup>
   <!-- テストする Engine/ 側の .cpp。上の層の関数を呼んでいればリンクで失敗する -->
   <ItemGroup>

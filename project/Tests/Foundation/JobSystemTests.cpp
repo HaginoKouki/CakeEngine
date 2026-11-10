@@ -4,6 +4,8 @@
 #include <atomic>
 #include <mutex>
 #include <vector>
+#include <stdexcept> // std::runtime_error.
+#include <string>
 #include "Engine/Foundation/Job/JobSystem.h"
 
 using namespace Cake;
@@ -202,6 +204,128 @@ TEST_CASE("JobSystem: PumpMainThread は上限を超えても最低1つは実行
 	// ▼ completedCount が 3 であることを CHECK で確かめる.
 	jobSystem.PumpMainThread(std::chrono::seconds(1));
 	CHECK(completedCount == 3);
+
+	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: 作業の戻り値が完了処理に届く") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	bool completed = false;
+	bool succeeded = false;
+	int received = 0;
+
+	// ▼ Submit<int> で、作業「42 を返す」と、
+	//    完了処理「completed を true、succeeded に result.Succeeded()、received に *result.value を入れる」を積む.
+	//    完了処理の引数は JobResult<int> result.
+	jobSystem.Submit<int>(
+		JobPriority::Normal,
+		[]() -> int { return 42; },
+		[&](JobResult<int> result) {
+			completed = true;
+			succeeded = result.Succeeded();
+			if (succeeded) {
+				received = *result.value;
+			}
+		}
+	);
+
+	// ▼ completed が true になるまで、PumpMainThread(std::chrono::milliseconds(1)) を呼んでは
+	//    1 ミリ秒眠る、をくり返す（最大 5000 回）.
+	for (uint32_t i = 0; i < 5000; i++) {
+		if (completed) {
+			break;
+		}
+		jobSystem.PumpMainThread(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+
+	// ▼ succeeded が true で、received が 42 であることを CHECK で確かめる.
+	CHECK(succeeded);
+	CHECK(received == 42);
+
+	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: 作業の例外は失敗として完了処理に届く") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	bool completed = false;
+	bool succeeded = true;
+	std::string error;
+
+	// ▼ Submit<int> で、作業「throw std::runtime_error("読み込みに失敗");」と、
+	//    完了処理「completed を true、succeeded と error に結果を入れる」を積む.
+	//    作業のラムダ式は、戻り値の型を -> int と書いておく（[]() -> int { throw …; }）.
+	//    return が無いので、書かないと戻り値の型が int だと決まらないため.
+	jobSystem.Submit<int>(
+		JobPriority::Normal,
+		[]() -> int { throw std::runtime_error("読み込みに失敗"); },
+		[&](JobResult<int> result) {
+			completed = true;
+			succeeded = result.Succeeded();
+			error = result.error;
+		}
+	);
+
+	// ▼ completed が true になるまで待つ（上と同じ）.
+	for (uint32_t i = 0; i < 5000; i++) {
+		if (completed) {
+			break;
+		}
+		jobSystem.PumpMainThread(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+
+	// ▼ succeeded が false で、error が "読み込みに失敗" であることを確かめる.
+	CHECK_FALSE(succeeded);
+	CHECK(error == "読み込みに失敗");
+
+	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: 戻り値なしの作業が例外を投げても落ちない") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	bool completed = false;
+
+	// ▼ 今ある Submit で、作業「throw std::runtime_error("失敗");」と、完了処理「completed を true にする」を積む.
+	jobSystem.Submit(
+		JobPriority::Normal,
+		[]() { throw std::runtime_error("失敗"); },
+		[&]() { completed = true; }
+	);
+
+	// ▼ completed が true になるまで待つ.
+	for (uint32_t i = 0; i < 5000; i++) {
+		if (completed) {
+			break;
+		}
+		jobSystem.PumpMainThread(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+
+	// ▼ completed が true であることを確かめる（ここまで来れば、落ちなかったことになる）.
+	CHECK(completed);
+
+	jobSystem.Shutdown();
+}
+
+TEST_CASE("JobSystem: Submit は作業ごとに違う番号を返す") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	// ▼ Submit を2回呼び、返ってきた JobHandle を a と b に入れる（作業も完了処理も何もしないラムダ式でよい）.
+	JobHandle a = jobSystem.Submit(JobPriority::Normal, [] {}, [] {});
+	JobHandle b = jobSystem.Submit(JobPriority::Normal, [] {}, [] {});
+	// ▼ a.IsValid() と b.IsValid() が true であることを確かめる.
+	CHECK(a.IsValid());
+	CHECK(b.IsValid());
+	// ▼ a.id と b.id が違うことを確かめる（CHECK(a.id != b.id);）.
+	CHECK(a.id != b.id);
 
 	jobSystem.Shutdown();
 }

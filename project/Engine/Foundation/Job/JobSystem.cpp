@@ -52,22 +52,28 @@ void JobSystem::Shutdown() {
 
 	{
 		std::lock_guard lock(mutex_); // カギを取る.
-		completions_.clear(); // 完了処理を空にする.
+		completions_.clear();         // 完了処理を空にする.
+		live_.clear();                // 受け付けた作業の番号を空にする.
 	} // カギを返す.
 }
 
-void JobSystem::Submit(JobPriority priority, std::function<void()> work, std::function<void()> complete) {
+JobHandle JobSystem::Submit(JobPriority priority, std::function<void()> work, std::function<void()> complete) {
 	// 優先度をキューの添字に変換する.
 	const size_t index = static_cast<size_t>(priority);
 
+	uint64_t id = 0; // 作業の番号を入れる変数.
 	// 作業と完了処理をキューに移す.
 	{
 		std::lock_guard lock(mutex_);
-		queues_[index].push_back({std::move(work), std::move(complete)});
+		id = nextId_++;
+		live_.insert(id); // 受け付けた作業の番号を記録する.
+		queues_[index].push_back(Job{id, std::move(work), std::move(complete)});
 	} // カギを返す
 
 	// 眠っているワーカーを1本だけ起こす.
 	workAvailable_.notify_one();
+
+	return JobHandle{id};
 }
 
 void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
@@ -76,50 +82,33 @@ void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
 
 	const auto start = std::chrono::steady_clock::now(); // 開始時刻を記録する.
 	while (true) {
-		std::function<void()> complete; // 完了処理を入れる変数.
+		Completion completion; // 完了処理を入れる変数.
 		{
 			std::lock_guard lock(mutex_); // カギを取る.
 			if (completions_.empty()) {   // 完了処理がなければループを抜ける.
 				break;
 			}
-			complete = std::move(completions_.front()); // 完了処理を移す.
+			completion = std::move(completions_.front()); // 完了処理を移す.
 			completions_.pop_front();                   // キューから抜く.
 		} // カギを返す.
 
 		// カギの外で完了処理を実行する.
-		complete();
+		completion.complete();
+
+		{
+			std::lock_guard lock(mutex_); // カギを取る.
+			// 完了した作業の番号を live_ から消す.
+			live_.erase(completion.id);
+		}
 
 		const auto now = std::chrono::steady_clock::now(); // 現在時刻を記録する.
-		if (now - start >= budget) {                        // 使った時間が予算を超えたらループを抜ける.
+		if (now - start >= budget) {                       // 使った時間が予算を超えたらループを抜ける.
 			break;
 		}
 	}
 }
 
-uint32_t JobSystem::ComputeWorkerCount(uint32_t hardwareConcurrency) {
-	return hardwareConcurrency > 1 ? hardwareConcurrency - 1 : 1;
-}
 
-bool JobSystem::HasQueuedLocked() const {
-	// queues_ を順にみて、1つでも空でないキューがあれば true を返す.
-	for (const auto& queue : queues_) {
-		if (!queue.empty()) {
-			return true;
-		}
-	}
-	return false;
-}
-JobSystem::Job JobSystem::PopLocked() {
-	// 優先度の高いキューから順にみて、空でなければ作業を取り出す.
-	for (auto& queue : queues_) {
-		if (!queue.empty()) {
-			auto job = std::move(queue.front());
-			queue.pop_front();
-			return job;
-		}
-	}
-	return {}; // 作業がないのに呼ばれた.
-}
 
 void JobSystem::WorkerMain(uint32_t index) {
 	// このスレッドの名前を決める.
@@ -145,17 +134,51 @@ void JobSystem::WorkerMain(uint32_t index) {
 		} // カギを返す.
 
 		// カギの外で作業を実行する.
-		job.work();
-
-		{
-			// カギを取る.
-			std::lock_guard lock(mutex_);
-			completions_.push_back(std::move(job.complete)); // 完了処理をキューに移す.
-		} // カギを返す.
+		RunJob(job);
 	}
 
 	// 停止したことをログに出す.
 	DebugLog::GetInstance().Log(LogLevel::Info, kLogCategory, std::format("スレッドが停止しました"));
+}
+
+void JobSystem::RunJob(Job& job) {
+	// カギの外で作業を実行する.
+	try {
+		job.work();
+	} catch (const std::exception& e) {
+		// 作業中に例外が投げられたらログに出す.
+		DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, std::format("作業中に例外が投げられました: {}", e.what()));
+	} catch (...) {
+		// 作業中に例外が投げられたらログに出す.
+		DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, "作業中に不明な例外が投げられました");
+	}
+
+	{
+		// カギを取る.
+		std::lock_guard lock(mutex_);
+		completions_.push_back(Completion{job.id, std::move(job.complete)}); // 完了処理をキューに移す.
+	} // カギを返す.
+}
+
+bool JobSystem::HasQueuedLocked() const {
+	// queues_ を順にみて、1つでも空でないキューがあれば true を返す.
+	for (const auto& queue : queues_) {
+		if (!queue.empty()) {
+			return true;
+		}
+	}
+	return false;
+}
+JobSystem::Job JobSystem::PopLocked() {
+	// 優先度の高いキューから順にみて、空でなければ作業を取り出す.
+	for (auto& queue : queues_) {
+		if (!queue.empty()) {
+			auto job = std::move(queue.front());
+			queue.pop_front();
+			return job;
+		}
+	}
+	return {}; // 作業がないのに呼ばれた.
 }
 
 } // namespace Cake

@@ -31,6 +31,9 @@ void Platform::Initialize(HINSTANCE hInstance, HWND hwnd, std::chrono::steady_cl
 	time_.Initialize(initialTime);
 	input_.Initialize(hInstance, hwnd);
 
+	// JobSystemを起動する。ワーカーの本数は、CPUコア数に応じて自動で決める.
+	jobSystem_.Initialize();
+
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
 }
 

@@ -1,5 +1,7 @@
 #include "JobSystem.h"
 
+#include <Windows.h>
+#include <objbase.h>
 #include <format>
 #include "Engine/Foundation/Debug/DebugLog.h"
 
@@ -112,6 +114,11 @@ void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
 }
 
 void JobSystem::WorkerMain(uint32_t index) {
+	const HRESULT comResult = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+	// スレッドに名前を付ける.
+	SetThreadDescription(GetCurrentThread(), std::format(L"Worker{:02}", index + 1).c_str());
+
 	// このスレッドの名前を決める.
 	DebugLog::SetCurrentThreadName(std::format("Worker{:02}", index + 1));
 	// 起動したことをログに出す.
@@ -140,6 +147,10 @@ void JobSystem::WorkerMain(uint32_t index) {
 
 	// 停止したことをログに出す.
 	DebugLog::GetInstance().Log(LogLevel::Info, kLogCategory, std::format("スレッドが停止しました"));
+
+	if (SUCCEEDED(comResult)) {
+		CoUninitialize();
+	}
 }
 
 void JobSystem::RunJob(Job& job) {

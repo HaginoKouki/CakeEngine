@@ -90,9 +90,9 @@ Debug は EditorArtifactProvider、Release は PackageArtifactProvider を通し
 新しく作るフォルダとファイルを層ごとに並べる。ファイル単位の細かい分け方は各フェーズの着手時に決める。
 
 - Foundation 層
-  - Engine/Foundation/Job/（新規フォルダ）：JobSystem
   - Engine/Foundation/Identity/（既存）：AssetId（作成済み）
 - Platform 層
+  - Engine/Platform/Job/（新規フォルダ）：JobSystem。ワーカーの起動で COM の初期化とスレッド名の登録（Windows の API）を行うので、OS に依存しない Foundation 層ではなく Platform 層に置く。Platform が所有する
   - Engine/Platform/Sound/（既存）：SoundManager を PCM のバッファから再生する形に書き換える
 - Graphics 層
   - Engine/Graphics/Upload/（新規フォルダ）：UploadQueue
@@ -392,7 +392,7 @@ AssetManager が全型のアセットを1つの仕組みで管理し、型ごと
 - Destroy(T)：解放の予約（遅延解放へ回す）
 - 代替の実体（読み込み中・エラー）を起動時に作る
 
-**スレッド（JobSystem、Foundation 層）**
+**スレッド（JobSystem、Platform 層）**
 
 - 固定数のワーカースレッド（論理コア数−1、最低1。hardware\_concurrency が 0 を返したら 1 として扱う）
 - 優先度つきの作業キュー（高・通常・低）。作業は「ワーカーで走る処理」と「メインスレッドで走る完了処理」の組で投げる
@@ -662,15 +662,15 @@ Scene 層が1フレームに1回、描くものを SceneDrawData に積み、Ren
 
 **初期化の順序**（Application::Initialize）
 
-1. DebugLog、ProjectSettings、ウィンドウ、Platform（今と同じ）
-2. JobSystem
+1. DebugLog、ProjectSettings、ウィンドウ（今と同じ）
+2. Platform。中で JobSystem を起動する
 3. Graphics、Game::RegisterGameShaders（今と同じ）
 4. Debug では AssetPipeline（SourceIndex の読み込みと Refresh）を初期化して EditorArtifactProvider を、Release では PackageArtifactProvider を作る
 5. AssetManager（Provider を渡す）と内蔵アセット
 6. Renderer、コンポーネントの登録、SceneRenderer、SceneManager
 7. 起動シーンを読み込みグループで読んで待つ（Debug では前回開いていたシーンを優先する）
 8. Editor（Debug のみ）、Time::Reset
-9. 終了は逆の順。JobSystem は AssetManager より後、DebugLog より前に止める
+9. 終了は逆の順。JobSystem は Platform と一緒に止まるので、AssetManager より後、DebugLog より前になる
 
 ## 13. エディタ機能
 
@@ -741,7 +741,8 @@ GPU を使わない部分はテスト用のプロジェクトで自動で確か�
 - テストライブラリは doctest（ヘッダを1つ置くだけで使える）。project/externals/doctest/（新規フォルダ）にライセンスと一緒に置く
 - テストの対象にする .cpp だけを Tests.vcxproj に入れる。入れた .cpp が上の層の関数を呼んでいればリンクで失敗するので、層の境界の検査にもなる
 - 主な対象
-  - Foundation：AssetId、Guid、LocalId、JobSystem（優先度、取り消し、WaitFor、終了の順序）
+  - Foundation：AssetId、Guid、LocalId
+  - Platform：JobSystem（優先度、取り消し、WaitFor、終了の順序）
   - Graphics：SrvManager の空きリスト、DeferredReleaseQueue のフェンス値の管理、UploadQueue の転送量の上限（どれも D3D12 を呼ばない部分、8章）
   - Asset：AssetStorage の状態遷移、差し替え、回収、読み込みグループ（MemoryArtifactProvider を使う）、成果物とパッケージの形式の読み書き
   - AssetPipeline：一時フォルダを使った SourceIndex の走査と .meta、移動・削除・重複の扱い、インポート鍵と依存による再インポート、ObjImporter と MaterialImporter（v1 の読み替え）、パッケージの出力と読み戻し

@@ -1,6 +1,6 @@
 # Platform 層
 
-Foundation 層と OS に依存する、エンジンの基礎部品を置きます。時間、入力、音、ファイルダイアログを担当します。
+Foundation 層と OS に依存する、エンジンの基礎部品を置きます。時間、入力、音、ファイルダイアログ、ワーカースレッド（ジョブ）を担当します。
 
 ## この層が担当すること
 
@@ -14,7 +14,7 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 
 | フォルダ | 主な型 | 役割 |
 | --- | --- | --- |
-| 直下 | `Platform` | `Time`、`InputManager`、`SoundManager` を所有する層の入口。`Initialize(hInstance, hwnd, initialTime)`、`BeginFrame`、`EndFrame` を持つ。初期化でタイマーの分解能を 1 ms に上げ、破棄で戻す |
+| 直下 | `Platform` | `Time`、`InputManager`、`SoundManager`、`JobSystem` を所有する層の入口。`Initialize(hInstance, hwnd, initialTime)`、`BeginFrame`、`EndFrame` を持つ。初期化でタイマーの分解能を 1 ms に上げ、破棄で戻す |
 | `Time/` | `Time` | エンジン内で唯一、経過時間を測る場所。scaled と unscaled の 2 系統、`timeScale`、一時停止、フレーム数、目標フレームレートまでの待機 |
 | `Input/` | `InputManager` | キーボード、マウス、ゲームパッドを束ね、ゲーム用とエディタ用の問い合わせ口を分ける |
 | `Input/` | `KeyBoard` | Win32 メッセージによるキーボード入力。添字はスキャンコード |
@@ -23,6 +23,7 @@ Platform 層は Windows の API をエンジン向けの形に包みます。ウ
 | `Input/` | `KeyCode`、`KeyState`、`MouseButton`、`PadButton` | 入力の列挙と、押下状態の共通表現 |
 | `Sound/` | `SoundManager` | XAudio2 と MediaFoundation による読み込みと再生（`SoundLoad`、`SoundPlay`、`SoundUnload`） |
 | `File/` | `OpenFileDialog`、`SaveFileDialog` | OS のファイル選択ダイアログ。エディタがファイルパスをユーザーに決めさせる唯一の手段 |
+| `Job/` | `JobSystem`、`JobPriority`、`JobHandle`、`JobResult` | 固定数のワーカースレッドで作業を進め、完了処理をメインスレッドで実行する |
 
 ## 主要な仕組み
 
@@ -74,14 +75,30 @@ Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(
 
 ダイアログは絶対パスを返しますが、そのまま `.scene` などへ保存すると別の PC で開けなくなります。そのため、実行ディレクトリからの相対パスへ変換し、区切りを `/` に揃えて返します。`OFN_NOCHANGEDIR` を必ず指定し、ユーザーが別フォルダを開いてもプロセスのカレントディレクトリが移動しないようにしています。キャンセル時は `false` を返し、出力引数を変更しません。
 
+### ジョブ
+
+`JobSystem` は、重い作業をメインスレッドの外で進めるための仕組みです。作業は「ワーカーで動く処理」と「メインスレッドで動く完了処理」の組で `Submit` に渡し、`Submit` は作業を指す `JobHandle` を返します。ワーカーは作業を終えると完了処理を完了のキューに積むだけで、完了処理を実行するのは `PumpMainThread` と `WaitFor` です。アセットや GPU に触れるのは完了処理の中だけ、という決まりをこの形で守ります。
+
+| 項目 | 内容 |
+| --- | --- |
+| ワーカーの本数 | `Initialize` の引数で指定する。0 なら論理コア数−1（最低 1）。`hardware_concurrency` が 0 を返したときは 1 として扱う |
+| ワーカーの起動 | `CoInitializeEx`（MTA）で COM を初期化し、`SetThreadDescription` と `DebugLog::SetCurrentThreadName` で `Worker01` の形の名前を付ける。COM の初期化が Windows の API に依存するため、この仕組みは Foundation 層ではなく Platform 層に置いている |
+| 優先度 | `High`、`Normal`、`Low` の 3 本のキューを持ち、ワーカーは `High` から取り出す。同じ優先度の中では積んだ順 |
+| 結果の受け渡し | `Submit<T>` は作業の戻り値を `JobResult<T>` に入れて完了処理へ渡す。作業が例外を投げたときは `value` を空にし、`error` に理由を入れる。戻り値なしの `Submit` で積んだ作業の例外は、ワーカーが捕まえてエラーのログに出す |
+| 完了処理の実行 | `PumpMainThread(budget)` を `Application::RunFrame` の先頭で毎フレーム呼ぶ。使った時間が `budget` 以上になったら残りは次のフレームに回すが、最低 1 件は実行する |
+| 待ち合わせ | `WaitFor(handle)` は、その作業の完了処理が終わるまで戻らない。待つ間はメインスレッドもキューの作業を実行する。ほかの作業の完了処理は実行しない |
+| 終了 | `Shutdown`（デストラクタからも呼ぶ）は、受付を止め、未着手の作業と未実行の完了処理を捨て、実行中の作業が終わるのを待って join する。`Shutdown` のあとの `Submit` は無効な `JobHandle` を返す |
+
+作業のキュー、完了のキュー、受け付けた作業の番号の一覧は、1 つの `mutex` で守ります。ワーカーを起こす知らせ（作業が積まれた、止める）と、`WaitFor` を起こす知らせ（作業が 1 つ終わった）は、別々の `condition_variable` で送ります。
+
 ## 他の層との関係
 
 | 項目 | 内容 |
 | --- | --- |
 | 規則 | 下は Foundation 層のみ。上位層（Graphics、Asset、Render、Scene、Editor）を知らない |
 | 実装上の依存 | Foundation（`DebugLog`、`Vector`、`Convert`）と Platform 内部のみ。規則どおり |
-| 外部 | Windows API、XInput、XAudio2、MediaFoundation、comdlg32 |
-| 使われ方 | `Application` が所有し、`SceneManager` が `UpdateContext` 経由でコンポーネントへ `InputManager`、`Time`、`SoundManager` を渡す |
+| 外部 | Windows API、COM、XInput、XAudio2、MediaFoundation、comdlg32 |
+| 使われ方 | `Application` が所有し、`SceneManager` が `UpdateContext` 経由でコンポーネントへ `InputManager`、`Time`、`SoundManager` を渡す。`JobSystem` は `Application::RunFrame` が `PumpMainThread` を呼ぶ（作業を投げる側はフェーズ 2 の AssetManager から加わる） |
 
 ## 守るべき規則
 
@@ -103,9 +120,17 @@ Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(
 - 戻り値は必ず相対パスで `/` 区切り。`OFN_NOCHANGEDIR` を必ず指定する。
 - Windows 専用で、移植時はこのファイルを差し替える。
 
+### ジョブ
+
+- ワーカーの処理では、アセットの格納基盤・GPU・ImGui・シーンに触らない。触るのは完了処理の中だけ。
+- `Initialize`、`Shutdown`、`PumpMainThread`、`WaitFor` はメインスレッド専用。`PumpMainThread` と `WaitFor` は Debug ビルドで `assert` が確かめる。
+- `WaitFor` はエディタの道具と起動時に必要なアセット用。ゲームのフレーム中には使わない。
+- `JobSystem` は `DebugLog` より先に止める。`Platform` のメンバとして持ち、`Application` の宣言順で保証している。
+
 ## 未実装・要確認
 
 - `SoundManager` は `SoundData` を生ポインタで返し、解放は呼び出し側が `SoundUnload` で行います。エンジン内で `SoundManager` を使っている箇所は、`UpdateContext` へ参照を載せている部分のみです。`SoundPlay` が作る `IXAudio2SourceVoice` は破棄されません。
 - `SoundManager` はコンストラクタで MediaFoundation と XAudio2 を初期化します。ほかの部品のように `Initialize` を持たないため、`Platform` のメンバとして構築された時点で動き始めます。
 - `Time::targetFrameRate_` は 60 で固定です。変える関数も `ProjectSettings` の項目も無く、`std::optional` の「未設定なら待たない」経路は外から選べません。
 - `Time::initialTime_` は `Initialize` で受け取って保持していますが、使っている箇所はありません。
+- `JobSystem::PumpMainThread` に渡す時間の上限は、`Application.cpp` の `kJobCompletionBudget`（2 ms）です。仮の値で、フェーズ 1 の手順 9 で計測して決めます。

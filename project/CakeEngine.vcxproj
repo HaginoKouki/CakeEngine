@@ -44,7 +44,6 @@
     <ClCompile Include="Engine\Editor\Viewport\SceneWindow.cpp" />
     <ClCompile Include="Engine\Foundation\Debug\DebugLog.cpp" />
     <ClCompile Include="Engine\Foundation\Identity\Guid.cpp" />
-    <ClCompile Include="Engine\Foundation\Job\JobSystem.cpp" />
     <ClCompile Include="Engine\Foundation\Math\Geometry.cpp" />
     <ClCompile Include="Engine\Foundation\Math\Gradient.cpp" />
     <ClCompile Include="Engine\Foundation\Math\IsCollision.cpp" />
@@ -79,6 +78,7 @@
     <ClCompile Include="Engine\Platform\Input\InputManager.cpp" />
     <ClCompile Include="Engine\Platform\Input\Keyboard.cpp" />
     <ClCompile Include="Engine\Platform\Input\Mouse.cpp" />
+    <ClCompile Include="Engine\Platform\Job\JobSystem.cpp" />
     <ClCompile Include="Engine\Platform\Platform.cpp" />
     <ClCompile Include="Engine\Platform\Sound\SoundManager.cpp" />
     <ClCompile Include="Engine\Platform\Time\Time.cpp" />
@@ -166,7 +166,6 @@
     <ClInclude Include="Engine\Foundation\Identity\AssetId.h" />
     <ClInclude Include="Engine\Foundation\Identity\Guid.h" />
     <ClInclude Include="Engine\Foundation\Identity\LocalId.h" />
-    <ClInclude Include="Engine\Foundation\Job\JobSystem.h" />
     <ClInclude Include="Engine\Foundation\Math\Easing.h" />
     <ClInclude Include="Engine\Foundation\Math\Geometry.h" />
     <ClInclude Include="Engine\Foundation\Math\Gradient.h" />
@@ -208,6 +207,7 @@
     <ClInclude Include="Engine\Platform\Input\KeyCode.h" />
     <ClInclude Include="Engine\Platform\Input\KeyState.h" />
     <ClInclude Include="Engine\Platform\Input\Mouse.h" />
+    <ClInclude Include="Engine\Platform\Job\JobSystem.h" />
     <ClInclude Include="Engine\Platform\Platform.h" />
     <ClInclude Include="Engine\Platform\Sound\SoundManager.h" />
     <ClInclude Include="Engine\Platform\Time\Time.h" />

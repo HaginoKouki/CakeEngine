@@ -28,6 +28,10 @@ namespace Cake {
 namespace {
 constexpr const char* kLogCategory = "Application";
 
+// 1フレームで JobSystem の完了処理に使う時間の上限.
+// 2 ミリ秒は仮の値。手順9で計測して決める.
+constexpr std::chrono::microseconds kJobCompletionBudget{2000};
+
 LONG WINAPI ExportDump(EXCEPTION_POINTERS* exception) {
 	SYSTEMTIME time;
 	GetLocalTime(&time);
@@ -217,6 +221,7 @@ void Application::Initialize(HINSTANCE hInstance) {
 
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
 }
+
 void Application::Run() {
 	while (windowApp_.ProcessMessage()) {
 		// メインループ.
@@ -246,6 +251,9 @@ void Application::Run() {
 void Application::RunFrame() {
 	// 前のフレーム以降に出たログ（ワーカーの分も含む）を、画面表示用の一覧へ移す.
 	DebugLog::GetInstance().PumpMainThread();
+
+	// JobSystem の完了処理を実行する。メインスレッドで行う.
+	platform_.GetJobSystem().PumpMainThread(kJobCompletionBudget);
 
 	// Platform層のフレーム開始.
 	platform_.BeginFrame();

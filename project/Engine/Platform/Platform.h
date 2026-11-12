@@ -13,6 +13,7 @@
 #include "Engine/Platform/Time/Time.h"
 #include "Engine/Platform/Input/InputManager.h"
 #include "Engine/Platform/Sound/SoundManager.h"
+#include "Engine/Platform/Job/JobSystem.h"
 
 namespace Cake {
 
@@ -21,6 +22,7 @@ private:
 	Time time_;
 	InputManager input_;
 	SoundManager sound_;
+	JobSystem jobSystem_;
 
 	bool timerPeriodRaised_ = false; // timeBeginPeriod が成功したか.
 
@@ -42,6 +44,7 @@ public:
 	Time& GetTime() { return time_; }
 	InputManager& GetInput() { return input_; }
 	SoundManager& GetSound() { return sound_; }
+	JobSystem& GetJobSystem() { return jobSystem_; }
 };
 
 } // namespace Cake

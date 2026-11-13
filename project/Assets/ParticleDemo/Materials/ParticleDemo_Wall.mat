@@ -1,0 +1,27 @@
+{
+  "materials": {
+    "ParticleDemo_Wall": {
+      "params": {
+        "color": [
+          0.012000000104308128,
+          0.01600000075995922,
+          0.03999999910593033,
+          1.0
+        ],
+        "lightingType": [
+          0
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Standard",
+      "textures": {}
+    }
+  }
+}

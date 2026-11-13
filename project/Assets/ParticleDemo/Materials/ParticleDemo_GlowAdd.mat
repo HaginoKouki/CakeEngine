@@ -1,0 +1,18 @@
+{
+  "materials": {
+    "ParticleDemo_GlowAdd": {
+      "params": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Particle/Additive",
+      "textures": {
+        "albedo": "Assets/ParticleDemo/Textures/Glow.png"
+      }
+    }
+  }
+}

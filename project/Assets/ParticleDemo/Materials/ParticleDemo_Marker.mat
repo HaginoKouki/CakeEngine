@@ -1,0 +1,27 @@
+{
+  "materials": {
+    "ParticleDemo_Marker": {
+      "params": {
+        "color": [
+          1.0,
+          0.8999999761581421,
+          0.44999998807907104,
+          1.0
+        ],
+        "lightingType": [
+          0
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Standard",
+      "textures": {}
+    }
+  }
+}

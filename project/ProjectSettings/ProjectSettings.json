@@ -1,10 +1,10 @@
 {
-  "fullscreen": true,
+  "fullscreen": false,
   "referenceHeight": 1080,
   "referenceWidth": 1920,
-  "startupScene": "Assets/GameScene.scene",
+  "startupScene": "Assets/ParticleDemo/ParticleDemo.scene",
   "version": 1,
   "windowHeight": 720,
-  "windowTitle": "CakeEngine_Game",
+  "windowTitle": "LE2B_20_ハギノ_コウキ",
   "windowWidth": 1280
 }

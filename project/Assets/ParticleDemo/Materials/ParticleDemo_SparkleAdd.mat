@@ -1,0 +1,18 @@
+{
+  "materials": {
+    "ParticleDemo_SparkleAdd": {
+      "params": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Particle/Additive",
+      "textures": {
+        "albedo": "Assets/ParticleDemo/Textures/Sparkle.png"
+      }
+    }
+  }
+}

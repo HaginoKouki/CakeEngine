@@ -199,6 +199,9 @@
     <Filter Include="Game\Components\Tester">
       <UniqueIdentifier>{06abb648-49d7-41ea-80bb-628f36c8f222}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Components\ParticleDemo">
+      <UniqueIdentifier>{db465e98-6f89-4dc7-a0e6-b1a722b9b3e3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Platform\Job">
       <UniqueIdentifier>{6563ecb8-c07c-48c9-a45a-567bbf6be88a}</UniqueIdentifier>
     </Filter>
@@ -491,6 +494,12 @@
     </ClCompile>
     <ClCompile Include="Game\Components\Tester\SpriteTesterComponent.cpp">
       <Filter>Game\Components\Tester</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Components\ParticleDemo\DemoEmissionBurstComponent.cpp">
+      <Filter>Game\Components\ParticleDemo</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Components\ParticleDemo\DemoPlayerMoveComponent.cpp">
+      <Filter>Game\Components\ParticleDemo</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Descriptor\SrvManager.cpp">
       <Filter>Engine\Graphics\Descriptor</Filter>
@@ -934,6 +943,12 @@
     </ClInclude>
     <ClInclude Include="Game\Components\Tester\SpriteTesterComponent.h">
       <Filter>Game\Components\Tester</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Components\ParticleDemo\DemoEmissionBurstComponent.h">
+      <Filter>Game\Components\ParticleDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Components\ParticleDemo\DemoPlayerMoveComponent.h">
+      <Filter>Game\Components\ParticleDemo</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Descriptor\SrvManager.h">
       <Filter>Engine\Graphics\Descriptor</Filter>

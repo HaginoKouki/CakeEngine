@@ -1,0 +1,2165 @@
+{
+  "objects": [
+    {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "farClip": 1000.0,
+          "fovYDegree": 45.0,
+          "nearClip": 0.10000000149011612,
+          "priority": 0,
+          "type": "CameraComponent"
+        }
+      ],
+      "id": 0,
+      "name": "MainCamera",
+      "transform": {
+        "rotate": [
+          -0.029999999329447746,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          3.200000047683716,
+          -20.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "color": [
+            1.0,
+            0.9599999785423279,
+            0.8999999761581421,
+            1.0
+          ],
+          "enabled": true,
+          "intensity": 1.0,
+          "priority": 0,
+          "type": "LightComponent"
+        }
+      ],
+      "id": 1,
+      "name": "DirectionalLight",
+      "transform": {
+        "rotate": [
+          0.8999999761581421,
+          0.5,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 2,
+      "name": "Stage",
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "8724613389322de22f3cd22e0d0f5880",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000003",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 3,
+      "name": "Floor",
+      "parent": 2,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          52.0,
+          0.5,
+          26.0
+        ],
+        "translate": [
+          0.0,
+          -0.25,
+          -4.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "b8be127f69c8612e01edaf6d9ba990da",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000003",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 4,
+      "name": "BackWall",
+      "parent": 2,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          52.0,
+          22.0,
+          0.5
+        ],
+        "translate": [
+          0.0,
+          10.0,
+          9.25
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 5,
+      "name": "Campfire",
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          -11.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "c69ea66c1497f59ef33f6f05b4606710",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000003",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 6,
+      "name": "LogA",
+      "parent": 5,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.6000000238418579,
+          0.0
+        ],
+        "scale": [
+          1.7000000476837158,
+          0.25999999046325684,
+          0.25999999046325684
+        ],
+        "translate": [
+          0.0,
+          0.12999999523162842,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "c69ea66c1497f59ef33f6f05b4606710",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000003",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 7,
+      "name": "LogB",
+      "parent": 5,
+      "transform": {
+        "rotate": [
+          0.0,
+          -0.6000000238418579,
+          0.0
+        ],
+        "scale": [
+          1.7000000476837158,
+          0.25999999046325684,
+          0.25999999046325684
+        ],
+        "translate": [
+          0.0,
+          0.12999999523162842,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "b172fcd8ff6fe30262d2692e2add7693",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 1,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 0.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8500000238418579,
+                "time": 0.11999999731779099
+              },
+              {
+                "alpha": 0.550000011920929,
+                "time": 0.6000000238418579
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  0.8199999928474426,
+                  0.3499999940395355
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  1.0,
+                  0.41999998688697815,
+                  0.07999999821186066
+                ],
+                "time": 0.3499999940395355
+              },
+              {
+                "color": [
+                  0.75,
+                  0.11999999731779099,
+                  0.019999999552965164
+                ],
+                "time": 0.75
+              },
+              {
+                "color": [
+                  0.25,
+                  0.029999999329447746,
+                  0.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 60.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.2999999523162842,
+          "startSpeed": 0.6000000238418579,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 8,
+      "name": "Fire",
+      "parent": 5,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.15000000596046448,
+          0.5
+        ],
+        "translate": [
+          0.0,
+          0.4000000059604645,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "39ba0b364c090544ce9c3032262255db",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 1,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 0.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 1.0,
+                "time": 0.10000000149011612
+              },
+              {
+                "alpha": 1.0,
+                "time": 0.6000000238418579
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  0.75,
+                  0.25
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  1.0,
+                  0.25,
+                  0.05000000074505806
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 9.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 2.0,
+          "startSpeed": 1.2000000476837158,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 9,
+      "name": "Embers",
+      "parent": 5,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.20000000298023224,
+          0.5
+        ],
+        "translate": [
+          0.0,
+          0.699999988079071,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "ace24e337e76e77d5eea214d51fd30f6",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 1,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 0.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.550000011920929,
+                "time": 0.20000000298023224
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  0.30000001192092896,
+                  0.2800000011920929,
+                  0.27000001072883606
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  0.11999999731779099,
+                  0.11999999731779099,
+                  0.12999999523162842
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 12.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 3.5999999046325684,
+          "startSpeed": 0.5,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 10,
+      "name": "Smoke",
+      "parent": 5,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.3499999940395355,
+          0.25,
+          0.3499999940395355
+        ],
+        "translate": [
+          0.0,
+          3.299999952316284,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            0.0,
+            3.200000047683716,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            3.0,
+            3.0,
+            3.0
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 11,
+      "name": "Field_Updraft",
+      "parent": 5,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          1.5,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            -0.30000001192092896,
+            0.3499999940395355,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            7.0,
+            6.0,
+            4.0
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 12,
+      "name": "Field_WindAloft",
+      "parent": 5,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          6.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 13,
+      "name": "Fountain",
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          -5.5,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "6d8d538f92e58c06723d0d09ae049e02",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000003",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 14,
+      "name": "Basin",
+      "parent": 13,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          4.400000095367432,
+          0.30000001192092896,
+          4.400000095367432
+        ],
+        "translate": [
+          0.0,
+          0.15000000596046448,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "6d8d538f92e58c06723d0d09ae049e02",
+            "localId": 0
+          },
+          "model": {
+            "guid": "b0117100000000000000000000000003",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 15,
+      "name": "Nozzle",
+      "parent": 13,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.30000001192092896,
+          0.5,
+          0.30000001192092896
+        ],
+        "translate": [
+          0.0,
+          0.4000000059604645,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "39ba0b364c090544ce9c3032262255db",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 2,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 0.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 1.0,
+                "time": 0.07999999821186066
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.800000011920929
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  0.6000000238418579,
+                  0.8500000238418579,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  0.20000000298023224,
+                  0.44999998807907104,
+                  1.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 140.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.899999976158142,
+          "startSpeed": 10.0,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 16,
+      "name": "Water",
+      "parent": 13,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.10000000149011612,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "translate": [
+          0.0,
+          0.800000011920929,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            0.0,
+            55.0,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            0.5,
+            0.699999988079071,
+            0.5
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 17,
+      "name": "Field_Jet",
+      "parent": 13,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          1.0499999523162842,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            0.0,
+            -9.800000190734863,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            4.599999904632568,
+            7.5,
+            4.599999904632568
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 18,
+      "name": "Field_Gravity",
+      "parent": 13,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          3.25,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 19,
+      "name": "Snow",
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.5,
+          0.0,
+          4.5
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "c165f937dc174a50da427c5093de5238",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 1,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 0.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.949999988079071,
+                "time": 0.10000000149011612
+              },
+              {
+                "alpha": 0.949999988079071,
+                "time": 0.8500000238418579
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  0.8500000238418579,
+                  0.9200000166893005,
+                  1.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 55.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 5.0,
+          "startSpeed": 0.07999999821186066,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 20,
+      "name": "Snowfall",
+      "parent": 19,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          3.200000047683716,
+          0.25,
+          1.5
+        ],
+        "translate": [
+          0.0,
+          10.5,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            0.0,
+            -6.0,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            8.0,
+            0.8999999761581421,
+            4.5
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 21,
+      "name": "Field_Fall",
+      "parent": 19,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          10.399999618530273,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            0.6000000238418579,
+            0.0,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            10.0,
+            5.0,
+            5.5
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 22,
+      "name": "Field_Wind",
+      "parent": 19,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          4.5,
+          0.25
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 23,
+      "name": "Tornado",
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          5.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "39ba0b364c090544ce9c3032262255db",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 1,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 0.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 1.0,
+                "time": 0.10000000149011612
+              },
+              {
+                "alpha": 0.800000011920929,
+                "time": 0.699999988079071
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  0.4000000059604645,
+                  1.0,
+                  0.8999999761581421
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  0.30000001192092896,
+                  0.5,
+                  1.0
+                ],
+                "time": 0.5
+              },
+              {
+                "color": [
+                  0.699999988079071,
+                  0.30000001192092896,
+                  1.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 80.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 3.0,
+          "startSpeed": 1.2999999523162842,
+          "type": "ParticleSystemComponent"
+        },
+        {
+          "speed": [
+            0.0,
+            5.0,
+            0.0
+          ],
+          "type": "RotatorComponent"
+        }
+      ],
+      "id": 24,
+      "name": "Vortex",
+      "parent": 23,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.3499999940395355,
+          0.11999999731779099,
+          0.3499999940395355
+        ],
+        "translate": [
+          0.0,
+          0.25,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            0.0,
+            6.0,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            1.2000000476837158,
+            0.8999999761581421,
+            1.2000000476837158
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 25,
+      "name": "Field_Lift",
+      "parent": 23,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          0.5,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [],
+      "id": 26,
+      "name": "Fireworks",
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          11.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "39ba0b364c090544ce9c3032262255db",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 45,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 1.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.699999988079071
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  0.949999988079071,
+                  0.699999988079071
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  1.0,
+                  0.5,
+                  0.15000000596046448
+                ],
+                "time": 0.30000001192092896
+              },
+              {
+                "color": [
+                  0.8999999761581421,
+                  0.10000000149011612,
+                  0.05000000074505806
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 17.30769157409668,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.5,
+          "startSpeed": 30.0,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 27,
+      "name": "ShellA_1",
+      "parent": 26,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.05999999865889549,
+          0.05999999865889549,
+          0.05999999865889549
+        ],
+        "translate": [
+          -1.0,
+          9.0,
+          0.5
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "39ba0b364c090544ce9c3032262255db",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 45,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 1.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.699999988079071
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  0.949999988079071,
+                  0.699999988079071
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  1.0,
+                  0.5,
+                  0.15000000596046448
+                ],
+                "time": 0.30000001192092896
+              },
+              {
+                "color": [
+                  0.8999999761581421,
+                  0.10000000149011612,
+                  0.05000000074505806
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 17.30769157409668,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.5,
+          "startSpeed": 30.0,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 28,
+      "name": "ShellA_2",
+      "parent": 26,
+      "transform": {
+        "rotate": [
+          0.7850000262260437,
+          0.0,
+          0.6150000095367432
+        ],
+        "scale": [
+          0.05999999865889549,
+          0.05999999865889549,
+          0.05999999865889549
+        ],
+        "translate": [
+          -1.0,
+          9.0,
+          0.5
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "39ba0b364c090544ce9c3032262255db",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 45,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 1.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.699999988079071
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  0.949999988079071,
+                  0.699999988079071
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  1.0,
+                  0.5,
+                  0.15000000596046448
+                ],
+                "time": 0.30000001192092896
+              },
+              {
+                "color": [
+                  0.8999999761581421,
+                  0.10000000149011612,
+                  0.05000000074505806
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 17.30769157409668,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.5,
+          "startSpeed": 30.0,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 29,
+      "name": "ShellA_3",
+      "parent": 26,
+      "transform": {
+        "rotate": [
+          0.30000001192092896,
+          0.7850000262260437,
+          0.30000001192092896
+        ],
+        "scale": [
+          0.05999999865889549,
+          0.05999999865889549,
+          0.05999999865889549
+        ],
+        "translate": [
+          -1.0,
+          9.0,
+          0.5
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "ceece5e5fddcbcd09b59704025404d78",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 45,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 1.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.699999988079071
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  0.800000011920929,
+                  1.0,
+                  0.8999999761581421
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  0.20000000298023224,
+                  0.8999999761581421,
+                  0.5
+                ],
+                "time": 0.30000001192092896
+              },
+              {
+                "color": [
+                  0.10000000149011612,
+                  0.4000000059604645,
+                  1.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 13.235294342041016,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.5,
+          "startSpeed": 26.0,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 30,
+      "name": "ShellB_1",
+      "parent": 26,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.05999999865889549,
+          0.05999999865889549,
+          0.05999999865889549
+        ],
+        "translate": [
+          0.800000011920929,
+          6.199999809265137,
+          -0.5
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "ceece5e5fddcbcd09b59704025404d78",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 45,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 1.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.699999988079071
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  0.800000011920929,
+                  1.0,
+                  0.8999999761581421
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  0.20000000298023224,
+                  0.8999999761581421,
+                  0.5
+                ],
+                "time": 0.30000001192092896
+              },
+              {
+                "color": [
+                  0.10000000149011612,
+                  0.4000000059604645,
+                  1.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 13.235294342041016,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.5,
+          "startSpeed": 26.0,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 31,
+      "name": "ShellB_2",
+      "parent": 26,
+      "transform": {
+        "rotate": [
+          0.7850000262260437,
+          0.0,
+          0.6150000095367432
+        ],
+        "scale": [
+          0.05999999865889549,
+          0.05999999865889549,
+          0.05999999865889549
+        ],
+        "translate": [
+          0.800000011920929,
+          6.199999809265137,
+          -0.5
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "ceece5e5fddcbcd09b59704025404d78",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 45,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 1.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.699999988079071
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  0.800000011920929,
+                  1.0,
+                  0.8999999761581421
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  0.20000000298023224,
+                  0.8999999761581421,
+                  0.5
+                ],
+                "time": 0.30000001192092896
+              },
+              {
+                "color": [
+                  0.10000000149011612,
+                  0.4000000059604645,
+                  1.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 13.235294342041016,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.5,
+          "startSpeed": 26.0,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 32,
+      "name": "ShellB_3",
+      "parent": 26,
+      "transform": {
+        "rotate": [
+          0.30000001192092896,
+          0.7850000262260437,
+          0.30000001192092896
+        ],
+        "scale": [
+          0.05999999865889549,
+          0.05999999865889549,
+          0.05999999865889549
+        ],
+        "translate": [
+          0.800000011920929,
+          6.199999809265137,
+          -0.5
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "acceleration": [
+            0.0,
+            -4.0,
+            0.0
+          ],
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "enabled": true,
+          "size": [
+            7.800000190734863,
+            13.0,
+            9.0
+          ],
+          "type": "ParticleForceFieldComponent"
+        }
+      ],
+      "id": 33,
+      "name": "Field_Gravity",
+      "parent": 26,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.5,
+          6.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "moveSpeed": 5.0,
+          "rangeX": [
+            -15.0,
+            15.0
+          ],
+          "rangeZ": [
+            -9.0,
+            2.5
+          ],
+          "type": "DemoPlayerMoveComponent"
+        }
+      ],
+      "id": 34,
+      "name": "Player",
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          -6.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "45abec8985638c4e45fb09a562226ea2",
+            "localId": 0
+          },
+          "model": {
+            "guid": "4ca5e50108469280c00f74f6aa1763b6",
+            "localId": 0
+          },
+          "type": "MeshRendererComponent",
+          "visible": true
+        }
+      ],
+      "id": 35,
+      "name": "Model",
+      "parent": 34,
+      "transform": {
+        "rotate": [
+          0.0,
+          3.1415927410125732,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "ceece5e5fddcbcd09b59704025404d78",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 1,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 0.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 1.0,
+                "time": 0.20000000298023224
+              },
+              {
+                "alpha": 1.0,
+                "time": 0.6000000238418579
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  0.8999999761581421,
+                  0.4000000059604645
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  1.0,
+                  0.550000011920929,
+                  0.10000000149011612
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": true,
+          "rateOverTime": 28.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 1.100000023841858,
+          "startSpeed": 0.5,
+          "type": "ParticleSystemComponent"
+        }
+      ],
+      "id": 36,
+      "name": "Aura",
+      "parent": 34,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.6000000238418579,
+          0.8999999761581421,
+          0.6000000238418579
+        ],
+        "translate": [
+          0.0,
+          0.8999999761581421,
+          0.0
+        ]
+      }
+    },
+    {
+      "active": true,
+      "components": [
+        {
+          "material": {
+            "guid": "3c616e71f25c6abec3d1d831967b4905",
+            "localId": 0
+          },
+          "mesh": {
+            "guid": "b0117100000000000000000000000002",
+            "localId": 0
+          },
+          "type": "ParticleRendererComponent"
+        },
+        {
+          "burstCount": 10,
+          "colorOverLifetime": {
+            "alphaKeys": [
+              {
+                "alpha": 1.0,
+                "time": 0.0
+              },
+              {
+                "alpha": 0.8999999761581421,
+                "time": 0.6000000238418579
+              },
+              {
+                "alpha": 0.0,
+                "time": 1.0
+              }
+            ],
+            "colorKeys": [
+              {
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "color": [
+                  1.0,
+                  0.4000000059604645,
+                  0.800000011920929
+                ],
+                "time": 0.4000000059604645
+              },
+              {
+                "color": [
+                  0.5,
+                  0.30000001192092896,
+                  1.0
+                ],
+                "time": 1.0
+              }
+            ]
+          },
+          "isEnableColorOverLifetime": true,
+          "isEnableEmission": false,
+          "rateOverTime": 600.0,
+          "startColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "startLifeTime": 0.699999988079071,
+          "startSpeed": 18.0,
+          "type": "ParticleSystemComponent"
+        },
+        {
+          "duration": 0.11999999731779099,
+          "remainingTime": 0.0,
+          "type": "DemoEmissionBurstComponent"
+        }
+      ],
+      "id": 37,
+      "name": "Burst",
+      "parent": 34,
+      "transform": {
+        "rotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.25,
+          0.25,
+          0.25
+        ],
+        "translate": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,29 @@
+{
+  "materials": {
+    "ParticleDemo_Wood": {
+      "params": {
+        "color": [
+          0.8999999761581421,
+          0.800000011920929,
+          0.699999988079071,
+          1.0
+        ],
+        "lightingType": [
+          1
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          1.0,
+          1.0
+        ]
+      },
+      "shader": "Standard",
+      "textures": {
+        "albedo": "Assets/Textures/Wood049_1K-JPG_Color.jpg"
+      }
+    }
+  }
+}

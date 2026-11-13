@@ -110,6 +110,8 @@
     <ClCompile Include="Engine\Scene\System\Render\RenderSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\Render\SpriteSystem.cpp" />
     <ClCompile Include="Engine\Scene\System\UpdateContext.cpp" />
+    <ClCompile Include="Game\Components\ParticleDemo\DemoEmissionBurstComponent.cpp" />
+    <ClCompile Include="Game\Components\ParticleDemo\DemoPlayerMoveComponent.cpp" />
     <ClCompile Include="Game\Components\Player\PlayerComponent.cpp" />
     <ClCompile Include="Game\Components\RotatorComponent.cpp" />
     <ClCompile Include="Game\Components\Tester\SpriteTesterComponent.cpp" />
@@ -258,6 +260,8 @@
     <ClInclude Include="Engine\Scene\System\Render\SpriteSystem.h" />
     <ClInclude Include="Engine\Scene\System\UpdateContext.h" />
     <ClInclude Include="externals\nlohmann\json.hpp" />
+    <ClInclude Include="Game\Components\ParticleDemo\DemoEmissionBurstComponent.h" />
+    <ClInclude Include="Game\Components\ParticleDemo\DemoPlayerMoveComponent.h" />
     <ClInclude Include="Game\Components\Player\PlayerComponent.h" />
     <ClInclude Include="Game\Components\RotatorComponent.h" />
     <ClInclude Include="Game\Components\Tester\SpriteTesterComponent.h" />

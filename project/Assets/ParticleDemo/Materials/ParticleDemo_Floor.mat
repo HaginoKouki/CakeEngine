@@ -1,0 +1,29 @@
+{
+  "materials": {
+    "ParticleDemo_Floor": {
+      "params": {
+        "color": [
+          0.054999999701976776,
+          0.06499999761581421,
+          0.10000000149011612,
+          1.0
+        ],
+        "lightingType": [
+          1
+        ],
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "tiling": [
+          13.0,
+          6.5
+        ]
+      },
+      "shader": "Standard",
+      "textures": {
+        "albedo": "Assets/Textures/Tiles133A_1K-PNG_Color.png"
+      }
+    }
+  }
+}

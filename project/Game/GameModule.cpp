@@ -8,6 +8,8 @@
 #include "Game/Components/RotatorComponent.h"
 #include "Game/Components/Player/PlayerComponent.h"
 #include "Game/Components/Tester/SpriteTesterComponent.h"
+#include "Game/Components/ParticleDemo/DemoPlayerMoveComponent.h"
+#include "Game/Components/ParticleDemo/DemoEmissionBurstComponent.h"
 
 namespace Game {
 
@@ -17,6 +19,9 @@ void RegisterGameComponents() {
 	registry.Register<RotatorComponent>(Cake::kDefaultUpdatePriority);
 	registry.Register<PlayerComponent>(Cake::kDefaultUpdatePriority);
 	registry.Register<SpriteTesterComponent>(Cake::kDefaultUpdatePriority);
+	// パーティクルデモ用（Assets/ParticleDemo/ParticleDemo.scene で使う）.
+	registry.Register<DemoPlayerMoveComponent>(Cake::kDefaultUpdatePriority);
+	registry.Register<DemoEmissionBurstComponent>(Cake::kDefaultUpdatePriority);
 }
 void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 	/*
@@ -90,6 +95,15 @@ void RegisterGameShaders(Cake::ShaderLibrary& shaderLibrary) {
 	// 半透明の粒が、後ろにある粒を深度で隠さないようにする（深度テストは有効のまま）.
 	particle.depthWrite = false;
 	shaderLibrary.Register(particle);
+	/*
+	* Particle/Additive
+	———————————————*/
+	// Particle と同じ HLSL を使い、合成方法だけを加算にしたもの.
+	// 重なるほど明るくなるので、炎や火花のように光る粒に使う（パーティクルデモのマテリアルが参照する）.
+	Cake::ShaderDefinition particleAdditive = particle;
+	particleAdditive.name = "Particle/Additive";
+	particleAdditive.blendMode = Cake::BlendMode::kBlendModeAdd;
+	shaderLibrary.Register(particleAdditive);
 }
 
 } // namespace Game

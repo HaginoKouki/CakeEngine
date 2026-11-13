@@ -150,6 +150,5 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 ## 未実装・要確認
 
 - `BinaryStream` を使う Import 系の型（Asset 層）は定義のみで、まだ接続されていません。
-- `DebugLog.h` のコメントは「JobSystem の終了処理で保証する」と書いていますが、JobSystem は存在しません。
 - `Easing.h` の `Lerp` は `Gradient` が使っていますが、`Ease` 系、`Slerp`、`CatmullRom` を使っている箇所はエンジン内にありません。`VectorMath.h` の `Rotate`、`Distance`、`Clamp`、角度の変換、`QuaternionMath.h` の全関数、`Quaternion` の静的関数も同様に呼び出し元がありません。
 - `Math::Inverse` は `Matrix4x4` だけ行列式 0 を検査して `Zero` を返し、`Matrix2x2` と `Matrix3x3` は検査せずに 0 で割ります。

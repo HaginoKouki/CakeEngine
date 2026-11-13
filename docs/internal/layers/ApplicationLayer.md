@@ -60,15 +60,15 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 | 関数 | 呼ばれる場所 | 内容 |
 | --- | --- | --- |
-| `Game::RegisterGameShaders(ShaderLibrary&)` | `Graphics` 初期化の直後、`Asset` 初期化の前 | ゲーム固有のシェーダー定義を登録する。現状は `Object3D` と `Particle` |
-| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent`、`PlayerComponent`、`SpriteTesterComponent`（スプライトの確認用） |
+| `Game::RegisterGameShaders(ShaderLibrary&)` | `Graphics` 初期化の直後、`Asset` 初期化の前 | ゲーム固有のシェーダー定義を登録する。現状は `Object3D`、`Particle`、`Particle/Additive`（`Particle` の定義を複製してブレンドを加算にしたもの） |
+| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent`、`PlayerComponent`、`SpriteTesterComponent`（スプライトの確認用）、パーティクルデモ用の `DemoPlayerMoveComponent` と `DemoEmissionBurstComponent` |
 
 `Game/` の中身は次のとおりです。
 
 | 場所 | 内容 |
 | --- | --- |
 | `GameModule.h` / `.cpp` | 上記 2 関数の実装 |
-| `Components/` | ゲーム固有のコンポーネント。グローバル名前空間に置き、`CAKE_REFLECT` は `Cake` 名前空間の中で書く |
+| `Components/` | ゲーム固有のコンポーネント。グローバル名前空間に置き、`CAKE_REFLECT` は `Cake` 名前空間の中で書く。`ParticleDemo/` は `Assets/ParticleDemo/ParticleDemo.scene` で使うデモ用 |
 | `GameLayer.h` | コライダーの `layer` と `mask` に入れるビット値の一覧（`GameLayer` 名前空間） |
 | `Assets/Shaders/` | ゲーム固有の HLSL（`Object3D`、`Particle`） |
 
@@ -100,6 +100,5 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 ## 未実装・要確認
 
-- リポジトリの `ProjectSettings.json` は `fullscreen` が `true`、`windowTitle` が "CakeEngine_Game" です。Release 構成で起動するとボーダレス全画面になります。
-- `.github/workflows/Development.yml` は、対応する Development 構成が削除された後もファイルとして残っています。
+- リポジトリの `ProjectSettings.json` は `startupScene` が `Assets/ParticleDemo/ParticleDemo.scene`、`fullscreen` が `false`、`windowTitle` が課題提出用の値です。起動するとパーティクルデモのシーンがウィンドウ表示で開きます。この値を main に置いたままにするかは未確認です。
 - `WindowApp::Finalize` は定義されていますが、`Application` から呼ばれていません。ウィンドウは `WM_DESTROY` と `PostQuitMessage` の経路で閉じます。

@@ -18,7 +18,8 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 | --- | --- | --- |
 | 直下 | `Graphics` | 下記の部品をすべて所有し、`Initialize` と `Resize` を提供する |
 | `Device/` | `DirectXDevice` | Factory、Adapter（高性能優先でソフトウェアアダプタを除外）、Device の生成。Debug 構成ではデバッグレイヤーと GPU ベース検証を有効にし、エラーと警告で停止する |
-| `Device/` | `CommandManager` | Queue、Allocator、CommandList、Fence。`ExecuteAndWait` と `WaitForGPU` |
+| `Device/` | `CommandManager` | Queue、Allocator、CommandList、Fence。`ExecuteAndWait` と `WaitForGPU`。最後に Signal したフェンス値と完了済みのフェンス値の取得口（`GetLastSignaledFenceValue`、`GetCompletedFenceValue`） |
+| `Device/` | `DeferredReleaseQueue` | GPU が使い終わるまでリソースの解放を遅らせるキュー。D3D12 の型を含まず、フェンス値の管理だけを担う。まだ `Graphics` には組み込まれていない |
 | `Descriptor/` | `DescriptorHeap` | ディスクリプタヒープ 1 本と、RTV ヒープ先頭の予約枠（`Reserved` 名前空間） |
 | `Descriptor/` | `SrvManager` | シェーダー可視の SRV ヒープ（512 個）を 1 本持ち、`Allocate` で番号を 0 から順に払い出す。解放はしない |
 | `RenderTarget/` | `SwapChain` | バックバッファ 2 枚。フレーム先頭と末尾のバリア、Present、Resize |
@@ -85,7 +86,7 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 | `Sprite` | 2D スプライト<br>頂点バッファなし、アルファブレンド、深度テスト・書き込みなし、カリングなし<br>色と切り出し範囲は、マテリアルではなく VS の `b0`（`SpriteForGPU`）で受け取る<br>エディタのマテリアル選択肢には出さない |  | `main`（t0） |
 | `Debug/Gizmo` | ギズモの線<br>LINE トポロジ、深度書き込み無し<br>エディタのマテリアル選択肢には出さない | | |
 
-ゲーム固有のシェーダー（`Object3D`、`Particle`）は `Game::RegisterGameShaders` から同じ `Register` で登録します。
+ゲーム固有のシェーダー（`Object3D`、`Particle`、`Particle/Additive`）は `Game::RegisterGameShaders` から同じ `Register` で登録します。`Particle/Additive` は `Particle` の定義を複製して `blendMode` だけを `kBlendModeAdd` にしたもので、HLSL は共有です。
 
 ### RTV の予約枠と SRV の払い出し
 
@@ -118,6 +119,14 @@ ImGui のテクスチャに 4 枠あるのは、ImGui 1.92 以降のバックエ
 ### プロファイラ
 
 `PerformanceProfiler` は `BeginFrame` と `EndFrame` で GPU タイムスタンプを 2 点打ち、`ExecuteAndWait` の後に `Resolve` で読み戻します。同期設計なので同じフレーム内で確実に結果が取れ、多重バッファリングが要りません。システムの CPU 使用率は `GetSystemTimes` の差分、GPU 使用率は PDH の `GPU Engine(*)\Utilization Percentage` の最大値で、1 秒おきに更新します。
+
+### 遅延解放
+
+`DeferredReleaseQueue` は GPU がまだ参照しているかもしれないリソースの解放を、フェンス値で遅らせるための箱です。解放の処理を `std::function` で `Enqueue` に積み、フレームの終わり（`ExecuteAndWait` の後）に `CloseFrame(fenceValue)` でそのフレームのフェンス値を付け、次のフレームの先頭で `ReleaseCompleted(completedValue)` を呼ぶと、番号が `completedValue` 以下の組だけを古い順に解放します。番号を付ける前の予約は `ReleaseCompleted` では解放されません。`ReleaseAll` は番号に関係なくすべてを解放し、デストラクタからも呼ばれます。
+
+フェンス値は 1 フレームに 1 回進むとは限りません（`TextureManager` がフレームの途中で `ExecuteAndWait` を呼ぶため）。「次のフェンス値」で登録すると早すぎる解放になるので、必ずフレームの終わりで締めます。`ReleaseCompleted` は先頭から見て最初の新しい組で止まるため、`CloseFrame` に渡す番号は増える一方であることを前提にしています。
+
+メインスレッド専用で、ロックは持ちません。D3D12 を呼ばないので、`Tests` の `Graphics/DeferredReleaseQueueTests.cpp` で動きを確かめています。`Graphics` への組み込みと、`SrvManager` の番号の返却をこのキュー経由にする変更は、[docs/plans/AssetSystem.md](../../plans/AssetSystem.md) の 8 章とフェーズ 1 の手順 6 以降で行います。
 
 ## シェーダーを追加する
 
@@ -228,3 +237,4 @@ Debug 構成で起動し、MaterialList ウィンドウの Create ボタンか�
 
 - `ShaderCompiler::Compile` はコンパイル失敗時に Debug 構成では `assert` で止まり、Release 構成では空のブロブを返します。HLSL は実行時にコンパイルされるため、CI ではシェーダーの誤りを検出できません。
 - PSO の RTV フォーマットは `R8G8B8A8_UNORM_SRGB` で固定ですが、エディタ構成のスワップチェーンの RTV は `UNORM` です。エディタ構成ではバックバッファへ描くのは ImGui だけなので実害はありません。
+- `DeferredReleaseQueue` と `CommandManager` のフェンス値の取得口は、エンジン内に呼び出し元がありません（`Tests` だけが使います）。`DeferredReleaseQueue.h` のコメントにある `GraphicsDebugWindow` もまだありません。

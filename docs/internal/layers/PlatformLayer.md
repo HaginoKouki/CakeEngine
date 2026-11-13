@@ -125,7 +125,7 @@ Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(
 - ワーカーの処理では、アセットの格納基盤・GPU・ImGui・シーンに触らない。触るのは完了処理の中だけ。
 - `Initialize`、`Shutdown`、`PumpMainThread`、`WaitFor` はメインスレッド専用。`PumpMainThread` と `WaitFor` は Debug ビルドで `assert` が確かめる。
 - `WaitFor` はエディタの道具と起動時に必要なアセット用。ゲームのフレーム中には使わない。
-- `JobSystem` は `DebugLog` より先に止める。`Platform` のメンバとして持ち、`Application` の宣言順で保証している。
+- `JobSystem` は `DebugLog` より先に止める。`JobSystem` は `Platform` のメンバなので `Application` と一緒に破棄され、`DebugLog` は関数内 static なので `main` を抜けた後に消える。この順序は `Application` が `WinMain` のローカル変数であることで守られている。
 
 ## 未実装・要確認
 
@@ -133,4 +133,7 @@ Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(
 - `SoundManager` はコンストラクタで MediaFoundation と XAudio2 を初期化します。ほかの部品のように `Initialize` を持たないため、`Platform` のメンバとして構築された時点で動き始めます。
 - `Time::targetFrameRate_` は 60 で固定です。変える関数も `ProjectSettings` の項目も無く、`std::optional` の「未設定なら待たない」経路は外から選べません。
 - `Time::initialTime_` は `Initialize` で受け取って保持していますが、使っている箇所はありません。
-- `JobSystem::PumpMainThread` に渡す時間の上限は、`Application.cpp` の `kJobCompletionBudget`（2 ms）です。仮の値で、フェーズ 1 の手順 9 で計測して決めます。
+- `JobSystem::PumpMainThread` に渡す時間の上限は、`Application.cpp` の `kJobCompletionBudget`（2 ms）です。仮の値で、[docs/plans/AssetSystem.md](../../plans/AssetSystem.md) のフェーズ 1 の手順 9 で計測して決めます。
+- `JobSystem` の完了処理が例外を投げた場合は捕まえません。`PumpMainThread` と `WaitFor` の外へ抜け、その作業の番号は `live_` に残ります。作業（ワーカー側）の例外だけを捕まえる設計です。
+- `JobSystem::Initialize` は `Shutdown` を挟まずに 2 回呼ぶとワーカーが追加されます。呼び出し元は `Platform::Initialize` の 1 回だけです。
+- Tests で `JobSystem::Initialize` を呼ぶと `DebugLog` が起動し、カレントディレクトリに `logs/<日付>/` が作られます。`.gitignore` が除外するのは `project/logs/` だけで、ほかの場所に作られた `logs/` は CI の `CheckUnwantedFiles` が検出します。

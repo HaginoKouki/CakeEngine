@@ -30,7 +30,7 @@ CakeEngine は、**「プロトタイプ作成から本番環境までをもっ�
 | [Render](docs/internal/layers/RenderLayer.md)           | 描画パス、Renderer、CameraView                       |
 | [Asset](docs/internal/layers/AssetLayer.md)             | モデル、テクスチャ、マテリアル、AssetDatabase        |
 | [Graphics](docs/internal/layers/GraphicsLayer.md)       | DirectX 12 のデバイス、コマンド、シェーダー、PSO     |
-| [Platform](docs/internal/layers/PlatformLayer.md)       | 時間、入力、音、ファイルダイアログ                   |
+| [Platform](docs/internal/layers/PlatformLayer.md)       | 時間、入力、音、ファイルダイアログ、ジョブ（ワーカースレッド） |
 | [Foundation](docs/internal/layers/FoundationLayer.md)   | 数学、識別子、ログ、シリアライズ、リフレクション     |
 
 層ごとのコードは `project/Engine/<層名>/` にあり、名前空間は `Cake` です。ゲーム固有のコードは `project/Game/` に置き、`GameModule.cpp` の 2 つの関数（シェーダーの登録、コンポーネントの登録）でエンジンに接続します。<br>
@@ -40,6 +40,8 @@ CakeEngine は、**「プロトタイプ作成から本番環境までをもっ�
 | 場所                                             | 内容                                                                                                  |
 | :----------------------------------------------- | :---------------------------------------------------------------------------------------------------- |
 | `project/CakeEngine.slnx`、`CakeEngine.vcxproj`  | Visual Studio のソリューションとプロジェクト                                                          |
+| `project/CakeEngine.Common.props`                | `CakeEngine` と `Tests` で共通のビルド設定                                                            |
+| `project/Tests/`                                 | doctest によるテスト（GPU を使わない部品が対象）。Debug 構成だけでビルドする                          |
 | `project/main.cpp`                               | エントリポイント                                                                                      |
 | `project/Engine/`                                | エンジン本体。層ごとのフォルダ                                                                        |
 | `project/Game/`                                  | ゲーム固有のコード（コンポーネント、シェーダー登録）                                                  |
@@ -48,8 +50,9 @@ CakeEngine は、**「プロトタイプ作成から本番環境までをもっ�
 | `project/ProjectSettings/`                       | プロジェクト設定（`ProjectSettings.json`）                                                            |
 | `project/externals/`                             | 外部ライブラリ（ImGui、ImGuizmo、DirectXTex、nlohmann/json など）                                     |
 | `docs/internal/`                                 | 内部設計と層ごとの設計書                                                                              |
+| `docs/plans/`                                    | これから作るものの設計書とロードマップ（アセットシステム）                                            |
 | `docs/review/`                                   | コードレビューの結果                                                                                  |
-| `.github/workflows/`                             | CI（Debug と Release のビルド、不要ファイルの検査）                                                    |
+| `.github/workflows/`                             | CI（Debug と Release のビルド、テストの実行、層の include の検査、不要ファイルの検査）                 |
 
 ## ビルドと実行
 Visual Studio 2026（プラットフォームツールセット v145）と Windows SDK 10.0 が必要です。`project/CakeEngine.slnx` を開き、x64 の Debug または Release をビルドします。コマンドラインからは CI と同じコマンドでビルドできます。<br>
@@ -65,6 +68,7 @@ msbuild project/CakeEngine.slnx /p:Platform=x64,Configuration=Debug
 
 実行ファイルは `generated/outputs/<構成>/` に出力されます。コード内のパスはすべて `project/` からの相対パスなので、実行時のカレントディレクトリは `project/` にしてください。Visual Studio からデバッグ実行すればそのまま動きます。<br>
 HLSL は起動時に DXC で実行時コンパイルされるため、ビルド後イベントでコピーされる `dxcompiler.dll` と `dxil.dll` が出力フォルダに必要です。CI は C++ しかビルドしないので、シェーダーの誤りは起動して確認します。<br>
+テストは `project/Tests/Tests.vcxproj` を Debug でビルドし、`generated/outputs/Debug/Tests.exe` を実行します。CI の `Tests.yml` も同じ手順です。<br>
 
 実行時に作られるものは次のとおりです。
 | 場所                                        | 内容                                                | Git           |

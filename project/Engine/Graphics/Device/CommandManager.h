@@ -23,6 +23,8 @@ public:
 	void ExecuteAndWait();
 	void ResetForNextFrame();
 
+	void WaitForGPU();
+
 	// Getter
 	ID3D12GraphicsCommandList* GetCommandList() const {
 		return commandList_.Get();
@@ -30,8 +32,12 @@ public:
 	ID3D12CommandQueue* GetCommandQueue() const {
 		return commandQueue_.Get();
 	}
-
-	void WaitForGPU();
+	uint64_t GetLastSignaledFenceValue() const {
+		return fenceValue_;
+	}
+	uint64_t GetCompletedFenceValue() const {
+		return fence_->GetCompletedValue();
+	}
 };
 
 } // namespace Cake

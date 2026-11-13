@@ -513,6 +513,9 @@
     <ClCompile Include="Engine\Platform\Job\JobSystem.cpp">
       <Filter>Engine\Platform\Job</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Device\DeferredReleaseQueue.cpp">
+      <Filter>Engine\Graphics\Device</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Application\Application.h">
@@ -949,6 +952,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Platform\Job\JobSystem.h">
       <Filter>Engine\Platform\Job</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Device\DeferredReleaseQueue.h">
+      <Filter>Engine\Graphics\Device</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

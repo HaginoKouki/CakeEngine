@@ -46,7 +46,7 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 | 1 | `ComScope`、`D3DResourceLeakChecker` | COM を最初に初期化し、最後に D3D のリークを報告する |
 | 2 | `ProjectSettings`、（エディタ）`EditorPreferences`、`EditorCache` | ウィンドウ生成より前に読む |
 | 3 | `WindowApp` | ウィンドウ |
-| 4 | `Platform`、`Graphics`、`Asset`、`Renderer` | 下の層から順に |
+| 4 | `Platform`、`Graphics`、`Asset`、`Renderer` | 下の層から順に。`Platform` が持つ `JobSystem` は `Platform` の破棄で `Shutdown` されるため、ワーカーの停止は `Asset` と `Graphics` の破棄より後になる |
 | 5 | `SceneRenderer`、`SceneManager` | |
 | 6 | （エディタ）`Editor` | ImGui のシャットダウンと描画先の解放を、デバイス破棄より先に走らせるため `Graphics` より後 |
 
@@ -60,8 +60,8 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 | 関数 | 呼ばれる場所 | 内容 |
 | --- | --- | --- |
-| `Game::RegisterGameShaders(ShaderLibrary&)` | `Graphics` 初期化の直後、`Asset` 初期化の前 | ゲーム固有のシェーダー定義を登録する。現状は `Object3D` と `Particle` |
-| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent`、`PlayerComponent`、`SpriteTesterComponent`（スプライトの確認用） |
+| `Game::RegisterGameShaders(ShaderLibrary&)` | `Graphics` 初期化の直後、`Asset` 初期化の前 | ゲーム固有のシェーダー定義を登録する。現状は `Object3D`、`Particle`、`Particle/Additive`（`Particle` の複製で、合成だけを加算にしたもの） |
+| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent`、`PlayerComponent`、`SpriteTesterComponent`（スプライトの確認用）、`DemoPlayerMoveComponent` と `DemoEmissionBurstComponent`（`Assets/ParticleDemo/` のパーティクルデモ用） |
 
 `Game/` の中身は次のとおりです。
 
@@ -69,6 +69,7 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 | --- | --- |
 | `GameModule.h` / `.cpp` | 上記 2 関数の実装 |
 | `Components/` | ゲーム固有のコンポーネント。グローバル名前空間に置き、`CAKE_REFLECT` は `Cake` 名前空間の中で書く |
+| `Components/ParticleDemo/` | パーティクルデモ用。WASD でエミッターを動かす `DemoPlayerMoveComponent` と、Space を押した直後だけ発生させる `DemoEmissionBurstComponent`（`ParticleSystemComponent` を `CAKE_REQUIRE_COMPONENTS` で要求する） |
 | `GameLayer.h` | コライダーの `layer` と `mask` に入れるビット値の一覧（`GameLayer` 名前空間） |
 | `Assets/Shaders/` | ゲーム固有の HLSL（`Object3D`、`Particle`） |
 
@@ -100,6 +101,5 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 ## 未実装・要確認
 
-- リポジトリの `ProjectSettings.json` は `fullscreen` が `true`、`windowTitle` が "CakeEngine_Game" です。Release 構成で起動するとボーダレス全画面になります。
-- `.github/workflows/Development.yml` は、対応する Development 構成が削除された後もファイルとして残っています。
+- リポジトリの `ProjectSettings.json` は `startupScene` が `Assets/ParticleDemo/ParticleDemo.scene`、`fullscreen` が `false`、`windowTitle` が課題の提出用の名前です（`e3df89d` で `Assets/GameScene.scene`、`true`、"CakeEngine_Game" から変わりました）。課題提出のための一時的な値か、今後の既定値かは確認が要ります。
 - `WindowApp::Finalize` は定義されていますが、`Application` から呼ばれていません。ウィンドウは `WM_DESTROY` と `PostQuitMessage` の経路で閉じます。

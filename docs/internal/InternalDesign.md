@@ -1,6 +1,6 @@
 # 内部設計
 
-CakeEngine は、役割ごとに機能を 8 つの層に分けた C++ と DirectX 12 のゲームエンジンです。このページでは、層の並びと依存の規則、起動から 1 フレームが終わるまでの流れ、ビルド構成、層をまたいで守られている設計規則をまとめます。各層の中身は [layers/](layers/) の層ごとのページで説明します。
+CakeEngine は、役割ごとに機能を 8 つの層に分けた C++ と DirectX 12 のゲームエンジンです。このページでは、層の並びと依存の規則、起動から 1 フレームが終わるまでの流れ、ビルド構成、層をまたいで守られている設計規則をまとめます。各層の中身は [layers/](layers/) の層ごとのページで説明します。まだ実装していない計画は [docs/plans/](../plans/) に置き、実装が終わった内容からこのページと各層のページへ書き写します。現在は [AssetSystem.md](../plans/AssetSystem.md)（アセットシステムの作り直し）が進行中です。
 
 このページと各層のページに書かれている「守るべき規則」が、[docs/review/issue.md](../review/issue.md) で「設計規則」と呼んでいるものです。
 
@@ -16,7 +16,7 @@ CakeEngine は、役割ごとに機能を 8 つの層に分けた C++ と Direct
 | Render | シーンを 1 枚の絵にする工程を組み立て、描画命令を発行する | `Renderer`、`SceneRenderer`、描画パス、`CameraView` | [RenderLayer.md](layers/RenderLayer.md) |
 | Asset | モデル・テクスチャ・マテリアルを読み込み、識別子とハンドルで管理する | 各 Manager、`AssetDatabase`、`.meta`、`AssetRef` | [AssetLayer.md](layers/AssetLayer.md) |
 | Graphics | DirectX 12 のデバイス・コマンド・シェーダー・PSO をまとめる | `Graphics`、`DirectXDevice`、`PipelineState`、`ShaderLibrary` | [GraphicsLayer.md](layers/GraphicsLayer.md) |
-| Platform | OS の機能（時間・入力・音・ファイルダイアログ）をエンジン向けに扱う | `Platform`、`Time`、`InputManager`、`SoundManager` | [PlatformLayer.md](layers/PlatformLayer.md) |
+| Platform | OS の機能（時間・入力・音・ファイルダイアログ・ワーカースレッド）をエンジン向けに扱う | `Platform`、`Time`、`InputManager`、`SoundManager`、`JobSystem` | [PlatformLayer.md](layers/PlatformLayer.md) |
 | Foundation | OS や GPU を知らない基礎部品を提供する | 数学、識別子、ログ、シリアライズ、リフレクション | [FoundationLayer.md](layers/FoundationLayer.md) |
 
 層ごとのコードはすべて `project/Engine/<層名>/` にあり、名前空間は `Cake` です。ゲーム固有のコードは `project/Game/` に置き、Engine の外として扱います。
@@ -26,6 +26,8 @@ CakeEngine は、役割ごとに機能を 8 つの層に分けた C++ と Direct
 ### 規則
 
 依存は「上の層から下の層へ」の一方向です。下の層が上の層を参照すると、層の境界が崩れて変更の影響範囲が広がるため、禁止しています。各層の入口となるクラス（`Platform.h`、`Graphics.h`、`Asset.h`）のヘッダコメントにも、同じ規則が書かれています。
+
+`#include` の向きは CI の `CheckLayerIncludes.yml` が検査します。層ごとに include してはいけない `Engine/<層>/` を探し、`.github/layer-include-exceptions.txt` に無いものがあれば失敗します。例外の一覧は「まだ残っている層違反の一覧」で、解消した違反の行が残っていても失敗します。この検査は Render 層が Scene 層を include することを禁止し、逆は許します（Scene が Render の上）。`BuildConfig.h` と `ProjectSettings.h` への include は検査の対象外です。
 
 ### 実装上の依存
 
@@ -51,7 +53,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | Render → Scene | `OpaquePass` → `RenderSystem`、`LightSetupPass` → `LightSystem`、`GizmoPass` → `GizmoSystem`、`SpritePass` → `SpriteSystem`、`SceneRenderer` → `CameraSystem`、`ParticlePass` → `Scene` と各 Particle コンポーネント |
 | Scene → Render | `CameraSystem` → `CameraView`、`LightSystem` → `Light.h`、`GizmoSystem` → `GizmoDrawList`、`SpriteSystem` → `SpriteDrawList`、`RenderSystem` → `Renderer` |
 
-ヘッダ単位では前方宣言で循環を避けていますが、`.cpp` 単位では相互に参照しています。どちらの層を上とみなすかは、実装からは決められません。
+ヘッダ単位では前方宣言で循環を避けていますが、`.cpp` 単位では相互に参照しています。どちらの層を上とみなすかは、実装からは決められません。[docs/plans/AssetSystem.md](../plans/AssetSystem.md) は Scene を上とし、Scene 層が描画リストを作って Render 層へ渡す形（判断 9、12 章）で Render → Scene の参照をなくす計画です。CI の `CheckLayerIncludes` もこの向きで検査し、現状の Render → Scene の include は例外一覧に載せています。
 
 ### Asset 層と Graphics 層の順序
 
@@ -67,7 +69,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | 2 | `ProjectSettings` の読み込み | 読めなくても既定値で続行する。エディタ構成では初回にファイルを作る |
 | 3 | （エディタ）`EditorPreferences` と `EditorCache` の読み込み | ウィンドウの位置と大きさを復元するため、ウィンドウ生成より前に読む |
 | 4 | `WindowApp` でウィンドウを生成し、クライアント領域の大きさを確定する | 0 のままではスワップチェーンを作れないため、0 なら設定値で補う |
-| 5 | `Platform` の初期化（タイマー分解能を 1 ms に上げ、`Time` と `InputManager` を初期化）と、`InputManager` を `WindowApp` へ登録 | WndProc が受けた入力を `InputManager` へ転送する。分解能はフレーム末尾の待機を正確にするために上げる |
+| 5 | `Platform` の初期化（タイマー分解能を 1 ms に上げ、`Time` と `InputManager` を初期化し、`JobSystem` のワーカーを起動）と、`InputManager` を `WindowApp` へ登録 | WndProc が受けた入力を `InputManager` へ転送する。分解能はフレーム末尾の待機を正確にするために上げる。ワーカーは `DebugLog` がメインスレッドを決めた後に起動する |
 | 6 | `Graphics` の初期化 | デバイス、コマンド、ヒープ、スワップチェーン、シェーダー、PSO を作る |
 | 7 | `Game::RegisterGameShaders` | マテリアルの読み込みでシェーダー名を解決するため、Asset より前に登録する |
 | 8 | `Asset` の初期化 | `Assets/` 以下を走査して `.meta` と索引を作る |
@@ -85,7 +87,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 
 | 段階 | 共通 | エディタ構成（Debug） | リリース構成（Release） |
 | --- | --- | --- | --- |
-| 1 | `DebugLog::PumpMainThread` でワーカーのログを表示用一覧へ移す | | |
+| 1 | `DebugLog::PumpMainThread` でワーカーのログを表示用一覧へ移し、`JobSystem::PumpMainThread` で溜まった完了処理を実行する（1 フレーム 2 ms まで。ただし最低 1 件） | | |
 | 2 | `Platform::BeginFrame` で時間を測り、入力のスナップショットを取る | | |
 | 3 | | `Editor::PrepareRenderTargets` で 2 枚の描画先の遅延リサイズを適用する | |
 | 4 | `CheckResize` でウィンドウサイズの変化を調べ、変わっていればスワップチェーンを作り直す | | 深度バッファもクライアント領域に合わせて作り直す |
@@ -127,18 +129,23 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | `USE_IMGUI` | ImGui ライブラリを使うか（include、リンク、API 呼び出しの可否） | 純粋に ImGui API を叩くだけの箇所 |
 | `ENABLE_EDITOR` | エディタ機能を有効にするか | `Editor` クラス、ビューポート、インスペクタなど、エディタ機能そのもの |
 
-ソリューションには `CakeEngine`、`externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj`、`externals/imgui/imgui.vcxproj` の 3 プロジェクトが入り、DirectXTex と imgui は静的ライブラリとして一緒にビルドされます。DirectXTex はプロジェクト参照でリンクし、imgui は追加のライブラリ ディレクトリと追加の依存ファイル（`imgui.lib`）でリンクします。imgui プロジェクトには ImGui 本体、DX12 と Win32 のバックエンド、ImGuizmo が入っています。ビルド後イベントで Windows SDK の `dxcompiler.dll` と `dxil.dll` を出力フォルダへコピーします。HLSL は起動時に DXC で実行時コンパイルされるため、この 2 つが無いと起動できません。ビルドの手順と実行時の前提は [README.md](../../README.md) にあります。
+ソリューションには `CakeEngine`、`externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj`、`externals/imgui/imgui.vcxproj`、`Tests/Tests.vcxproj` の 4 プロジェクトが入り、DirectXTex と imgui は静的ライブラリとして一緒にビルドされます。`Tests` は Debug 構成だけがビルドされ、Release 構成では外れています。`CakeEngine.vcxproj` と `Tests.vcxproj` は `project/CakeEngine.Common.props`（C++20、`/utf-8`、警告のエラー扱い、`project/` を起点にした include、`generated/` への出力、構成ごとの定義）を読み込みます。ただし `CakeEngine.vcxproj` は同じ項目を自分でも定義しており、そちらが優先されます（[docs/review/issue.md](../review/issue.md) を参照）。DirectXTex はプロジェクト参照でリンクし、imgui は追加のライブラリ ディレクトリと追加の依存ファイル（`imgui.lib`）でリンクします。imgui プロジェクトには ImGui 本体、DX12 と Win32 のバックエンド、ImGuizmo が入っています。ビルド後イベントで Windows SDK の `dxcompiler.dll` と `dxil.dll` を出力フォルダへコピーします。HLSL は起動時に DXC で実行時コンパイルされるため、この 2 つが無いと起動できません。ビルドの手順と実行時の前提は [README.md](../../README.md) にあります。
+
+### テスト
+
+`project/Tests/` は doctest を使うコンソールの exe で、どの層にも属しません。テストの対象にする `Engine/` の `.cpp` だけを `Tests.vcxproj` に入れるため、その `.cpp` が上の層の関数を呼んでいればリンクで失敗します。現在の対象は Foundation の識別子（`Guid`、`LocalId`、`AssetId`）、Platform の `JobSystem`、Graphics の `DeferredReleaseQueue` です。GPU を使う部分はテストしません。テストは各フォルダの `*Tests.cpp` に書き、`main.cpp` には足しません。
 
 ### CI
 
-`.github/workflows/` に、`main` への push で走るワークフローがあります。
+`.github/workflows/` に、`main` への push で走るワークフローがあります。`Tests.yml` と `CheckLayerIncludes.yml` は pull_request でも走ります。
 
 | ワークフロー | ランナー | 内容 |
 | --- | --- | --- |
 | `DebugBuild.yml` | `windows-2025-vs2026` | Debug 構成を msbuild でビルドする |
 | `ReleaseBuild.yml` | `windows-2025-vs2026` | Release 構成を msbuild でビルドする |
 | `CheckUnwantedFiles.yml` | `ubuntu-latest` | `.pdb`、`.dmp`、`generated/`、`.vs/` などの混入を検索し、見つかれば失敗する |
-| `Development.yml` | `windows-2025-vs2026` | Development 構成をビルドする。対応する構成はプロジェクトから削除済みで、このファイルだけが残っている |
+| `Tests.yml` | `windows-2025-vs2026` | `Tests.vcxproj` を Debug 構成でビルドし、`Tests.exe` を実行する。失敗したテストがあれば失敗する |
+| `CheckLayerIncludes.yml` | `ubuntu-latest` | 層の規則に反する `#include` を検索し、`.github/layer-include-exceptions.txt` に無いものがあれば失敗する。例外に残った解消済みの行も失敗にする |
 
 CI がビルドするのは C++ だけです。HLSL は実行時にコンパイルされるため、シェーダーの誤りは CI では検出されません。
 
@@ -153,6 +160,7 @@ CI がビルドするのは C++ だけです。HLSL は実行時にコンパイ�
 | コンポーネントはデータのみ | コンポーネントは仮想関数を持たない素の構造体で、処理は System が担当する | Scene 層全体 |
 | 読み込み失敗で落とさない | 失敗時はエラー用のテクスチャやマテリアルを返し、欠損が見える状態で動き続ける | `TextureManager`、`MaterialManager`、`JsonFile` |
 | 設定の置き場所を分ける | チームで共有する値は `ProjectSettings`、個人の設定は `EditorPreferences`、前回の状態は `EditorCache` | Application 層、Editor 層 |
+| 重い処理はワーカー、反映はメインスレッド | `JobSystem` のワーカーはファイルの読み込みや変換だけを行い、アセットの格納基盤、GPU、ImGui、シーンに触るのは完了処理の中（メインスレッド）だけ。`DebugLog` も同じ形で、ワーカーは保留キューに積むだけにする | `JobSystem`、`DebugLog` |
 
 ## コーディング規約
 

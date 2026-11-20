@@ -134,3 +134,5 @@ Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(
 - `Time::targetFrameRate_` は 60 で固定です。変える関数も `ProjectSettings` の項目も無く、`std::optional` の「未設定なら待たない」経路は外から選べません。
 - `Time::initialTime_` は `Initialize` で受け取って保持していますが、使っている箇所はありません。
 - `JobSystem::PumpMainThread` に渡す時間の上限は、`Application.cpp` の `kJobCompletionBudget`（2 ms）です。仮の値で、フェーズ 1 の手順 9 で計測して決めます。
+- `JobSystem::Shutdown` は `Platform` の破棄で呼ばれます。`Application` のメンバ順では `Platform` が `Graphics` や `Asset` より先に宣言されているため、ワーカーの停止はそれらの破棄より後になります。作業（`work`）が上位層のオブジェクトを指すポインタを捕まえてよいかは決まっていません。現状 `Submit` の呼び出し元はありません。
+- `Submit` は空の `std::function` も受け付けますが、`PumpMainThread` と `WaitFor` は検査せずに完了処理を呼びます。完了処理が要らない作業には `[] {}` を渡します。

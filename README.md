@@ -46,10 +46,13 @@ CakeEngine は、**「プロトタイプ作成から本番環境までをもっ�
 | `project/Assets/`                                | ゲームのアセット（モデル、テクスチャ、マテリアル、シーン、ゲーム用シェーダー）。`AssetDatabase` が走査する |
 | `project/EngineResources/`                       | エンジンが使うシェーダー、フォント、テクスチャ                                                        |
 | `project/ProjectSettings/`                       | プロジェクト設定（`ProjectSettings.json`）                                                            |
-| `project/externals/`                             | 外部ライブラリ（ImGui、ImGuizmo、DirectXTex、nlohmann/json など）                                     |
+| `project/externals/`                             | 外部ライブラリ（ImGui、ImGuizmo、DirectXTex、nlohmann/json、doctest など）                            |
+| `project/Tests/`                                 | doctest によるテスト（Debug 構成のみ）。対象にする `Engine/` の `.cpp` を直接リンクする               |
+| `project/CakeEngine.Common.props`                | `CakeEngine.vcxproj` と `Tests.vcxproj` が共有するビルド設定                                          |
 | `docs/internal/`                                 | 内部設計と層ごとの設計書                                                                              |
+| `docs/plans/`                                    | まだ実装していない計画（アセットシステムの作り直し）                                                  |
 | `docs/review/`                                   | コードレビューの結果                                                                                  |
-| `.github/workflows/`                             | CI（Debug と Release のビルド、不要ファイルの検査）                                                    |
+| `.github/workflows/`                             | CI（Debug と Release のビルド、テストの実行、層の規則に反する include の検査、不要ファイルの検査）      |
 
 ## ビルドと実行
 Visual Studio 2026（プラットフォームツールセット v145）と Windows SDK 10.0 が必要です。`project/CakeEngine.slnx` を開き、x64 の Debug または Release をビルドします。コマンドラインからは CI と同じコマンドでビルドできます。<br>
@@ -65,6 +68,7 @@ msbuild project/CakeEngine.slnx /p:Platform=x64,Configuration=Debug
 
 実行ファイルは `generated/outputs/<構成>/` に出力されます。コード内のパスはすべて `project/` からの相対パスなので、実行時のカレントディレクトリは `project/` にしてください。Visual Studio からデバッグ実行すればそのまま動きます。<br>
 HLSL は起動時に DXC で実行時コンパイルされるため、ビルド後イベントでコピーされる `dxcompiler.dll` と `dxil.dll` が出力フォルダに必要です。CI は C++ しかビルドしないので、シェーダーの誤りは起動して確認します。<br>
+テストは `project/Tests/Tests.vcxproj` を Debug でビルドし、リポジトリのルートから `generated/outputs/Debug/Tests.exe` を実行します。CI の `Tests.yml` と同じ手順です。<br>
 
 実行時に作られるものは次のとおりです。
 | 場所                                        | 内容                                                | Git           |
@@ -104,5 +108,5 @@ HLSL は起動時に DXC で実行時コンパイルされるため、ビルド�
 
 ## 開発の状態
 - Windows 専用です。Platform 層と Graphics 層が Win32 と DirectX 12 に直接依存しています。
-- アセットのインポートパイプライン（`Library/` キャッシュ）は型定義のみで、まだ動いていません。モデルの読み込みは OBJ のみ対応です。
+- アセットのインポートパイプライン（`Library/` キャッシュ）は型定義のみで、まだ動いていません。モデルの読み込みは OBJ のみ対応です。作り直しの設計と進め方は [docs/plans/AssetSystem.md](docs/plans/AssetSystem.md) にあり、フェーズ 1（JobSystem、DeferredReleaseQueue、テストと CI）が進行中です。
 - 設計書との食い違いが見つかった場合は、実装に合わせて設計書を更新してください。

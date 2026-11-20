@@ -176,7 +176,7 @@ Asset 層は「ファイルを読み込んで GPU リソースを作り、実行
 ## 未実装・要確認
 
 - `generation` は将来のアンロード用の予約枠で、現状は常に 1 です。
-- `Import/`、`Artifact/`、`HandlePool` は型定義のみです。ヘッダコメントに「フェーズ 2」「フェーズ 5」「仕様書 12 章」などの参照がありますが、該当する計画書はリポジトリにありません。
+- `Import/`、`Artifact/`、`HandlePool` は型定義のみです。ヘッダコメントの「フェーズ 2」「フェーズ 5」「仕様書 12 章」は [docs/plans/AssetSystem.md](../../plans/AssetSystem.md) を指します。計画書はこれらを新しい構成で作り直し、フェーズ 5 で削除する予定です。
 - `AssetDatabase.h` の `AssetType` と `AssetTypes.h` の `ImporterType` は、どちらもファイルの分類を表します。`RegisterAsset` が `ToImporterType` で変換して `.meta` に書いており、2 つの列挙が並存しています。
 - `.gltf`、`.glb`、`.fbx` は索引に載りますが、読み込みは OBJ のみ対応です。
 - `TextureManager::RegisterTexture` はテクスチャ 1 枚ごとに `ExecuteAndWait` を呼びます。起動時のアップロードは逐次です。

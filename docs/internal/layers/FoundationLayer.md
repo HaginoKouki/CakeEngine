@@ -104,7 +104,7 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 | 実装上の外部依存 | nlohmann/json（`JsonFile.h`）、Win32（`DebugLog.h`、`Guid.cpp`、`Convert.cpp`） |
 | 規則との食い違い | `Reflection/TypeInfo.h` が Asset 層の `AssetRef.h`、`MaterialHandle.h`、`ModelHandle.h`、`TextureHandle.h` と、Scene 層の `GameObjectId.h` を include している。`PropertyType` の `AssetRef～` と `EntityRef` に対応する `PropertyTypeOf` の特殊化のため |
 | 規則との食い違い | `Debug/DebugLog.h` と `Utility/Convert.cpp` が `Windows.h` に依存している |
-| コメントの不一致 | `Identity/AssetId.h` のコメントに「AssetPipeline 層」という記述があるが、該当する層は存在しない |
+| コメントの不一致 | `Identity/AssetId.h` のコメントに「AssetPipeline 層」という記述があるが、該当する層はまだ無い。[docs/plans/AssetSystem.md](../../plans/AssetSystem.md) のフェーズ 3 で作る予定の層を指している |
 
 ## 守るべき規則
 
@@ -145,11 +145,10 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 ### ログ
 
 - `Log` 系はどのスレッドから呼んでもよい。`GetLogEntry` と `PumpMainThread` はメインスレッド専用。
-- 終了時までにワーカースレッドを停止する。
+- 終了時までにワーカースレッドを停止する。Platform 層の `JobSystem::Shutdown` がこれを担う。
 
 ## 未実装・要確認
 
 - `BinaryStream` を使う Import 系の型（Asset 層）は定義のみで、まだ接続されていません。
-- `DebugLog.h` のコメントは「JobSystem の終了処理で保証する」と書いていますが、JobSystem は存在しません。
 - `Easing.h` の `Lerp` は `Gradient` が使っていますが、`Ease` 系、`Slerp`、`CatmullRom` を使っている箇所はエンジン内にありません。`VectorMath.h` の `Rotate`、`Distance`、`Clamp`、角度の変換、`QuaternionMath.h` の全関数、`Quaternion` の静的関数も同様に呼び出し元がありません。
 - `Math::Inverse` は `Matrix4x4` だけ行列式 0 を検査して `Zero` を返し、`Matrix2x2` と `Matrix3x3` は検査せずに 0 で割ります。

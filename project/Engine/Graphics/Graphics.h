@@ -15,6 +15,7 @@
 
 #include "Engine/Graphics/Device/DirectXDevice.h"
 #include "Engine/Graphics/Device/CommandManager.h"
+#include "Engine/Graphics/Device/DeferredReleaseQueue.h"
 #include "Engine/Graphics/Descriptor/DescriptorHeap.h"
 #include "Engine/Graphics/Descriptor/SrvManager.h"
 #include "Engine/Graphics/RenderTarget/DepthBuffer.h"
@@ -31,6 +32,7 @@ class Graphics {
 	CommandManager commandManager_;
 	DescriptorHeap rtvHeap_, dsvHeap_;
 	SrvManager srvManager_;
+	DeferredReleaseQueue deferredReleaseQueue_;	// srvManager より先に解放する.
 	SwapChain swapChain_;
 	ShaderCompiler shaderCompiler_;
 	PipelineState pipelineState_;
@@ -39,7 +41,13 @@ class Graphics {
 	PerformanceProfiler profiler_;
 
 public:
+	~Graphics();
 	void Initialize(HWND hwnd, uint32_t width, uint32_t height);
+
+	// フレームの先頭。GPU が使い終わったリソースを解放する.
+	void BeginFrame();
+	// フレームの終わり（ExecuteAndWait の後）。このフレームの解放の予約を締める.
+	void EndFrame();
 
 	// Renderer::Resize も併せて呼ぶこと（ビューポート／シザーの更新はそちらの担当）
 	void Resize(uint32_t width, uint32_t height);
@@ -49,6 +57,7 @@ public:
 	CommandManager* GetCommandManager() { return &commandManager_; }
 	DescriptorHeap* GetRtvHeap() { return &rtvHeap_; }
 	SrvManager* GetSrvManager() { return &srvManager_; }
+	DeferredReleaseQueue* GetDeferredReleaseQueue() { return &deferredReleaseQueue_; }
 	DescriptorHeap* GetDsvHeap() { return &dsvHeap_; }
 	SwapChain* GetSwapChain() { return &swapChain_; }
 	ShaderCompiler* GetShaderCompiler() { return &shaderCompiler_; }

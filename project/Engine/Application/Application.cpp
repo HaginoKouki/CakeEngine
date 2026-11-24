@@ -220,7 +220,13 @@ void Application::Initialize(HINSTANCE hInstance) {
 	platform_.GetTime().Reset();
 
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
+
+	graphics_.GetDeferredReleaseQueue()->Enqueue([] {
+		DebugLog::GetInstance().Log(LogLevel::Info, "Experiment", "遅延解放の予約が実行されました");
+	});
 }
+
+
 
 void Application::Run() {
 	while (windowApp_.ProcessMessage()) {
@@ -278,6 +284,9 @@ void Application::RunFrame() {
 	}
 #endif
 
+	// Graphics層のフレーム開始.
+	graphics_.BeginFrame();
+
 	// Render層のフレーム開始.
 	renderer_.BeginFrame(graphics_.GetCommandManager());
 	renderer_.SetReferenceResolution(settings_.referenceWidth, settings_.referenceHeight);
@@ -307,6 +316,9 @@ void Application::RunFrame() {
 
 	// Render層のフレーム終了.
 	renderer_.EndFrame(graphics_.GetCommandManager());
+
+	// Graphics層のフレーム終了.
+	graphics_.EndFrame();
 
 #ifdef ENABLE_EDITOR
 	/* Debugビルドのみ */

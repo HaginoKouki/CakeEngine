@@ -2,6 +2,14 @@
 
 namespace Cake {
 
+Graphics::~Graphics() {
+	// Initialize が呼ばれている場合のみ、GPU を待って解放する.
+	if (device_.GetD3D12Device() != nullptr) {
+		commandManager_.WaitForGPU();
+		deferredReleaseQueue_.ReleaseAll();
+	}
+}
+
 void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
 	// 1. Device.
 	device_.Initialize();
@@ -39,6 +47,15 @@ void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
 	profiler_.Initialize(device_.GetD3D12Device(), &commandManager_);
 }
 
+void Graphics::BeginFrame() {
+	// GPU が使い終わったリソースを解放する.
+	deferredReleaseQueue_.ReleaseCompleted(commandManager_.GetCompletedFenceValue());
+}
+
+void Graphics::EndFrame() {
+	// このフレームの解放の予約を締める.
+	deferredReleaseQueue_.CloseFrame(commandManager_.GetLastSignaledFenceValue());
+}
 
 void Graphics::Resize(uint32_t width, uint32_t height) {
 	commandManager_.WaitForGPU();

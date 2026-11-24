@@ -41,11 +41,13 @@ void ImGuiManager::Initialize(
 	DirectXDevice* device,
 	CommandManager* commandManager,
 	SwapChain* swapChain,
-	SrvManager* srvManager
+	SrvManager* srvManager,
+	DeferredReleaseQueue* deferredReleaseQueue
 ) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
 	srvManager_ = srvManager;
+	deferredReleaseQueue_ = deferredReleaseQueue;
 	hwnd_ = hwnd;
 
 	IMGUI_CHECKVERSION();
@@ -81,15 +83,11 @@ void ImGuiManager::Initialize(
 
 	ImGui_ImplWin32_Init(hwnd);
 
-	// SrvManager から ImGui 用の枠を確保し、ハンドルを控えておく. コールバックはこの配列だけを見る.
-	for (uint32_t i = 0; i < kSrvImGuiCount; ++i) {
-		uint32_t index = srvManager_->Allocate();
-		srvSlots_[i].cpuHandle = srvManager_->GetCPUHandle(index);
-		srvSlots_[i].gpuHandle = srvManager_->GetGPUHandle(index);
-		srvSlots_[i].inUse = false;
-	}
+	// 予備の番号を一つ貰う.
+	fallbackSrvIndex_ = srvManager_->Allocate();
 
 	ImGui_ImplDX12_InitInfo initInfo = {};
+
 	initInfo.Device = device->GetD3D12Device();                // DX12デバイス.
 	initInfo.CommandQueue = commandManager->GetCommandQueue(); // DX12コマンドキュー.
 	initInfo.NumFramesInFlight = swapChain->GetBufferCount();  // バックバッファの数.
@@ -97,33 +95,35 @@ void ImGuiManager::Initialize(
 	initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;                  // DSVのフォーマット. ImGuiは深度なしのパスで描くので未設定.
 	initInfo.UserData = this;                                  // コールバックへ渡す自分自身.
 	initInfo.SrvDescriptorHeap = srvManager_->GetHeap();       // SRV用ディスクリプタヒープ.
+	// テクスチャを作る際に呼ばれるコールバック関数.
 	initInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) {
-		// SRV確保関数. ImGui用に確保した枠のうち、空いているものを1つ渡す.
-		// フォントアトラスを作り直すと、古いテクスチャが破棄されるまで一時的に複数枚が同時に存在する.
 		ImGuiManager* self = static_cast<ImGuiManager*>(info->UserData);
-		for (auto& slot : self->srvSlots_) { 
-			if (!slot.inUse) {
-				slot.inUse = true;
-				*out_cpu_handle = slot.cpuHandle;
-				*out_gpu_handle = slot.gpuHandle;
-				return;
-			}
+		// 番号をもらう.
+		uint32_t index = self->srvManager_->Allocate();
+		// 無効値ならフォールバックを代わりに使う（ログは SrvManager が出している）.
+		if (index == SrvManager::kInvalidIndex) {
+			index = self->fallbackSrvIndex_;
 		}
-		IM_ASSERT(false && "ImGui用のSRV枠が足りません. ImGuiManager::kSrvImGuiCount を増やしてください.");
-		// assert が無効な構成でも不正なハンドルを返さないよう、先頭の枠を渡す.
-		*out_cpu_handle = self->srvSlots_[0].cpuHandle;
-		*out_gpu_handle = self->srvSlots_[0].gpuHandle;
+		// その番号の CPU ハンドルと GPU ハンドルを、out_cpu_handle と out_gpu_handle に書く.
+		*out_cpu_handle = self->srvManager_->GetCPUHandle(index);
+		*out_gpu_handle = self->srvManager_->GetGPUHandle(index);
 	};
+	// テクスチャを捨てる際に呼ばれるコールバック関数.
 	initInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE) {
-		// SRV解放関数. 返された枠を空きに戻す.
 		ImGuiManager* self = static_cast<ImGuiManager*>(info->UserData);
-		for (auto& slot : self->srvSlots_) {
-			if (slot.cpuHandle.ptr == cpu_handle.ptr) {
-				slot.inUse = false;
-				return;
-			}
+		// GetIndexFromCPUHandle で、cpu_handle を番号に戻す.
+		uint32_t index = self->srvManager_->GetIndexFromCPUHandle(cpu_handle);
+		// 予備の番号なら、何もせずに return する（予備は Free しない）.
+		if (index == self->fallbackSrvIndex_) {
+			return;
 		}
-		IM_ASSERT(false && "ImGui用に確保した枠ではないSRVが解放されました.");
+		// kInvalidIndex なら、IM_ASSERT で止めて return する（このヒープのハンドルではない）.
+		if (index == SrvManager::kInvalidIndex) {
+			IM_ASSERT(false);
+			return;
+		}
+		// deferredReleaseQueue_ に、srvManager_->Free(番号) を呼ぶラムダを Enqueue する.
+		self->deferredReleaseQueue_->Enqueue([srvManager = self->srvManager_, index]() { srvManager->Free(index); });
 	};
 	ImGui_ImplDX12_Init(&initInfo);
 

@@ -39,6 +39,9 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(uint32_t index) const { return heap_.GetGPUHandle(index); }
 	ID3D12DescriptorHeap* GetHeap() const { return heap_.GetHeap(); }
 
+	// CPU ハンドルから番号を求める。このヒープのハンドルでなければ kInvalidIndex を返す.
+	uint32_t GetIndexFromCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle) const;
+
 	// 使用済みの数。デバッグ表示で、番号が増え続けていないかを確かめるのに使う.
 	uint32_t GetUsedCount() const { return indices_.GetUsedCount(); }
 	uint32_t GetPeakUsedCount() const { return indices_.GetPeakUsedCount(); }

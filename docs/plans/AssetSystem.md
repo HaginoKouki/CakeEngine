@@ -97,7 +97,7 @@ Debug は EditorArtifactProvider、Release は PackageArtifactProvider を通し
 - Graphics 層
   - Engine/Graphics/Upload/（新規フォルダ）：UploadQueue
   - Engine/Graphics/Device/（既存）：DeferredReleaseQueue。CommandManager にフェンス値の取得口を足す
-  - Engine/Graphics/Descriptor/（既存）：SrvManager に空きリストと統計を足す（新しいクラスは作らない）
+  - Engine/Graphics/Descriptor/（既存）：SrvManager に空きリストと統計を足す（SrvManager に代わるクラスは作らない）。番号の管理だけを IndexFreeList に分け、SrvManager が持つ。D3D12 を知らないので、Tests から GPU なしで確かめられる
 - Asset 層（実行時側）
   - Engine/Asset/AssetTypes.h（既存）：ObjectType だけを残し、AudioClip を足す
   - Engine/Asset/Core/（新規フォルダ）：AssetHandle、AssetStorage、AssetManager、AssetLoader、IArtifactProvider、AssetRef、LoadGroup
@@ -426,7 +426,8 @@ GPU への転送は UploadQueue、解放は DeferredReleaseQueue、SRV の番号
 
 **SrvManager（Graphics 層、Engine/Graphics/Descriptor/、判断7）**
 
-- 新しいクラスは作らず、今の SrvManager に Free（空きリストへの返却）を足す。Free は DeferredReleaseQueue を通して呼ぶ
+- SrvManager に代わるクラスは作らず、今の SrvManager に Free（空きリストへの返却）を足す。Free は DeferredReleaseQueue を通して呼ぶ
+- 空きリストと統計は IndexFreeList（同じフォルダ）に分け、SrvManager が持つ。CPU ハンドルから番号を求める GetIndexFromCPUHandle は、ヒープの並び方を知る SrvManager に置く
 - 二重解放を検出し、使用数と最大使用数を数える（GraphicsDebugWindow で表示する）
 - 容量は定数にし、初期値は 4096 とする。今の 512 はテクスチャ1枚に2つ使うため約 250 枚で尽きる。値はフェーズ1で計測して見直す
 - 尽きたときは Release でも無効な番号を返してログを出す（今は assert だけで、Release ではヒープの外を指す）。番号を取れなかったテクスチャは、常駐の Error テクスチャの番号を使う

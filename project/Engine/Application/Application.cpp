@@ -220,10 +220,6 @@ void Application::Initialize(HINSTANCE hInstance) {
 	platform_.GetTime().Reset();
 
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
-
-	graphics_.GetDeferredReleaseQueue()->Enqueue([] {
-		DebugLog::GetInstance().Log(LogLevel::Info, "Experiment", "遅延解放の予約が実行されました");
-	});
 }
 
 

@@ -35,6 +35,8 @@ TEST_CASE("DeferredReleaseQueue: フレームの途中でフェンスが進ん�
 	queue.Enqueue([&released]() { ++released; });
 	// ▼ フレームの終わりの番号は 6 として、CloseFrame(6) で締める.
 	queue.CloseFrame(6);
+	// ▼ 締めたあとも、2つとも解放待ちで残っていることを確かめる（GetPendingCount が 2）.
+	CHECK(queue.GetPendingCount() == 2);
 	// ▼ ReleaseCompleted(5) では、どちらもまだ解放されないことを確かめる.
 	queue.ReleaseCompleted(5);
 	CHECK(released == 0);

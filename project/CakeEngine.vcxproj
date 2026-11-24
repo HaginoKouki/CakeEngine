@@ -61,6 +61,7 @@
     <ClCompile Include="Engine\Graphics\Buffer\FrameVertexBuffer.cpp" />
     <ClCompile Include="Engine\Graphics\Buffer\GPUResourceUtility.cpp" />
     <ClCompile Include="Engine\Graphics\Descriptor\DescriptorHeap.cpp" />
+    <ClCompile Include="Engine\Graphics\Descriptor\IndexFreeList.cpp" />
     <ClCompile Include="Engine\Graphics\Descriptor\SrvManager.cpp" />
     <ClCompile Include="Engine\Graphics\Device\CommandManager.cpp" />
     <ClCompile Include="Engine\Graphics\Device\DeferredReleaseQueue.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="Engine\Graphics\Buffer\FrameVertexBuffer.h" />
     <ClInclude Include="Engine\Graphics\Buffer\GPUResourceUtility.h" />
     <ClInclude Include="Engine\Graphics\Descriptor\DescriptorHeap.h" />
+    <ClInclude Include="Engine\Graphics\Descriptor\IndexFreeList.h" />
     <ClInclude Include="Engine\Graphics\Descriptor\SrvManager.h" />
     <ClInclude Include="Engine\Graphics\Device\CommandManager.h" />
     <ClInclude Include="Engine\Graphics\Device\DeferredReleaseQueue.h" />

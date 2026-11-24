@@ -525,6 +525,9 @@
     <ClCompile Include="Engine\Graphics\Device\DeferredReleaseQueue.cpp">
       <Filter>Engine\Graphics\Device</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Descriptor\IndexFreeList.cpp">
+      <Filter>Engine\Graphics\Descriptor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Application\Application.h">
@@ -970,6 +973,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Device\DeferredReleaseQueue.h">
       <Filter>Engine\Graphics\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Descriptor\IndexFreeList.h">
+      <Filter>Engine\Graphics\Descriptor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

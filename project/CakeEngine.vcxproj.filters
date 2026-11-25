@@ -208,6 +208,9 @@
     <Filter Include="Engine\Graphics\Upload">
       <UniqueIdentifier>{cdf38b2e-faf4-4e5e-8c42-5cbc14e66edf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Editor\Debug">
+      <UniqueIdentifier>{92d75ee7-90c1-4d1c-a49a-d9b21e6cd777}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -536,6 +539,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Upload\UploadQueue.cpp">
       <Filter>Engine\Graphics\Upload</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Debug\GraphicsDebugWindow.cpp">
+      <Filter>Engine\Editor\Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -991,6 +997,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Upload\UploadQueue.h">
       <Filter>Engine\Graphics\Upload</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Debug\GraphicsDebugWindow.h">
+      <Filter>Engine\Editor\Debug</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -113,6 +113,20 @@ void JobSystem::PumpMainThread(std::chrono::microseconds budget) {
 	}
 }
 
+size_t JobSystem::GetQueuedCount() const {
+	std::lock_guard lock(mutex_);
+	size_t result = 0;
+	for (auto& queue : queues_) {
+		result += queue.size();
+	}
+	return result;
+}
+
+size_t JobSystem::GetPendingCompletionCount() const {
+	std::lock_guard lock(mutex_);
+	return completions_.size();
+}
+
 void JobSystem::WorkerMain(uint32_t index) {
 	const HRESULT comResult = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 

@@ -446,3 +446,42 @@ TEST_CASE("JobSystem: Shutdown のあとの Submit は受け付けない") {
 	JobHandle handle = jobSystem.Submit(JobPriority::Normal, []() {}, []() {});
 	CHECK_FALSE(handle.IsValid());
 }
+TEST_CASE("JobSystem: キューの長さを数えられる") {
+	JobSystem jobSystem;
+	jobSystem.Initialize(1);
+
+	std::atomic<bool> gateStarted = false;  // 止めの作業が始まったか.
+	std::atomic<bool> gateReleased = false; // 止めの作業に出す合図.
+	JobHandle gate = jobSystem.Submit(
+		JobPriority::Normal,
+		[&] {
+			gateStarted = true;
+			while (!gateReleased) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+		},
+		[] {}
+	);
+	for (size_t i = 0; i < 5000; i++) {
+		if (gateStarted) {
+			break;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+
+	JobHandle handles[3];
+	handles[0] = jobSystem.Submit(JobPriority::Normal, []() {}, []() {});
+	handles[1] = jobSystem.Submit(JobPriority::Normal, []() {}, []() {});
+	handles[2] = jobSystem.Submit(JobPriority::Normal, []() {}, []() {});
+	CHECK(jobSystem.GetQueuedCount() == 3);
+
+	gateReleased = true;
+	jobSystem.WaitFor(gate);
+	jobSystem.WaitFor(handles[0]);
+	jobSystem.WaitFor(handles[1]);
+	jobSystem.WaitFor(handles[2]);
+
+	CHECK(jobSystem.GetQueuedCount() == 0);
+	CHECK(jobSystem.GetPendingCompletionCount() == 0);
+	jobSystem.Shutdown();
+}

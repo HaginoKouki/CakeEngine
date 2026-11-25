@@ -71,8 +71,8 @@ private:
 	// Initialize を呼んだスレッド（メインスレッド）の番号.
 	std::thread::id mainThreadId_;
 
-	// 作業キューと完了処理キューを守るカギ.
-	std::mutex mutex_;
+	// 作業キューと完了処理キューを守るカギ。const の getter からも lock するので mutable.
+	mutable std::mutex mutex_;
 	// 作業が積まれた、または止める知らせ.
 	std::condition_variable workAvailable_;
 	// 作業が1つ終わった知らせ。WaitFor が待つ.
@@ -131,6 +131,11 @@ public:
 	/// </summary>
 	/// <returns>ワーカーの本数（メインスレッドを除く）</returns>
 	static uint32_t ComputeWorkerCount(uint32_t hardwareConcurrency) { return hardwareConcurrency > 1 ? hardwareConcurrency - 1 : 1; }
+
+	// まだ実行を始めていない作業の数（全優先度の合計）。表示用で、返した直後に変わりうる.
+	size_t GetQueuedCount() const;
+	// 作業が終わって、メインスレッドでの完了処理を待っている数。表示用で、返した直後に変わりうる.
+	size_t GetPendingCompletionCount() const;
 
 private:
 	// ワーカーのメイン関数。index は 0 から始まるワーカー番号.

@@ -41,6 +41,7 @@
 #include "Engine/Editor/Viewport/SceneWindow.h"
 #include "Engine/Editor/MenuBar/MenuBar.h"
 #include "Engine/Editor/ToolBar/ToolBar.h"
+#include "Engine/Editor/Debug/GraphicsDebugWindow.h"
 
 #include "Engine/Scene/Object/GameObjectId.h"
 
@@ -74,6 +75,7 @@ private:
 	ToolBar toolBar_;
 	SceneWindow sceneWindow_; // エディタカメラ視点。RT・カメラ・ギズモ設定を内包する.
 	GameWindow gameWindow_;   // ゲームカメラ視点。RT を内包する.
+	GraphicsDebugWindow graphicsDebugWindow_;
 
 	/* Editor層が依存する層 */
 

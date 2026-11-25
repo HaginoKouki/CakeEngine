@@ -50,6 +50,7 @@ void Editor::Initialize(
 	sceneWindow_.Initialize(platform, graphics, renderer, sceneRenderer, sceneManager, settings, cache);
 	toolBar_.Initialize(playMode_, sceneManager, asset);
 	menuBar_.Initialize(sceneManager, asset, settings, preferences, imguiManager_);
+	graphicsDebugWindow_.Initialize(&graphics, &platform.GetJobSystem());
 
 	// エディタUIへ配る参照束。以降シグネチャは (対象, ctx_) に統一する.
 	ctx_.device = graphics_->GetDevice()->GetD3D12Device();
@@ -157,6 +158,7 @@ void Editor::DrawEditorUI() {
 	DrawEnvironmentTab();
 
 	LogWindow::GetInstance().DrawLogWindow("DebugLog", nullptr, imguiManager_.GetConsoleFont());
+	graphicsDebugWindow_.Draw();
 
 	DrawMaterialList(ctx_);
 

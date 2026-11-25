@@ -24,6 +24,7 @@
     <ClCompile Include="Engine\Asset\Model\ModelManager.cpp" />
     <ClCompile Include="Engine\Asset\Texture\TextureManager.cpp" />
     <ClCompile Include="Engine\Editor\Camera\EditorCamera.cpp" />
+    <ClCompile Include="Engine\Editor\Debug\GraphicsDebugWindow.cpp" />
     <ClCompile Include="Engine\Editor\Editor.cpp" />
     <ClCompile Include="Engine\Editor\ImGui\ImGuiCustomWidget.cpp" />
     <ClCompile Include="Engine\Editor\ImGui\ImGuiManager.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Engine\Asset\Texture\TextureHandle.h" />
     <ClInclude Include="Engine\Asset\Texture\TextureManager.h" />
     <ClInclude Include="Engine\Editor\Camera\EditorCamera.h" />
+    <ClInclude Include="Engine\Editor\Debug\GraphicsDebugWindow.h" />
     <ClInclude Include="Engine\Editor\Editor.h" />
     <ClInclude Include="Engine\Editor\EditorDrawContext.h" />
     <ClInclude Include="Engine\Editor\ImGui\Icons.h" />

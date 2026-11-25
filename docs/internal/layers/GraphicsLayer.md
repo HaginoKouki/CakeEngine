@@ -16,11 +16,13 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 
 | フォルダ | 主な型 | 役割 |
 | --- | --- | --- |
-| 直下 | `Graphics` | 下記の部品をすべて所有し、`Initialize` と `Resize` を提供する |
+| 直下 | `Graphics` | 下記の部品をすべて所有し、`Initialize`、`Resize`、`BeginFrame`、`EndFrame` を提供する |
 | `Device/` | `DirectXDevice` | Factory、Adapter（高性能優先でソフトウェアアダプタを除外）、Device の生成。Debug 構成ではデバッグレイヤーと GPU ベース検証を有効にし、エラーと警告で停止する |
-| `Device/` | `CommandManager` | Queue、Allocator、CommandList、Fence。`ExecuteAndWait` と `WaitForGPU` |
+| `Device/` | `CommandManager` | Queue、Allocator、CommandList、Fence。`ExecuteAndWait` と `WaitForGPU`。最後に送ったフェンス値と完了済みのフェンス値を返す |
+| `Device/` | `DeferredReleaseQueue` | GPU が使い終わるまで解放を遅らせる。メインスレッド専用 |
 | `Descriptor/` | `DescriptorHeap` | ディスクリプタヒープ 1 本と、RTV ヒープ先頭の予約枠（`Reserved` 名前空間） |
-| `Descriptor/` | `SrvManager` | シェーダー可視の SRV ヒープ（512 個）を 1 本持ち、`Allocate` で番号を 0 から順に払い出す。解放はしない |
+| `Descriptor/` | `SrvManager` | シェーダー可視の SRV ヒープ（4096 個）を 1 本持ち、`Allocate` で番号を払い出し、`Free` で返された番号を使い回す |
+| `Descriptor/` | `IndexFreeList` | 番号の空きリストと、使用数・最大使用数。D3D12 を知らないので、Tests から GPU なしで確かめられる |
 | `RenderTarget/` | `SwapChain` | バックバッファ 2 枚。フレーム先頭と末尾のバリア、Present、Resize |
 | `RenderTarget/` | `DepthBuffer` | `D24_UNORM_S8_UINT` の深度バッファ 1 枚 |
 | `RenderTarget/` | `SceneRenderTarget` | オフスクリーン描画先（RTV と SRV）。エディタの 2 ビューが使う。遅延リサイズに対応 |
@@ -40,7 +42,7 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 
 1. `DirectXDevice`
 2. `CommandManager`
-3. `DescriptorHeap` を 2 本（RTV 4 個、DSV 1 個）と `SrvManager`（SRV 512 個でシェーダー可視）
+3. `DescriptorHeap` を 2 本（RTV 4 個、DSV 1 個）と `SrvManager`（SRV 4096 個でシェーダー可視）
 4. `SwapChain`
 5. `ShaderCompiler`
 6. `PipelineState`（ルートシグネチャの構築）と `ShaderLibrary`（既定シェーダーの登録と PSO 生成）
@@ -96,15 +98,25 @@ RTV ヒープの先頭は、エディタ固有の描画先のために予約し�
 | `ENABLE_EDITOR` あり | 0 と 1 = SwapChain、2 = SceneRT、3 = DebugSceneRT |
 | `ENABLE_EDITOR` なし | 0 と 1 = SwapChain |
 
-SRV は予約せず、`SrvManager::Allocate` が 0 から順に番号を払い出します。番号は初期化の順番で決まり、Debug と Release でも変わるので、各クラスは受け取った番号を保存して使います。解放の仕組みはないため、作り直す SRV（リサイズする `SceneRenderTarget` など）は最初に受け取った番号へ作り直します。上限（`kMaxSrvCount` = 512）を超えると assert で止まります。
+SRV は予約せず、`SrvManager::Allocate` が番号を払い出します。空きリスト（`IndexFreeList`）に返された番号があればそれを先に使い、なければまだ使っていない番号を出します。番号は初期化の順番で決まり、Debug と Release でも変わるので、各クラスは受け取った番号を保存して使います。作り直す SRV（リサイズする `SceneRenderTarget` など）は、最初に受け取った番号へ作り直します。
+
+番号を返すときは `SrvManager::Free` を `DeferredReleaseQueue` に積み、GPU がその番号を使い終わってから空きリストへ戻します。ただし、まだ SRV を書いていない番号（GPU に渡していない番号）は、その場で `Free` してかまいません。
+
+上限（`kMaxSrvCount` = 4096。手順9で計測して見直す仮の値）を使い切ると、`Allocate` は Release でも `kInvalidIndex` を返し、エラーのログを出します。二重解放と、払い出していない番号の解放も、エラーのログを出します。
 
 | 使う側 | 確保する数 | 確保する時点 |
 | --- | --- | --- |
-| `TextureManager` | テクスチャ 1 枚につき 2（描画用とプレビュー用） | テクスチャの読み込み時 |
-| `ImGuiManager` | 4 | 初期化時 |
+| `TextureManager` | テクスチャ 1 枚につき 2（描画用と、`ENABLE_EDITOR` のときだけプレビュー用）。取れなければ Error テクスチャで代替する | テクスチャの読み込み時 |
+| `ImGuiManager` | 予備の 1 と、バックエンドがテクスチャを作るたびに 1 | 初期化時と、ImGui のテクスチャの作成時 |
 | `SceneRenderTarget` | 1 枚につき 1 | 初期化時（リサイズでは確保しない） |
 
-ImGui のテクスチャに 4 枠あるのは、ImGui 1.92 以降のバックエンドがテクスチャごとに SRV を確保するためです。フォントアトラスを作り直すと、古いテクスチャが破棄されるまで新旧が同時に存在します。`ImGuiManager` は初期化時に `SrvManager` から 4 枠を確保しておき、確保のコールバックで空いている枠を貸し出し、解放のコールバックで空きに戻します。
+ImGui 1.92 以降のバックエンドは、テクスチャごとに SRV を確保します。`ImGuiManager` は確保のコールバック（`SrvDescriptorAllocFn`）から `SrvManager::Allocate` を直接呼び、解放のコールバック（`SrvDescriptorFreeFn`）では CPU ハンドルを `SrvManager::GetIndexFromCPUHandle` で番号に戻して、`Free` を `DeferredReleaseQueue` に積みます。積むラムダは、`SrvManager` のポインタと番号を値でキャプチャします（終了時は `ImGuiManager` が先に破棄され、そのあとで `~Graphics` がラムダを呼ぶため）。番号が尽きたときは、初期化時に確保した予備の番号を渡します。予備の番号は `Free` しません。
+
+### 遅延解放
+
+`DeferredReleaseQueue` は、GPU が使い終わるまで解放を遅らせます。そのフレームに積まれた予約を、`Graphics::EndFrame`（`Renderer::EndFrame` の `ExecuteAndWait` の後）で、最後に送ったフェンス値で締めます。次のフレームの `Graphics::BeginFrame` で、完了済みのフェンス値までの予約を解放します。
+
+フェンス値は 1 フレームに 1 回進むとは限りません（`TextureManager` がフレームの途中で `ExecuteAndWait` するため）。フレームの途中の値で締めると早すぎる解放になるので、必ずフレームの終わりで締めます。終了時は、`~Graphics` が GPU の完了を待ってから、残りをすべて解放します。`deferredReleaseQueue_` は `srvManager_` より後に宣言しているので、`srvManager_` より先に破棄されます。
 
 ### フレーム内の使い捨てバッファ
 

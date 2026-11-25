@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <format>
 
 #include "Engine/Foundation/Debug/DebugLog.h"
 #include "Engine/Foundation/Utility/Convert.h"
@@ -47,30 +48,58 @@ bool TextureManager::IsAlive(TextureHandle handle) const {
 TextureHandle TextureManager::RegisterTexture(const std::string& filePath, const DirectX::ScratchImage& mipImages) {
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
 
+	uint32_t srvIndex = srvManager_->Allocate();
+	uint32_t previewSrvIndex = SrvManager::kInvalidIndex;
+
+	if (srvIndex == SrvManager::kInvalidIndex) {
+		if (IsAlive(errorTexture_)) {
+			DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, std::format("SRV の番号を確保できず、エラーテクスチャで代替: {}", filePath));
+			return errorTexture_;
+		} else {
+			assert(false && "SRV の番号が尽きて、既定のテクスチャを作れません。SrvManager::kMaxSrvCount を確かめてください");
+			return {};
+		}
+	}
+#ifdef ENABLE_EDITOR
+	previewSrvIndex = srvManager_->Allocate();
+	if (previewSrvIndex == SrvManager::kInvalidIndex) {
+		srvManager_->Free(srvIndex);
+		if (IsAlive(errorTexture_)) {
+			DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, std::format("プレビュー用 SRV の番号を確保できず、エラーテクスチャで代替: {}", filePath));
+			return errorTexture_;
+		} else {
+			assert(false && "SRV の番号が尽きて、既定のテクスチャを作れません。SrvManager::kMaxSrvCount を確かめてください");
+			return {};
+		}
+	}
+#endif
+
+	// リソースを作って転送する.
 	TextureData td;
 	td.filePath = filePath;
 	td.resource = CreateTextureResource(metadata);
 	Microsoft::WRL::ComPtr<ID3D12Resource> intermediate = UploadTextureData(td.resource.Get(), mipImages);
 
-	// 既存：3D描画用（_SRGB、デコードあり）
+	// 3D描画用（_SRGB、デコードあり）
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = metadata.format; // 例: DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-	const uint32_t srvIndex = srvManager_->Allocate();
+	// 3D描画用のSRV.
 	device_->CreateShaderResourceView(td.resource.Get(), &srvDesc, srvManager_->GetCPUHandle(srvIndex));
 
-	// 追加：ImGuiプレビュー用（UNORM、デコードなし・素通し）
+#ifdef ENABLE_EDITOR
+	// ImGuiプレビュー用（UNORM、デコードなし・素通し）
 	D3D12_SHADER_RESOURCE_VIEW_DESC previewDesc = srvDesc;
 	previewDesc.Format = DirectX::MakeSRGB(metadata.format) == metadata.format
 	                         ? DirectX::MakeLinear(metadata.format) // _SRGBを剥がしたUNORM相当
 	                         : metadata.format;
 
-	const uint32_t previewSrvIndex = srvManager_->Allocate();
 	device_->CreateShaderResourceView(td.resource.Get(), &previewDesc, srvManager_->GetCPUHandle(previewSrvIndex));
 	td.previewGpuHandle = srvManager_->GetGPUHandle(previewSrvIndex);
+#endif
 
 	// pool_ に載せる位置が index。generation は 1 始まり.
 	const uint32_t index = static_cast<uint32_t>(pool_.size());

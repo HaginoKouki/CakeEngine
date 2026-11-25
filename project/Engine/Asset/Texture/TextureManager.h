@@ -37,9 +37,11 @@ class CommandManager;
 struct TextureData {
 	TextureHandle handle;
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+#ifdef ENABLE_EDITOR
 	D3D12_GPU_DESCRIPTOR_HANDLE previewGpuHandle{}; // ImGui::Image用（デコードなし）
+#endif // DEBUG
 	std::string filePath{};
-	uint32_t srvIndex = 0; // SRVヒープ上の位置（index とは別物）.
+	uint32_t srvIndex = SrvManager::kInvalidIndex; // SRVヒープ上の位置（index とは別物）.
 	uint32_t textureWidth = 0;
 	uint32_t textureHeight = 0;
 };

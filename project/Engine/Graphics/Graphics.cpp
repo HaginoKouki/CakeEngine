@@ -22,6 +22,9 @@ void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
 	srvManager_.Initialize(device_.GetD3D12Device());
 	dsvHeap_.Initialize(device_.GetD3D12Device(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
+	// UploadQueue.
+	uploadQueue_.Initialize(device_.GetD3D12Device(), &deferredReleaseQueue_);
+
 	// 4. SwapChain.
 	swapChain_.Initialize(
 		device_.GetFactory(),
@@ -50,11 +53,17 @@ void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
 void Graphics::BeginFrame() {
 	// GPU が使い終わったリソースを解放する.
 	deferredReleaseQueue_.ReleaseCompleted(commandManager_.GetCompletedFenceValue());
+	// 完了処理を呼ぶ.
+	uploadQueue_.ProcessCompleted(commandManager_.GetCompletedFenceValue());
+	// 予約されていたコマンドを積む.
+	uploadQueue_.Record(commandManager_.GetCommandList());
 }
 
 void Graphics::EndFrame() {
 	// このフレームの解放の予約を締める.
 	deferredReleaseQueue_.CloseFrame(commandManager_.GetLastSignaledFenceValue());
+	// 完了処理に番号を付ける.
+	uploadQueue_.CloseFrame(commandManager_.GetLastSignaledFenceValue());
 }
 
 void Graphics::Resize(uint32_t width, uint32_t height) {

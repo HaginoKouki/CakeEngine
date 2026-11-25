@@ -20,13 +20,13 @@
 namespace Cake {
 
 class SrvManager;
-class CommandManager;
+class UploadQueue;
 class ShaderLibrary;
 
 struct AssetInitializeDesc {
 	ID3D12Device* device = nullptr;
 	SrvManager* srvManager = nullptr;
-	CommandManager* commandManager = nullptr;
+	UploadQueue* uploadQueue = nullptr;
 	const ShaderLibrary* shaderLibrary = nullptr;
 
 	// 索引を張るルートフォルダ。ここより外のファイルは GUID が振られない.
@@ -34,7 +34,7 @@ struct AssetInitializeDesc {
 
 	// 必須項目が埋まっているか（Initialize の先頭で検査する）.
 	bool IsValid() const {
-		return device != nullptr && srvManager != nullptr && commandManager != nullptr && shaderLibrary != nullptr;
+		return device != nullptr && srvManager != nullptr && uploadQueue != nullptr && shaderLibrary != nullptr;
 	}
 };
 

@@ -18,6 +18,7 @@
 #include "Engine/Graphics/Device/DeferredReleaseQueue.h"
 #include "Engine/Graphics/Descriptor/DescriptorHeap.h"
 #include "Engine/Graphics/Descriptor/SrvManager.h"
+#include "Engine/Graphics/Upload/UploadQueue.h"
 #include "Engine/Graphics/RenderTarget/DepthBuffer.h"
 #include "Engine/Graphics/RenderTarget/SwapChain.h"
 #include "Engine/Graphics/Pipeline/PipelineState.h"
@@ -33,6 +34,7 @@ class Graphics {
 	DescriptorHeap rtvHeap_, dsvHeap_;
 	SrvManager srvManager_;
 	DeferredReleaseQueue deferredReleaseQueue_;	// srvManager より先に解放する.
+	UploadQueue uploadQueue_;
 	SwapChain swapChain_;
 	ShaderCompiler shaderCompiler_;
 	PipelineState pipelineState_;
@@ -59,6 +61,7 @@ public:
 	SrvManager* GetSrvManager() { return &srvManager_; }
 	DeferredReleaseQueue* GetDeferredReleaseQueue() { return &deferredReleaseQueue_; }
 	DescriptorHeap* GetDsvHeap() { return &dsvHeap_; }
+	UploadQueue* GetUploadQueue() { return &uploadQueue_; };
 	SwapChain* GetSwapChain() { return &swapChain_; }
 	ShaderCompiler* GetShaderCompiler() { return &shaderCompiler_; }
 	PipelineState* GetPipelineState() { return &pipelineState_; }

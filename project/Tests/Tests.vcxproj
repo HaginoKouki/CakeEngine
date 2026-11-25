@@ -38,9 +38,11 @@
   <ItemGroup>
     <ClCompile Include="..\Engine\Graphics\Descriptor\IndexFreeList.cpp" />
     <ClCompile Include="..\Engine\Graphics\Device\DeferredReleaseQueue.cpp" />
+    <ClCompile Include="..\Engine\Graphics\Upload\UploadBudget.cpp" />
     <ClCompile Include="..\Engine\Platform\Job\JobSystem.cpp" />
     <ClCompile Include="Graphics\DeferredReleaseQueueTests.cpp" />
     <ClCompile Include="Graphics\IndexFreeListTests.cpp" />
+    <ClCompile Include="Graphics\UploadBudgetTests.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Foundation\IdentityTests.cpp" />
     <ClCompile Include="Platform\JobSystemTests.cpp" />

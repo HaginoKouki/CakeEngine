@@ -205,6 +205,9 @@
     <Filter Include="Engine\Platform\Job">
       <UniqueIdentifier>{6563ecb8-c07c-48c9-a45a-567bbf6be88a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics\Upload">
+      <UniqueIdentifier>{cdf38b2e-faf4-4e5e-8c42-5cbc14e66edf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -527,6 +530,12 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Descriptor\IndexFreeList.cpp">
       <Filter>Engine\Graphics\Descriptor</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Upload\UploadBudget.cpp">
+      <Filter>Engine\Graphics\Upload</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Upload\UploadQueue.cpp">
+      <Filter>Engine\Graphics\Upload</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -976,6 +985,12 @@
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Descriptor\IndexFreeList.h">
       <Filter>Engine\Graphics\Descriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Upload\UploadBudget.h">
+      <Filter>Engine\Graphics\Upload</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Upload\UploadQueue.h">
+      <Filter>Engine\Graphics\Upload</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

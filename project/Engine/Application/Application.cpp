@@ -152,7 +152,7 @@ void Application::Initialize(HINSTANCE hInstance) {
 	AssetInitializeDesc assetDesc;
 	assetDesc.device = graphics_.GetDevice()->GetD3D12Device();
 	assetDesc.srvManager = graphics_.GetSrvManager();
-	assetDesc.commandManager = graphics_.GetCommandManager();
+	assetDesc.uploadQueue = graphics_.GetUploadQueue();
 	assetDesc.shaderLibrary = graphics_.GetShaderLibrary();
 	assetDesc.rootPath = "Assets";
 

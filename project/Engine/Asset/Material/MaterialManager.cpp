@@ -45,7 +45,7 @@ MaterialHandle MaterialManager::CreateMaterial(const std::string& materialName, 
 	material.SetOrigin(origin);
 	material.Initialize(device_, shader);
 	for (const TextureSlotDesc& slot : shader->textures) {
-		material.SetTexture(slot.name, textureManager_->defaultTexture_);
+		material.SetTexture(slot.name, textureManager_->whiteTexture_);
 	}
 
 	MaterialHandle handle = Emplace(std::move(material));

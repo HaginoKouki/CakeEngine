@@ -32,6 +32,8 @@ Graphics 層は GPU リソースの生成と、シェーダーから PSO を作�
 | `Shader/` | `ShaderLibrary` | 定義の登録と一元管理。登録時にレイアウト計算と PSO 生成まで行う |
 | `Buffer/` | `FrameConstantBuffer`、`FrameVertexBuffer` | フレーム内で使い捨てるバンプアロケータ（定数用 1 MiB、頂点用 4 MiB） |
 | `Buffer/` | `CreateBufferResource` | Upload ヒープにバッファを 1 つ作る下請け |
+| `Upload/` | `UploadQueue`、`UploadRequest` | GPU への転送を予約で受け付け、フレームの先頭で上限までコピーの命令を積む。完了処理は GPU が転送を終えた次のフレームの先頭で呼ぶ。メインスレッド専用 |
+| `Upload/` | `kUploadBytesPerFrame`、`CountUploadsThisFrame` | 1 フレームの転送量の上限（仮の値 16 MiB）と、何件を転送するかの計算。D3D12 を知らないので、Tests から確かめられる |
 | `Profiler/` | `PerformanceProfiler` | GPU タイムスタンプ、CPU 時間、システムの CPU と GPU 使用率（PDH）。`USE_IMGUI` 時は HUD を描く |
 
 ## 主要な仕組み
@@ -116,7 +118,23 @@ ImGui 1.92 以降のバックエンドは、テクスチャごとに SRV を確�
 
 `DeferredReleaseQueue` は、GPU が使い終わるまで解放を遅らせます。そのフレームに積まれた予約を、`Graphics::EndFrame`（`Renderer::EndFrame` の `ExecuteAndWait` の後）で、最後に送ったフェンス値で締めます。次のフレームの `Graphics::BeginFrame` で、完了済みのフェンス値までの予約を解放します。
 
-フェンス値は 1 フレームに 1 回進むとは限りません（`TextureManager` がフレームの途中で `ExecuteAndWait` するため）。フレームの途中の値で締めると早すぎる解放になるので、必ずフレームの終わりで締めます。終了時は、`~Graphics` が GPU の完了を待ってから、残りをすべて解放します。`deferredReleaseQueue_` は `srvManager_` より後に宣言しているので、`srvManager_` より先に破棄されます。
+フェンス値は 1 フレームに 1 回進むとは限らない前提で書いています（以前は `TextureManager` がフレームの途中で `ExecuteAndWait` していました。今は `UploadQueue` に移りましたが、ほかの部品が同じことをしても壊れないようにしています）。フレームの途中の値で締めると早すぎる解放になるので、必ずフレームの終わりで締めます。終了時は、`~Graphics` が GPU の完了を待ってから、残りをすべて解放します。`deferredReleaseQueue_` は `srvManager_` より後に宣言しているので、`srvManager_` より先に破棄されます。
+
+### GPU への転送
+
+`UploadQueue` は、「このリソースへこのデータを転送する」という予約（`UploadRequest`）を受け付けます。予約には、転送先のリソース（`COPY_DEST` の状態で作っておく）、転送するデータの場所（`D3D12_SUBRESOURCE_DATA` の並び）、データの持ち主（`std::shared_ptr<const void>`）、転送後の状態、完了処理を入れます。
+
+1 フレームの流れは次のとおりです。
+
+1. `Graphics::BeginFrame`：`ProcessCompleted` で、GPU が転送を終えた予約の完了処理を呼ぶ。次に `Record` で、予約を前から取り出し、上限（`kUploadBytesPerFrame`）まで、一時バッファの作成、`UpdateSubresources`、転送後の状態へのバリアをコマンドリストの先頭に積む
+2. `Renderer::EndFrame` の `ExecuteAndWait` で、GPU がコピーを実行する
+3. `Graphics::EndFrame`：このフレームで積んだ完了処理に、最後のフェンス値を付ける
+
+上限は、1 件目だけは超えても取ります（0 件だと先へ進めないため）。予約の順番は入れ替えません。同じリソースへの転送が 2 回あったとき、古いデータが後から書かれないようにするためです。
+
+データの持ち主は、`Record` で `UpdateSubresources` が一時バッファへ写した時点で手放します。一時バッファは、GPU がコピーを終えるまで `DeferredReleaseQueue` に預けます。一時バッファは予約 1 件ごとに作っています。作るのが重いとわかったら、使い回す形に中身だけを差し替えます。
+
+終了時は、残った予約と完了処理を実行せずに捨てます。完了処理は `TextureManager` などの中を触りますが、終了時には Asset が `Graphics` より先に破棄されているためです。
 
 ### フレーム内の使い捨てバッファ
 

@@ -8,7 +8,7 @@
 #include "Engine/Foundation/Utility/Convert.h"
 #include "Engine/Graphics/Buffer/GPUResourceUtility.h"
 #include "Engine/Graphics/Descriptor/DescriptorHeap.h"
-#include "Engine/Graphics/Device/CommandManager.h"
+#include "Engine/Graphics/Upload/UploadQueue.h"
 
 #include "externals/DirectXTex/d3dx12.h"
 
@@ -20,105 +20,21 @@ constexpr const char* kLogCategory = "TextureManager";
 void TextureManager::Initialize(
 	ID3D12Device* device,
 	SrvManager* srvManager,
-	CommandManager* commandManager
+	UploadQueue* uploadQueue
 ) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
 	device_ = device;
 	srvManager_ = srvManager;
-	commandManager_ = commandManager;
+	uploadQueue_ = uploadQueue;
 
 	pool_.reserve(64);
 	generations_.reserve(64);
 
-	CreateDefaultTexture(); // 白.
+	CreateWhiteTexture(); // 白.
 	CreateErrorTexture();   // マゼンタ/黒チェッカー.
 
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
-}
-
-bool TextureManager::IsAlive(TextureHandle handle) const {
-	if (!handle.IsValid() || handle.index >= pool_.size()) {
-		return false;
-	}
-	return generations_[handle.index] == handle.generation;
-}
-
-// image から SRV を作り pool_ に登録してハンドルを払い出す共通処理.
-TextureHandle TextureManager::RegisterTexture(const std::string& filePath, const DirectX::ScratchImage& mipImages) {
-	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-
-	uint32_t srvIndex = srvManager_->Allocate();
-	uint32_t previewSrvIndex = SrvManager::kInvalidIndex;
-
-	if (srvIndex == SrvManager::kInvalidIndex) {
-		if (IsAlive(errorTexture_)) {
-			DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, std::format("SRV の番号を確保できず、エラーテクスチャで代替: {}", filePath));
-			return errorTexture_;
-		} else {
-			assert(false && "SRV の番号が尽きて、既定のテクスチャを作れません。SrvManager::kMaxSrvCount を確かめてください");
-			return {};
-		}
-	}
-#ifdef ENABLE_EDITOR
-	previewSrvIndex = srvManager_->Allocate();
-	if (previewSrvIndex == SrvManager::kInvalidIndex) {
-		srvManager_->Free(srvIndex);
-		if (IsAlive(errorTexture_)) {
-			DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, std::format("プレビュー用 SRV の番号を確保できず、エラーテクスチャで代替: {}", filePath));
-			return errorTexture_;
-		} else {
-			assert(false && "SRV の番号が尽きて、既定のテクスチャを作れません。SrvManager::kMaxSrvCount を確かめてください");
-			return {};
-		}
-	}
-#endif
-
-	// リソースを作って転送する.
-	TextureData td;
-	td.filePath = filePath;
-	td.resource = CreateTextureResource(metadata);
-	Microsoft::WRL::ComPtr<ID3D12Resource> intermediate = UploadTextureData(td.resource.Get(), mipImages);
-
-	// 3D描画用（_SRGB、デコードあり）
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = metadata.format; // 例: DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-	// 3D描画用のSRV.
-	device_->CreateShaderResourceView(td.resource.Get(), &srvDesc, srvManager_->GetCPUHandle(srvIndex));
-
-#ifdef ENABLE_EDITOR
-	// ImGuiプレビュー用（UNORM、デコードなし・素通し）
-	D3D12_SHADER_RESOURCE_VIEW_DESC previewDesc = srvDesc;
-	previewDesc.Format = DirectX::MakeSRGB(metadata.format) == metadata.format
-	                         ? DirectX::MakeLinear(metadata.format) // _SRGBを剥がしたUNORM相当
-	                         : metadata.format;
-
-	device_->CreateShaderResourceView(td.resource.Get(), &previewDesc, srvManager_->GetCPUHandle(previewSrvIndex));
-	td.previewGpuHandle = srvManager_->GetGPUHandle(previewSrvIndex);
-#endif
-
-	// pool_ に載せる位置が index。generation は 1 始まり.
-	const uint32_t index = static_cast<uint32_t>(pool_.size());
-
-	td.srvIndex = srvIndex;
-	td.textureWidth = static_cast<uint32_t>(metadata.width);
-	td.textureHeight = static_cast<uint32_t>(metadata.height);
-	td.handle.index = index;
-	td.handle.generation = 1;
-	td.handle.gpuHandle = srvManager_->GetGPUHandle(srvIndex);
-
-	commandManager_->ExecuteAndWait();
-	commandManager_->ResetForNextFrame();
-
-	TextureHandle result = td.handle;
-	pool_.push_back(std::move(td));
-	generations_.push_back(1);
-	byPath_[filePath] = result;
-	return result;
 }
 
 TextureHandle TextureManager::Load(const std::string& filePath) {
@@ -149,8 +65,10 @@ TextureHandle TextureManager::Load(const std::string& filePath) {
 		return errorTexture_;
 	}
 
-	return RegisterTexture(filePath, mipImages);
+	return RegisterTexture(filePath, std::move(mipImages), false);
 }
+
+
 
 const TextureData* TextureManager::Resolve(TextureHandle handle) const {
 	if (!IsAlive(handle)) {
@@ -196,41 +114,6 @@ const TextureData* TextureManager::GetTextureData(uint32_t srvIndex) const {
 	return nullptr;
 }
 
-void TextureManager::CreateDefaultTexture() {
-	DirectX::ScratchImage image;
-	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1, 1, 1, 1);
-	AssertHRESULT(hr, "デフォルトテクスチャの初期化");
-	uint8_t* px = image.GetPixels();
-	px[0] = 255;
-	px[1] = 255;
-	px[2] = 255;
-	px[3] = 255; // 白.
-
-	defaultTexture_ = RegisterTexture("__default_white__", image);
-}
-
-void TextureManager::CreateErrorTexture() {
-	// 16x16 のマゼンタ/黒チェッカー。いかにも「欠損」とわかる絵にする.
-	const size_t kSize = 16;
-	DirectX::ScratchImage image;
-	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kSize, kSize, 1, 1);
-	AssertHRESULT(hr, "エラーテクスチャの初期化");
-
-	uint8_t* px = image.GetPixels();
-	for (size_t y = 0; y < kSize; ++y) {
-		for (size_t x = 0; x < kSize; ++x) {
-			const bool magenta = ((x / 4) + (y / 4)) % 2 == 0; // 4x4 マスのチェッカー.
-			uint8_t* p = px + (y * kSize + x) * 4;
-			p[0] = magenta ? 255 : 0; // R.
-			p[1] = 0;                 // G.
-			p[2] = magenta ? 255 : 0; // B.
-			p[3] = 255;               // A.
-		}
-	}
-
-	errorTexture_ = RegisterTexture("__error_magenta__", image);
-}
-
 Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::CreateTextureResource(const DirectX::TexMetadata& metadata) {
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = UINT(metadata.width);
@@ -257,38 +140,158 @@ Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::CreateTextureResource(con
 	return resource;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::UploadTextureData(
-	ID3D12Resource* texture,
-	const DirectX::ScratchImage& mipImages
-) {
+void TextureManager::CreateWhiteTexture() {
+	DirectX::ScratchImage image;
+	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1, 1, 1, 1);
+	AssertHRESULT(hr, "デフォルトテクスチャの初期化");
+	uint8_t* px = image.GetPixels();
+	px[0] = 255;
+	px[1] = 255;
+	px[2] = 255;
+	px[3] = 255; // 白.
+
+	whiteTexture_ = RegisterTexture("__default_white__", std::move(image), true);
+}
+
+void TextureManager::CreateErrorTexture() {
+	// 16x16 のマゼンタ/黒チェッカー。いかにも「欠損」とわかる絵にする.
+	const size_t kSize = 16;
+	DirectX::ScratchImage image;
+	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kSize, kSize, 1, 1);
+	AssertHRESULT(hr, "エラーテクスチャの初期化");
+
+	uint8_t* px = image.GetPixels();
+	for (size_t y = 0; y < kSize; ++y) {
+		for (size_t x = 0; x < kSize; ++x) {
+			const bool magenta = ((x / 4) + (y / 4)) % 2 == 0; // 4x4 マスのチェッカー.
+			uint8_t* p = px + (y * kSize + x) * 4;
+			p[0] = magenta ? 255 : 0; // R.
+			p[1] = 0;                 // G.
+			p[2] = magenta ? 255 : 0; // B.
+			p[3] = 255;               // A.
+		}
+	}
+
+	errorTexture_ = RegisterTexture("__error_magenta__", std::move(image), true);
+}
+
+TextureHandle TextureManager::RegisterTexture(const std::string& filePath, DirectX::ScratchImage mipImages, bool resident) {
+	const DirectX::TexMetadata metadata = mipImages.GetMetadata();
+
+#pragma region Srvの番号を貰う
+	uint32_t srvIndex = srvManager_->Allocate();
+	uint32_t previewSrvIndex = SrvManager::kInvalidIndex;
+
+	if (srvIndex == SrvManager::kInvalidIndex) {
+		if (IsAlive(errorTexture_)) {
+			DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, std::format("SRV の番号を確保できず、エラーテクスチャで代替: {}", filePath));
+			return errorTexture_;
+		} else {
+			assert(false && "SRV の番号が尽きて、既定のテクスチャを作れません。SrvManager::kMaxSrvCount を確かめてください");
+			return {};
+		}
+	}
+#ifdef ENABLE_EDITOR
+	previewSrvIndex = srvManager_->Allocate();
+	if (previewSrvIndex == SrvManager::kInvalidIndex) {
+		srvManager_->Free(srvIndex);
+		if (IsAlive(errorTexture_)) {
+			DebugLog::GetInstance().Log(LogLevel::Error, kLogCategory, std::format("プレビュー用 SRV の番号を確保できず、エラーテクスチャで代替: {}", filePath));
+			return errorTexture_;
+		} else {
+			assert(false && "SRV の番号が尽きて、既定のテクスチャを作れません。SrvManager::kMaxSrvCount を確かめてください");
+			return {};
+		}
+	}
+#endif
+#pragma endregion
+
+	// リソースを作る.
+	TextureData td;
+	td.filePath = filePath;
+	td.resource = CreateTextureResource(metadata); // COPY_DEST の状態で作られる.
+
+	// 画像を shared_ptr に引っ越させる.
+	auto image = std::make_shared<DirectX::ScratchImage>(std::move(mipImages));
+
+	// 転送するデータ（画像の各ミップマップ）の置き場所を作る.
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
-	DirectX::PrepareUpload(
-		device_, mipImages.GetImages(), mipImages.GetImageCount(),
-		mipImages.GetMetadata(), subresources
-	);
+	HRESULT hr = DirectX::PrepareUpload(device_, image->GetImages(), image->GetImageCount(), image->GetMetadata(), subresources);
+	AssertHRESULT(hr, "転送データの準備");
 
-	uint64_t intermediateSize = GetRequiredIntermediateSize(
-		texture, 0, UINT(subresources.size())
-	);
+	// pool_ に載せる位置を決めて、番号とハンドルを設定する.
+	const uint32_t index = static_cast<uint32_t>(pool_.size());
+	td.srvIndex = srvIndex;
+	td.textureWidth = static_cast<uint32_t>(metadata.width);
+	td.textureHeight = static_cast<uint32_t>(metadata.height);
+	td.handle.index = index;
+	td.handle.generation = 1;
+	td.handle.gpuHandle = srvManager_->GetGPUHandle(srvIndex);
+#ifdef ENABLE_EDITOR
+	td.previewGpuHandle = srvManager_->GetGPUHandle(previewSrvIndex);
+#endif
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = Cake::CreateBufferResource(device_, intermediateSize);
+	if (resident) {
+		// 常駐のテクスチャなら本物を書く.
+		// Initialize で作るので、1フレーム目の先頭で、描画より前に転送される.
+		WriteSrvs(td.resource.Get(), srvIndex, previewSrvIndex);
+	} else {
+		// 常駐のテクスチャでないなら、本物が転送されるまで白テクスチャを書いておく.
+		WriteSrvs(pool_[whiteTexture_.index].resource.Get(), srvIndex, previewSrvIndex);
+	}
 
-	UpdateSubresources(
-		commandManager_->GetCommandList(),
-		texture, intermediateResource.Get(),
-		0, 0, UINT(subresources.size()), subresources.data()
-	);
+	// 転送を予約する。常駐のテクスチャでなければ、転送が終わったら本物の SRV に書き直す処理（onComplete）を付ける
+	UploadRequest request;
+	request.destination = td.resource;
+	request.subresources = std::move(subresources);
+	request.owner = image;
+	request.stateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	if (!resident) {
+		request.onComplete = [this, index, srvIndex, previewSrvIndex]() {
+			// 本物の SRV を書き直す.
+			WriteSrvs(pool_[index].resource.Get(), srvIndex, previewSrvIndex);
+		};
+	}
+	uploadQueue_->Enqueue(std::move(request));
 
-	D3D12_RESOURCE_BARRIER barrier{};
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = texture;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-	commandManager_->GetCommandList()->ResourceBarrier(1, &barrier);
+	// TextureData を pool_ に、ハンドルを byPath_ に登録してから返す.
+	TextureHandle result = td.handle;
+	pool_.push_back(std::move(td));
+	generations_.push_back(1);
+	byPath_[filePath] = result;
+	return result;
+}
 
-	return intermediateResource;
+void TextureManager::WriteSrvs(ID3D12Resource* resource, uint32_t srvIndex, uint32_t previewSrvIndex) {
+	// リソースの情報を取る.
+	const D3D12_RESOURCE_DESC resourceDesc = resource->GetDesc();
+
+	// SrvDescを作る.
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = resourceDesc.Format; // 例: DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = resourceDesc.MipLevels;
+
+	// 3D描画用のSRV.
+	device_->CreateShaderResourceView(resource, &srvDesc, srvManager_->GetCPUHandle(srvIndex));
+
+#ifdef ENABLE_EDITOR
+	// ImGuiプレビュー用（UNORM、デコードなし・素通し）
+	D3D12_SHADER_RESOURCE_VIEW_DESC previewDesc = srvDesc;
+	previewDesc.Format = DirectX::MakeSRGB(resourceDesc.Format) == resourceDesc.Format
+	                         ? DirectX::MakeLinear(resourceDesc.Format) // _SRGBを剥がしたUNORM相当
+	                         : resourceDesc.Format;
+
+	device_->CreateShaderResourceView(resource, &previewDesc, srvManager_->GetCPUHandle(previewSrvIndex));
+#endif
+}
+
+bool TextureManager::IsAlive(TextureHandle handle) const {
+	if (!handle.IsValid() || handle.index >= pool_.size()) {
+		return false;
+	}
+	return generations_[handle.index] == handle.generation;
 }
 
 } // namespace Cake

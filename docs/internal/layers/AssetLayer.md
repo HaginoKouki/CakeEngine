@@ -18,7 +18,7 @@ Asset 層は「ファイルを読み込んで GPU リソースを作り、実行
 
 | フォルダ | 主な型 | 役割 |
 | --- | --- | --- |
-| `Texture/` | `TextureManager`、`TextureHandle`、`TextureData` | DirectXTex で読み込み（WIC、sRGB 強制、ミップマップ生成）、SRV を作る。パスでキャッシュし、失敗時は `errorTexture`（マゼンタと黒のチェッカー）を返す。ハンドルは GPU ディスクリプタハンドルを同梱する。ImGui プレビュー用に sRGB を剥がした SRV も 1 枚作る |
+| `Texture/` | `TextureManager`、`TextureHandle`、`TextureData` | DirectXTex で読み込み（WIC、sRGB 強制、ミップマップ生成）、SRV を作る。パスでキャッシュし、失敗時は `errorTexture`（マゼンタと黒のチェッカー）を返す。ハンドルは GPU ディスクリプタハンドルを同梱する。ImGui プレビュー用に sRGB を剥がした SRV も 1 枚作る（`ENABLE_EDITOR` のときだけ）。GPU への転送は `UploadQueue` に予約し、転送が終わるまで SRV は白テクスチャを指す |
 | `Material/` | `Material`、`MaterialOrigin` | シェーダー定義に従って cbuffer を確保し、CPU 側の値と GPU 側を `Apply` で同期する。テクスチャスロットと出自（Runtime / Asset / Embedded）、未保存フラグを持つ |
 | `Material/` | `MaterialManager`、`MaterialHandle` | 生成、キャッシュ、`.mat` の保存。同名は "Name.1" のようにリネームする。失敗時は `errorMaterial` を返す |
 | `Material/` | `MaterialSerializer` | `.mat`（JSON）の読み書き（`SaveMaterials`、`LoadMaterials`、`PeekMaterialInfo`） |
@@ -179,5 +179,6 @@ Asset 層は「ファイルを読み込んで GPU リソースを作り、実行
 - `Import/`、`Artifact/`、`HandlePool` は型定義のみです。ヘッダコメントに「フェーズ 2」「フェーズ 5」「仕様書 12 章」などの参照がありますが、該当する計画書はリポジトリにありません。
 - `AssetDatabase.h` の `AssetType` と `AssetTypes.h` の `ImporterType` は、どちらもファイルの分類を表します。`RegisterAsset` が `ToImporterType` で変換して `.meta` に書いており、2 つの列挙が並存しています。
 - `.gltf`、`.glb`、`.fbx` は索引に載りますが、読み込みは OBJ のみ対応です。
-- `TextureManager::RegisterTexture` はテクスチャ 1 枚ごとに `ExecuteAndWait` を呼びます。起動時のアップロードは逐次です。
+- `TextureManager::RegisterTexture` は転送を `UploadQueue` に予約するだけで、GPU を待ちません。予約した時点で SRV の番号に白テクスチャを指す SRV を書き、転送が終わると（`UploadQueue` の完了処理で）同じ番号へ本物を指す SRV を書き直します。読み込んだテクスチャは 2 フレームほど白で表示されます。常駐の白と Error テクスチャだけは、`Initialize` で作られ 1 フレーム目の先頭で描画より前に転送されるので、最初から本物の SRV を書きます。
+- SRV の番号が尽きたときは、Error テクスチャを返します（`byPath_` には登録しないので、次の `Load` で読み込み直されます）。
 - `Material::LoadMaterialTemplateFile` と `FindMaterialByName` は旧実装で、現在は `ModelManager::LoadMtlFile` が同じ役割を担っています。呼び出し元はありません。

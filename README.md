@@ -30,7 +30,7 @@ CakeEngine は、**「プロトタイプ作成から本番環境までをもっ�
 | [Render](docs/internal/layers/RenderLayer.md)           | 描画パス、Renderer、CameraView                       |
 | [Asset](docs/internal/layers/AssetLayer.md)             | モデル、テクスチャ、マテリアル、AssetDatabase        |
 | [Graphics](docs/internal/layers/GraphicsLayer.md)       | DirectX 12 のデバイス、コマンド、シェーダー、PSO     |
-| [Platform](docs/internal/layers/PlatformLayer.md)       | 時間、入力、音、ファイルダイアログ                   |
+| [Platform](docs/internal/layers/PlatformLayer.md)       | 時間、入力、音、ファイルダイアログ、ワーカースレッド |
 | [Foundation](docs/internal/layers/FoundationLayer.md)   | 数学、識別子、ログ、シリアライズ、リフレクション     |
 
 層ごとのコードは `project/Engine/<層名>/` にあり、名前空間は `Cake` です。ゲーム固有のコードは `project/Game/` に置き、`GameModule.cpp` の 2 つの関数（シェーダーの登録、コンポーネントの登録）でエンジンに接続します。<br>
@@ -39,17 +39,19 @@ CakeEngine は、**「プロトタイプ作成から本番環境までをもっ�
 ## フォルダ構成
 | 場所                                             | 内容                                                                                                  |
 | :----------------------------------------------- | :---------------------------------------------------------------------------------------------------- |
-| `project/CakeEngine.slnx`、`CakeEngine.vcxproj`  | Visual Studio のソリューションとプロジェクト                                                          |
+| `project/CakeEngine.slnx`、`CakeEngine.vcxproj`  | Visual Studio のソリューションとプロジェクト。共通の設定は `CakeEngine.Common.props`                 |
 | `project/main.cpp`                               | エントリポイント                                                                                      |
 | `project/Engine/`                                | エンジン本体。層ごとのフォルダ                                                                        |
 | `project/Game/`                                  | ゲーム固有のコード（コンポーネント、シェーダー登録）                                                  |
 | `project/Assets/`                                | ゲームのアセット（モデル、テクスチャ、マテリアル、シーン、ゲーム用シェーダー）。`AssetDatabase` が走査する |
 | `project/EngineResources/`                       | エンジンが使うシェーダー、フォント、テクスチャ                                                        |
 | `project/ProjectSettings/`                       | プロジェクト設定（`ProjectSettings.json`）                                                            |
-| `project/externals/`                             | 外部ライブラリ（ImGui、ImGuizmo、DirectXTex、nlohmann/json など）                                     |
+| `project/Tests/`                                 | doctest による自動テスト（`Tests.vcxproj`、Debug 構成のみ）。GPU を使わない部品が対象                 |
+| `project/externals/`                             | 外部ライブラリ（ImGui、ImGuizmo、DirectXTex、nlohmann/json、doctest など）                            |
 | `docs/internal/`                                 | 内部設計と層ごとの設計書                                                                              |
+| `docs/plans/`                                    | これから作る仕組みの設計書と手順（アセットシステムの作り直し）                                        |
 | `docs/review/`                                   | コードレビューの結果                                                                                  |
-| `.github/workflows/`                             | CI（Debug と Release のビルド、不要ファイルの検査）                                                    |
+| `.github/workflows/`                             | CI（Debug と Release のビルド、テストの実行、層をまたぐ include の検査、不要ファイルの検査）           |
 
 ## ビルドと実行
 Visual Studio 2026（プラットフォームツールセット v145）と Windows SDK 10.0 が必要です。`project/CakeEngine.slnx` を開き、x64 の Debug または Release をビルドします。コマンドラインからは CI と同じコマンドでビルドできます。<br>
@@ -104,5 +106,5 @@ HLSL は起動時に DXC で実行時コンパイルされるため、ビルド�
 
 ## 開発の状態
 - Windows 専用です。Platform 層と Graphics 層が Win32 と DirectX 12 に直接依存しています。
-- アセットのインポートパイプライン（`Library/` キャッシュ）は型定義のみで、まだ動いていません。モデルの読み込みは OBJ のみ対応です。
+- アセットのインポートパイプライン（`Library/` キャッシュ）は型定義のみで、まだ動いていません。モデルの読み込みは OBJ のみ対応です。作り直しの計画は [docs/plans/AssetSystem.md](docs/plans/AssetSystem.md) にあり、土台（JobSystem、SRV の空きリスト、遅延解放、テスト）から順に進めています。
 - 設計書との食い違いが見つかった場合は、実装に合わせて設計書を更新してください。

@@ -18,7 +18,7 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 | ファイル | 主な型 | 役割 |
 | --- | --- | --- |
-| `Application.h` / `.cpp` | `Application` | 全層の所有者。COM の初期化、D3D リソースのリークチェック、クラッシュダンプ（`./Dumps/`）、初期化、メインループ（`Run`、`RunFrame`）、リサイズ検知 |
+| `Application.h` / `.cpp` | `Application` | 全層の所有者。COM の初期化、D3D リソースのリークチェック、クラッシュダンプ（`./Dumps/`）、初期化、メインループ（`Run`、`RunFrame`）、リサイズ検知。`JobSystem::PumpMainThread` に渡す 1 フレームの時間の上限 `kJobCompletionBudget`（2 ms。仮の値）もここにある |
 | `WindowApp.h` / `.cpp` | `WindowApp`、`WindowPlacement` | Win32 ウィンドウの生成、メッセージ処理、WndProc から `InputManager` への入力転送、ボーダレス全画面、ウィンドウ矩形の控え |
 | `ProjectSettings.h` / `.cpp` | `ProjectSettings` | ゲーム 1 本ぶんの設定。`ProjectSettings/ProjectSettings.json` に保存し、コミットする |
 | `BuildConfig.h` | | ビルド構成フラグ（`USE_IMGUI`、`ENABLE_EDITOR`）の説明と整合チェック |
@@ -60,15 +60,15 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 | 関数 | 呼ばれる場所 | 内容 |
 | --- | --- | --- |
-| `Game::RegisterGameShaders(ShaderLibrary&)` | `Graphics` 初期化の直後、`Asset` 初期化の前 | ゲーム固有のシェーダー定義を登録する。現状は `Object3D` と `Particle` |
-| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent`、`PlayerComponent`、`SpriteTesterComponent`（スプライトの確認用） |
+| `Game::RegisterGameShaders(ShaderLibrary&)` | `Graphics` 初期化の直後、`Asset` 初期化の前 | ゲーム固有のシェーダー定義を登録する。現状は `Object3D`、`Particle`、`Particle/Additive`（`Particle` と同じ HLSL で、ブレンドだけ加算にしたもの） |
+| `Game::RegisterGameComponents()` | `RegisterAllComponents` の直後、`FinalizeRegistration` の前 | ゲーム固有のコンポーネントを登録する。現状は `RotatorComponent`、`PlayerComponent`、`SpriteTesterComponent`（スプライトの確認用）、`DemoPlayerMoveComponent` と `DemoEmissionBurstComponent`（パーティクルデモ用） |
 
 `Game/` の中身は次のとおりです。
 
 | 場所 | 内容 |
 | --- | --- |
 | `GameModule.h` / `.cpp` | 上記 2 関数の実装 |
-| `Components/` | ゲーム固有のコンポーネント。グローバル名前空間に置き、`CAKE_REFLECT` は `Cake` 名前空間の中で書く |
+| `Components/` | ゲーム固有のコンポーネント。グローバル名前空間に置き、`CAKE_REFLECT` は `Cake` 名前空間の中で書く。`ParticleDemo/` の 2 つは `Assets/ParticleDemo/ParticleDemo.scene` で使う。`DemoPlayerMoveComponent` は WASD で XZ 平面上を範囲内で動き、`DemoEmissionBurstComponent` は Space を押すたびに同じ GameObject の `ParticleSystemComponent` の発生を短い時間だけ有効にする（`CAKE_REQUIRE_COMPONENTS` で依存を宣言している） |
 | `GameLayer.h` | コライダーの `layer` と `mask` に入れるビット値の一覧（`GameLayer` 名前空間） |
 | `Assets/Shaders/` | ゲーム固有の HLSL（`Object3D`、`Particle`） |
 
@@ -100,6 +100,5 @@ Application 層は「どの層を、どの順に、何を渡して初期化す�
 
 ## 未実装・要確認
 
-- リポジトリの `ProjectSettings.json` は `fullscreen` が `true`、`windowTitle` が "CakeEngine_Game" です。Release 構成で起動するとボーダレス全画面になります。
-- `.github/workflows/Development.yml` は、対応する Development 構成が削除された後もファイルとして残っています。
+- リポジトリの `ProjectSettings.json` は、`startupScene` がパーティクルデモ（`Assets/ParticleDemo/ParticleDemo.scene`）、`fullscreen` が `false`、`windowTitle` が課題の提出用の文字列になっています。既定値（`Assets/GameScene.scene`、"CakeEngine"）とは異なり、課題の提出に合わせた値と読めます。
 - `WindowApp::Finalize` は定義されていますが、`Application` から呼ばれていません。ウィンドウは `WM_DESTROY` と `PostQuitMessage` の経路で閉じます。

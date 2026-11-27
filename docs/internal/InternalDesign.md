@@ -2,7 +2,7 @@
 
 CakeEngine は、役割ごとに機能を 8 つの層に分けた C++ と DirectX 12 のゲームエンジンです。このページでは、層の並びと依存の規則、起動から 1 フレームが終わるまでの流れ、ビルド構成、層をまたいで守られている設計規則をまとめます。各層の中身は [layers/](layers/) の層ごとのページで説明します。
 
-このページと各層のページに書かれている「守るべき規則」が、[docs/review/issue.md](../review/issue.md) で「設計規則」と呼んでいるものです。
+このページと各層のページに書かれている「守るべき規則」が、[docs/review/issue.md](../review/issue.md) で「設計規則」と呼んでいるものです。これから作る仕組みの設計と手順は [docs/plans/](../plans/) に置きます。アセットシステムの作り直しは [docs/plans/AssetSystem.md](../plans/AssetSystem.md) で、実装が終わった部分からこのページと各層のページへ移します。
 
 ## 層の一覧
 
@@ -16,7 +16,7 @@ CakeEngine は、役割ごとに機能を 8 つの層に分けた C++ と Direct
 | Render | シーンを 1 枚の絵にする工程を組み立て、描画命令を発行する | `Renderer`、`SceneRenderer`、描画パス、`CameraView` | [RenderLayer.md](layers/RenderLayer.md) |
 | Asset | モデル・テクスチャ・マテリアルを読み込み、識別子とハンドルで管理する | 各 Manager、`AssetDatabase`、`.meta`、`AssetRef` | [AssetLayer.md](layers/AssetLayer.md) |
 | Graphics | DirectX 12 のデバイス・コマンド・シェーダー・PSO をまとめる | `Graphics`、`DirectXDevice`、`PipelineState`、`ShaderLibrary` | [GraphicsLayer.md](layers/GraphicsLayer.md) |
-| Platform | OS の機能（時間・入力・音・ファイルダイアログ）をエンジン向けに扱う | `Platform`、`Time`、`InputManager`、`SoundManager` | [PlatformLayer.md](layers/PlatformLayer.md) |
+| Platform | OS の機能（時間・入力・音・ファイルダイアログ・ワーカースレッド）をエンジン向けに扱う | `Platform`、`Time`、`InputManager`、`SoundManager`、`JobSystem` | [PlatformLayer.md](layers/PlatformLayer.md) |
 | Foundation | OS や GPU を知らない基礎部品を提供する | 数学、識別子、ログ、シリアライズ、リフレクション | [FoundationLayer.md](layers/FoundationLayer.md) |
 
 層ごとのコードはすべて `project/Engine/<層名>/` にあり、名前空間は `Cake` です。ゲーム固有のコードは `project/Game/` に置き、Engine の外として扱います。
@@ -26,6 +26,8 @@ CakeEngine は、役割ごとに機能を 8 つの層に分けた C++ と Direct
 ### 規則
 
 依存は「上の層から下の層へ」の一方向です。下の層が上の層を参照すると、層の境界が崩れて変更の影響範囲が広がるため、禁止しています。各層の入口となるクラス（`Platform.h`、`Graphics.h`、`Asset.h`）のヘッダコメントにも、同じ規則が書かれています。
+
+層の順序は下から Foundation、Platform、Graphics、Asset、Render、Scene、Editor、Application です。この順序は [docs/plans/AssetSystem.md](../plans/AssetSystem.md) の 2 章で確定し、CI の `CheckLayerIncludes` が `#include` を検査しています。下の層から上の層のフォルダを include している箇所は、`.github/layer-include-exceptions.txt` に「違反しているファイル|include 先」の形で列挙しなければ CI が失敗します。解消済みの行が残っていても失敗するため、この一覧がそのまま残っている層違反の一覧になります。`BuildConfig.h` と `ProjectSettings.h` への include は計画書で範囲外としたため検査しません。
 
 ### 実装上の依存
 
@@ -51,7 +53,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | Render → Scene | `OpaquePass` → `RenderSystem`、`LightSetupPass` → `LightSystem`、`GizmoPass` → `GizmoSystem`、`SpritePass` → `SpriteSystem`、`SceneRenderer` → `CameraSystem`、`ParticlePass` → `Scene` と各 Particle コンポーネント |
 | Scene → Render | `CameraSystem` → `CameraView`、`LightSystem` → `Light.h`、`GizmoSystem` → `GizmoDrawList`、`SpriteSystem` → `SpriteDrawList`、`RenderSystem` → `Renderer` |
 
-ヘッダ単位では前方宣言で循環を避けていますが、`.cpp` 単位では相互に参照しています。どちらの層を上とみなすかは、実装からは決められません。
+ヘッダ単位では前方宣言で循環を避けていますが、`.cpp` 単位では相互に参照しています。計画書（[docs/plans/AssetSystem.md](../plans/AssetSystem.md) の判断 9 と 12 章）では Scene 層を上とし、Scene 層が描画リスト（`SceneDrawData`）を積んで Render 層のパスがそれだけを読む形に直す予定です。Render 層から Scene 層への include は、それまで `.github/layer-include-exceptions.txt` に例外として列挙されています。
 
 ### Asset 層と Graphics 層の順序
 
@@ -67,7 +69,7 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | 2 | `ProjectSettings` の読み込み | 読めなくても既定値で続行する。エディタ構成では初回にファイルを作る |
 | 3 | （エディタ）`EditorPreferences` と `EditorCache` の読み込み | ウィンドウの位置と大きさを復元するため、ウィンドウ生成より前に読む |
 | 4 | `WindowApp` でウィンドウを生成し、クライアント領域の大きさを確定する | 0 のままではスワップチェーンを作れないため、0 なら設定値で補う |
-| 5 | `Platform` の初期化（タイマー分解能を 1 ms に上げ、`Time` と `InputManager` を初期化）と、`InputManager` を `WindowApp` へ登録 | WndProc が受けた入力を `InputManager` へ転送する。分解能はフレーム末尾の待機を正確にするために上げる |
+| 5 | `Platform` の初期化（タイマー分解能を 1 ms に上げ、`Time` と `InputManager` を初期化し、`JobSystem` のワーカーを起動）と、`InputManager` を `WindowApp` へ登録 | WndProc が受けた入力を `InputManager` へ転送する。分解能はフレーム末尾の待機を正確にするために上げる。ワーカーは `DebugLog` のメインスレッドが決まった後に起こす |
 | 6 | `Graphics` の初期化 | デバイス、コマンド、ヒープ、スワップチェーン、シェーダー、PSO を作る |
 | 7 | `Game::RegisterGameShaders` | マテリアルの読み込みでシェーダー名を解決するため、Asset より前に登録する |
 | 8 | `Asset` の初期化 | `Assets/` 以下を走査して `.meta` と索引を作る |
@@ -86,16 +88,19 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | 段階 | 共通 | エディタ構成（Debug） | リリース構成（Release） |
 | --- | --- | --- | --- |
 | 1 | `DebugLog::PumpMainThread` でワーカーのログを表示用一覧へ移す | | |
-| 2 | `Platform::BeginFrame` で時間を測り、入力のスナップショットを取る | | |
-| 3 | | `Editor::PrepareRenderTargets` で 2 枚の描画先の遅延リサイズを適用する | |
-| 4 | `CheckResize` でウィンドウサイズの変化を調べ、変わっていればスワップチェーンを作り直す | | 深度バッファもクライアント領域に合わせて作り直す |
-| 5 | `Renderer::BeginFrame` でコマンドリストを取り、バックバッファへのバリアを張る | | |
-| 6 | | `Editor` の `BeginFrame` → `Update` → `Draw` → `EndFrame`。シーンの更新、2 視点の描画、ImGui の描画をここで行う | `PrepareBackbufferToGame` でレターボックスを設定し、`SceneManager::Update` の後にメインカメラの視点で `SceneRenderer::Render` を呼ぶ |
-| 7 | `Renderer::EndFrame` でコマンドを実行し、GPU の完了を待ってから Present する | | |
-| 8 | | `PerformanceProfiler::Resolve` で GPU 時間を読み戻す | |
-| 9 | `Platform::EndFrame` で、フレーム開始から 1/60 秒になるまで待つ（60 FPS 固定） | | |
+| 2 | `JobSystem::PumpMainThread` で、ワーカーが終えた作業の完了処理を 1 フレームの時間の上限（`kJobCompletionBudget`、2 ms）の中で実行する | | |
+| 3 | `Platform::BeginFrame` で時間を測り、入力のスナップショットを取る | | |
+| 4 | | `Editor::PrepareRenderTargets` で 2 枚の描画先の遅延リサイズを適用する | |
+| 5 | `CheckResize` でウィンドウサイズの変化を調べ、変わっていればスワップチェーンを作り直す | | 深度バッファもクライアント領域に合わせて作り直す |
+| 6 | `Graphics::BeginFrame` で、GPU が使い終わった解放予約（`DeferredReleaseQueue`）を実行する | | |
+| 7 | `Renderer::BeginFrame` でコマンドリストを取り、バックバッファへのバリアを張る | | |
+| 8 | | `Editor` の `BeginFrame` → `Update` → `Draw` → `EndFrame`。シーンの更新、2 視点の描画、ImGui の描画をここで行う | `PrepareBackbufferToGame` でレターボックスを設定し、`SceneManager::Update` の後にメインカメラの視点で `SceneRenderer::Render` を呼ぶ |
+| 9 | `Renderer::EndFrame` でコマンドを実行し、GPU の完了を待ってから Present する | | |
+| 10 | `Graphics::EndFrame` で、このフレームの解放予約にフェンス値を付けて締める | | |
+| 11 | | `PerformanceProfiler::Resolve` で GPU 時間を読み戻す | |
+| 12 | `Platform::EndFrame` で、フレーム開始から 1/60 秒になるまで待つ（60 FPS 固定） | | |
 
-`Renderer::EndFrame` が毎フレーム GPU を待ち切る同期設計です。このため、フレーム内で使い捨てる定数バッファや頂点バッファ、プロファイラは多重バッファリングを持ちません。描画を非同期にする場合は、これら 3 つを作り直す必要があります。
+`Renderer::EndFrame` が毎フレーム GPU を待ち切る同期設計です。このため、フレーム内で使い捨てる定数バッファや頂点バッファ、プロファイラは多重バッファリングを持ちません。描画を非同期にする場合は、これら 3 つを作り直す必要があります。`DeferredReleaseQueue` はこの同期設計でも使え、非同期にしたときは中身を差し替えずにそのまま使う前提です。
 
 フレームレートは `Time::WaitForTargetFrame` が 60 FPS に固定します。待つのは Present の後で、フレーム開始から 1/60 秒に満たない分だけです。待ち方は [PlatformLayer.md](layers/PlatformLayer.md) の「フレームレートの固定」にあります。
 
@@ -113,12 +118,14 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 
 ## ビルド構成
 
-構成は Debug と Release の 2 つで、プラットフォームは x64 のみです。切り替えに使うプリプロセッサ定義は `BuildConfig.h` に集約しています。
+構成は Debug と Release の 2 つで、プラットフォームは x64 のみです。切り替えに使うプリプロセッサ定義は `BuildConfig.h` に集約しています。C++20、`/utf-8`、include の起点（`project/`）、警告の扱い、構成ごとの定義、出力先は `project/CakeEngine.Common.props` にまとめ、`CakeEngine.vcxproj` と `Tests.vcxproj` が読み込みます。パスは `$(SolutionDir)` ではなく props の場所を起点にしているため、vcxproj を単体でビルドしても同じ場所へ出力されます。
 
 | 構成 | 定義 | 含まれるもの |
 | --- | --- | --- |
-| Debug | `_DEBUG`、`_WINDOWS`、`ENABLE_EDITOR`、`USE_IMGUI` | エディタ、ImGui、プロファイラの HUD。警告はエラー扱い |
+| Debug | `_DEBUG`、`_WINDOWS`、`ENABLE_EDITOR`、`USE_IMGUI` | エディタ、ImGui、プロファイラの HUD |
 | Release | `NDEBUG`、`_WINDOWS` | ゲームのみ。`imgui.lib` は Debug と同じくリンクする |
+
+警告はどちらの構成でもエラー扱いです。`CakeEngine.Common.props` が両構成に `TreatWarningAsError` を設定し、`CakeEngine.vcxproj` の Release 側はこれを上書きしていません。外部ライブラリの警告は抑制します。
 
 `USE_IMGUI` は ImGui ライブラリを使うかどうか、`ENABLE_EDITOR` はエディタ機能を有効にするかどうかを表します。エディタは ImGui に依存するため、`ENABLE_EDITOR` を定義して `USE_IMGUI` を定義しない構成はコンパイルエラーになります。
 
@@ -127,20 +134,25 @@ Render 層の各パスは Scene 層の System を呼び出し、Scene 層の Sys
 | `USE_IMGUI` | ImGui ライブラリを使うか（include、リンク、API 呼び出しの可否） | 純粋に ImGui API を叩くだけの箇所 |
 | `ENABLE_EDITOR` | エディタ機能を有効にするか | `Editor` クラス、ビューポート、インスペクタなど、エディタ機能そのもの |
 
-ソリューションには `CakeEngine`、`externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj`、`externals/imgui/imgui.vcxproj` の 3 プロジェクトが入り、DirectXTex と imgui は静的ライブラリとして一緒にビルドされます。DirectXTex はプロジェクト参照でリンクし、imgui は追加のライブラリ ディレクトリと追加の依存ファイル（`imgui.lib`）でリンクします。imgui プロジェクトには ImGui 本体、DX12 と Win32 のバックエンド、ImGuizmo が入っています。ビルド後イベントで Windows SDK の `dxcompiler.dll` と `dxil.dll` を出力フォルダへコピーします。HLSL は起動時に DXC で実行時コンパイルされるため、この 2 つが無いと起動できません。ビルドの手順と実行時の前提は [README.md](../../README.md) にあります。
+ソリューションには `CakeEngine`、`externals/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj`、`externals/imgui/imgui.vcxproj`、`Tests/Tests.vcxproj` の 4 プロジェクトが入り、DirectXTex と imgui は静的ライブラリとして一緒にビルドされます。`Tests` は Debug 構成だけを持つコンソールの exe で、ソリューションの Release 構成ではビルドしません。DirectXTex はプロジェクト参照でリンクし、imgui は追加のライブラリ ディレクトリと追加の依存ファイル（`imgui.lib`）でリンクします。imgui プロジェクトには ImGui 本体、DX12 と Win32 のバックエンド、ImGuizmo が入っています。ビルド後イベントで Windows SDK の `dxcompiler.dll` と `dxil.dll` を出力フォルダへコピーします。HLSL は起動時に DXC で実行時コンパイルされるため、この 2 つが無いと起動できません。ビルドの手順と実行時の前提は [README.md](../../README.md) にあります。
 
 ### CI
 
-`.github/workflows/` に、`main` への push で走るワークフローがあります。
+`.github/workflows/` に、`main` への push で走るワークフローがあります。`Tests` と `CheckLayerIncludes` は pull request と手動実行でも走ります。
 
 | ワークフロー | ランナー | 内容 |
 | --- | --- | --- |
 | `DebugBuild.yml` | `windows-2025-vs2026` | Debug 構成を msbuild でビルドする |
 | `ReleaseBuild.yml` | `windows-2025-vs2026` | Release 構成を msbuild でビルドする |
+| `Tests.yml` | `windows-2025-vs2026` | `Tests.vcxproj` を Debug でビルドし、`generated/outputs/Debug/Tests.exe` を実行する。失敗したテストがあれば doctest が 0 以外を返し、ジョブが失敗する |
+| `CheckLayerIncludes.yml` | `ubuntu-latest` | 層ごとに include してはいけないフォルダへの `#include` を grep で探し、`.github/layer-include-exceptions.txt` に無いものがあれば失敗する。例外に残っていて実在しない行も失敗にする |
 | `CheckUnwantedFiles.yml` | `ubuntu-latest` | `.pdb`、`.dmp`、`generated/`、`.vs/` などの混入を検索し、見つかれば失敗する |
-| `Development.yml` | `windows-2025-vs2026` | Development 構成をビルドする。対応する構成はプロジェクトから削除済みで、このファイルだけが残っている |
 
 CI がビルドするのは C++ だけです。HLSL は実行時にコンパイルされるため、シェーダーの誤りは CI では検出されません。
+
+### テスト
+
+`project/Tests/` は doctest を使うコンソールの exe で、どの層にも属しません。テストする `Engine/` 側の `.cpp` を `Tests.vcxproj` に直接並べており、その `.cpp` が上の層の関数を呼んでいればリンクで失敗します。現在の対象は Foundation の識別子（`Guid`、`LocalId`、`AssetId`）、Platform の `JobSystem`、Graphics の `IndexFreeList` と `DeferredReleaseQueue` です。D3D12 を呼ぶコードはテストに入れず、`IndexFreeList` のように番号やフェンス値の管理だけを D3D12 から切り離して書きます。
 
 ## 設計の共通の考え方
 
@@ -235,6 +247,7 @@ include は `project/` を基準にした絶対パスで書きます（`#include
 - 上の層から下の層へだけ依存する。層の入口クラスのヘッダコメントに、知ってよい層と知ってはいけない層を書く。
 - 下の層が上の層の型を必要とするときは、前方宣言と引数渡しで受け取る。`RenderContext` や `UpdateContext` のように「そのフレームに使ってよいもの」を束ねた構造体で渡す。
 - 層の初期化に必要な依存は Desc 構造体（`AssetInitializeDesc`、`RendererInitDesc`）で渡し、`IsValid` で検査する。
+- 下の層から上の層への include を新しく作らない。やむを得ず残す間は `.github/layer-include-exceptions.txt` に列挙し、解消したら行を消す。
 
 ### 所有と参照
 
@@ -267,6 +280,12 @@ include は `project/` を基準にした絶対パスで書きます（`#include
 - HLSL 側の構造体と C++ 側の構造体は 1 バイトも違ってはいけない。`static_assert` でサイズを固定する。
 - ルートシグネチャは 1 つを全シェーダーで共有する。番号の割り当ては [GraphicsLayer.md](layers/GraphicsLayer.md) を参照。
 - 毎フレーム GPU を待ち切る同期設計を前提にしている。これを変えるときは `FrameConstantBuffer`、`FrameVertexBuffer`、`PerformanceProfiler` を作り直す。
+- GPU が参照中かもしれないリソースと SRV の番号は、その場で解放せず `DeferredReleaseQueue` に予約する。
+
+### スレッド
+
+- ワーカースレッドで動くのは `JobSystem::Submit` に渡した作業だけ。作業の中ではアセットの格納基盤、GPU、ImGui、シーンに触らない。これらに触るのは、メインスレッドで動く完了処理の中だけにする。
+- `DebugLog` の `Log` 系はどのスレッドから呼んでもよい。それ以外の層の関数はメインスレッド専用とみなす。
 
 ## ドキュメントの書き方
 

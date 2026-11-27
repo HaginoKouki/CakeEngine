@@ -24,7 +24,7 @@ Foundation 層は、ほかのすべての層が使う値型と小さな道具を
 | `Math/` | `Math::DecomposeAffine` | アフィン行列を scale / rotate / translate へ分解する。親の張り替えとギズモ操作で使う |
 | `Identity/` | `Guid` | 128 ビットの識別子。アセットのファイルごとに 1 つ |
 | `Identity/` | `LocalId` | ファイル内のサブオブジェクトを指す 64 ビット値。名前と種別タグから導出する |
-| `Identity/` | `AssetId` | `Guid` と `LocalId` の組。24 バイトの値型 |
+| `Identity/` | `AssetId` | `Guid` と `LocalId` の組。24 バイトの値型。`Guid`、`LocalId` と合わせて `project/Tests/Foundation/IdentityTests.cpp` で確かめている |
 | `Debug/` | `DebugLog`、`AssertHRESULT` | シングルトンのログ。日時別のファイル出力、画面表示用の一覧、HRESULT の解析 |
 | `Serialize/` | `JsonFile` | JSON ファイルの読み書きの定型を 1 本化したもの |
 | `Serialize/` | `BinaryWriter`、`BinaryReader` | インポート結果を生のバイナリで読み書きする最小のストリーム |
@@ -104,7 +104,7 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 | 実装上の外部依存 | nlohmann/json（`JsonFile.h`）、Win32（`DebugLog.h`、`Guid.cpp`、`Convert.cpp`） |
 | 規則との食い違い | `Reflection/TypeInfo.h` が Asset 層の `AssetRef.h`、`MaterialHandle.h`、`ModelHandle.h`、`TextureHandle.h` と、Scene 層の `GameObjectId.h` を include している。`PropertyType` の `AssetRef～` と `EntityRef` に対応する `PropertyTypeOf` の特殊化のため |
 | 規則との食い違い | `Debug/DebugLog.h` と `Utility/Convert.cpp` が `Windows.h` に依存している |
-| コメントの不一致 | `Identity/AssetId.h` のコメントに「AssetPipeline 層」という記述があるが、該当する層は存在しない |
+| コメントの不一致 | `Identity/AssetId.h` のコメントに「AssetPipeline 層」という記述があるが、該当する層はまだ無い（計画書 [docs/plans/AssetSystem.md](../../plans/AssetSystem.md) で新設する予定の層） |
 
 ## 守るべき規則
 
@@ -150,6 +150,6 @@ C++ の型から `PropertyType` を引く対応表が `PropertyTypeOf` です。
 ## 未実装・要確認
 
 - `BinaryStream` を使う Import 系の型（Asset 層）は定義のみで、まだ接続されていません。
-- `DebugLog.h` のコメントは「JobSystem の終了処理で保証する」と書いていますが、JobSystem は存在しません。
+- `AssetId.h` のコメントにある「AssetPipeline 層」「フェーズ 2」「フェーズ 4」は、[docs/plans/AssetSystem.md](../../plans/AssetSystem.md) の計画を指します。層もフェーズもまだ実装されていません。
 - `Easing.h` の `Lerp` は `Gradient` が使っていますが、`Ease` 系、`Slerp`、`CatmullRom` を使っている箇所はエンジン内にありません。`VectorMath.h` の `Rotate`、`Distance`、`Clamp`、角度の変換、`QuaternionMath.h` の全関数、`Quaternion` の静的関数も同様に呼び出し元がありません。
 - `Math::Inverse` は `Matrix4x4` だけ行列式 0 を検査して `Zero` を返し、`Matrix2x2` と `Matrix3x3` は検査せずに 0 で割ります。

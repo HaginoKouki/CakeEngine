@@ -98,7 +98,7 @@ Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(
 | 規則 | 下は Foundation 層のみ。上位層（Graphics、Asset、Render、Scene、Editor）を知らない |
 | 実装上の依存 | Foundation（`DebugLog`、`Vector`、`Convert`）と Platform 内部のみ。規則どおり |
 | 外部 | Windows API、COM、XInput、XAudio2、MediaFoundation、comdlg32 |
-| 使われ方 | `Application` が所有し、`SceneManager` が `UpdateContext` 経由でコンポーネントへ `InputManager`、`Time`、`SoundManager` を渡す。`JobSystem` は `Application::RunFrame` が `PumpMainThread` を呼ぶ（作業を投げる側はフェーズ 2 の AssetManager から加わる） |
+| 使われ方 | `Application` が所有し、`SceneManager` が `UpdateContext` 経由でコンポーネントへ `InputManager`、`Time`、`SoundManager` を渡す。`JobSystem` は `Application::RunFrame` が `PumpMainThread` を呼ぶ（作業を投げる側はフェーズ 2 の AssetManager から加わる）。`JobSystem` の動きは `project/Tests/Platform/JobSystemTests.cpp` で確かめている |
 
 ## 守るべき規則
 
@@ -134,3 +134,5 @@ Sleep の精度を上げるため、`Platform::Initialize` で `timeBeginPeriod(
 - `Time::targetFrameRate_` は 60 で固定です。変える関数も `ProjectSettings` の項目も無く、`std::optional` の「未設定なら待たない」経路は外から選べません。
 - `Time::initialTime_` は `Initialize` で受け取って保持していますが、使っている箇所はありません。
 - `JobSystem::PumpMainThread` に渡す時間の上限は、`Application.cpp` の `kJobCompletionBudget`（2 ms）です。仮の値で、フェーズ 1 の手順 9 で計測して決めます。
+- `JobSystem::Submit` に空の `std::function` を完了処理として渡すと、`PumpMainThread` と `WaitFor` がそれを呼んだ時点で `std::bad_function_call` が投げられます。現状の呼び出し元（テスト）はすべて空でないラムダを渡しています。
+- `JobSystem.h` と `DeferredReleaseQueue.h` には、ほかの主要なヘッダにある先頭の説明ブロックがありません。

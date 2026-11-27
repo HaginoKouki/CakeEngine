@@ -18,7 +18,7 @@ Editor 層は、`SceneManager` が持つ現在のシーンを更新・描画し�
 | --- | --- | --- |
 | 直下 | `Editor` | 選択中オブジェクト、再生状態、入力先（Game / DebugCamera / None）、フレーム境界（ImGui の Begin / End、DockSpace）、描画先の作り直し |
 | 直下 | `EditorDrawContext` | 描画関数が共通で使う参照の束（device、`ShaderLibrary`、各 Manager、`AssetDatabase`、`allowAssetEditing`） |
-| `ImGui/` | `ImGuiManager` | DirectX 12 版の初期化、フレーム管理、テーマ（Dark / Light）、UI スケール、DPI 追従、フォント（Inter + NotoSansJP + FontAwesome、ログ用 HackGen） |
+| `ImGui/` | `ImGuiManager` | DirectX 12 版の初期化、フレーム管理、テーマ（Dark / Light）、UI スケール、DPI 追従、フォント（Inter + NotoSansJP + FontAwesome、ログ用 HackGen）、ImGui のテクスチャ用 SRV の確保と解放 |
 | `ImGui/` | `ImGuiCustomWidget`、`Icons.h` | Drag、Slider、Vector、Transform、Color、AssetRef 選択（`ImAssetRefCombo`）などの共通ウィジェット |
 | `Viewport/` | `SceneWindow` | エディタカメラ視点のウィンドウ。描画先、`EditorCamera`、`GizmoSettings`、ImGuizmo による Transform 操作、軸ギズモ、Play 中の枠 |
 | `Viewport/` | `GameWindow` | ゲームカメラ視点のプレビュー。`ProjectSettings` のアスペクト比でレターボックスする |
@@ -73,6 +73,10 @@ Stop、New、Open でシーンが作り直されるため、既存の `GameObjec
 
 `EditorPreferences` と `EditorCache` はウィンドウ生成より前に読む必要があるため、`Editor` ではなく `Application` が所有します。
 
+### ImGui のテクスチャ用 SRV
+
+ImGui 1.92 以降のバックエンドは、フォントアトラスなどのテクスチャを作るたびに SRV を要求し、捨てるときに返します。`ImGuiManager::Initialize` は `SrvManager` と `DeferredReleaseQueue` を受け取り、2 つのコールバックを登録します。確保のコールバックは `SrvManager::Allocate` を呼び、番号が尽きていたら初期化時に取っておいた予備の番号を返します。解放のコールバックは CPU ハンドルを `SrvManager::GetIndexFromCPUHandle` で番号に戻し、`DeferredReleaseQueue` に `Free` を予約します。予備の番号は解放しません。GPU がまだ参照している番号をその場で返さないための手順で、詳細は [GraphicsLayer.md](GraphicsLayer.md) の「遅延解放」にあります。
+
 ### UI スケールとテーマ
 
 フォントは 36 px で読み込み、`style.FontScaleMain` で見た目のサイズを変えます。ImGui 1.92 以降は表示するサイズで文字をその都度焼くため、拡大しても輪郭はぼやけません。`ApplyUIScale` は ImGui のスタイルを基準値へ戻してから `ScaleAllSizes` を掛け、`ApplyTheme` はテーマが決めたサイズを新しい基準として控え直します。`followSystemDpi` が true の間は毎フレーム OS の拡大率と実適用値を突き合わせ、差があるときだけ組み直します。
@@ -105,7 +109,7 @@ Stop、New、Open でシーンが作り直されるため、既存の `GameObjec
 
 ### 所有と状態
 
-- `Editor` は `Application` が所有し、`graphics_` より後に宣言する（ImGui のシャットダウンと描画先の解放をデバイス破棄より先に走らせるため）。
+- `Editor` は `Application` が所有し、`graphics_` より後に宣言する（ImGui のシャットダウンと描画先の解放をデバイス破棄より先に走らせるため）。ImGui のシャットダウンが予約した SRV の解放は、その後の `Graphics` のデストラクタが実行する。
 - 各ウィンドウが持つのはそのウィンドウ固有の状態だけ。選択中オブジェクトと再生状態のようなウィンドウ横断の状態は `Editor` が持ち、引数で渡す。
 
 ### 描画と入力

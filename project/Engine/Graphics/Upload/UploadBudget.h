@@ -12,7 +12,7 @@
 namespace Cake {
 
 // 1フレームに転送する量の上限.
-// 仮の値。手順9で計測して見直す.
+// フェーズ1で計測して 16 MiB に決めた（理由は設計書 17 章）。フェーズ2で測り直す.
 inline constexpr uint64_t kUploadBytesPerFrame = 16ull * 1024 * 1024;
 
 // sizes の先頭から何件を、このフレームで転送するかを返す.

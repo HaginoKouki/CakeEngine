@@ -17,7 +17,7 @@ namespace Cake {
 
 class SrvManager {
 public:
-	// 初期値。手順9で計測して見直す.
+	// フェーズ1で計測して 4096 に決めた（最大使用数は 32。設計書 17 章）。フェーズ2で測り直す.
 	static constexpr uint32_t kMaxSrvCount = 4096; // ヒープに確保する SRV の数.
 
 	static constexpr uint32_t kInvalidIndex = IndexFreeList::kInvalidIndex;

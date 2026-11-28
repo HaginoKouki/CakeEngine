@@ -38,6 +38,8 @@ private:
 
 	// ワーカーで作ったテクスチャ.
 	TestTexture workerTexture_;
+	// 大きさの候補のどれを使うか（0 なら 256）.
+	int workerTextureSizeIndex_ = 0;
 
 	// 転送が終わって、表示してよいか.
 	bool workerTextureReady_ = false;
@@ -50,6 +52,9 @@ private:
 	TestTexture stressTexture_;
 	// あと何回、作成と破棄を繰り返すか.
 	uint32_t stressRemaining_ = 0;
+
+	// フレーム時間の最大値（ミリ秒）.
+	float maxFrameTimeMs_ = 0.0f;
 
 public:
 	~GraphicsDebugWindow();

@@ -11,7 +11,8 @@
 namespace Cake {
 namespace {
 // ワーカーで作るテクスチャの一辺の画素数.
-constexpr uint32_t kWorkerTextureSize = 256;
+constexpr uint32_t kWorkerTextureSizes[] = {256, 1024, 2048, 4096};
+constexpr const char* kWorkerTextureSizeLabels[] = {"256", "1024", "2048", "4096"};
 } // namespace
 
 GraphicsDebugWindow::~GraphicsDebugWindow() {
@@ -28,6 +29,14 @@ void GraphicsDebugWindow::Draw(const char* title) {
 	if (!ImGui::Begin(title)) {
 		ImGui::End();
 		return;
+	}
+
+	ImGui::SeparatorText("Frame");
+	float frameTimeMs = graphics_->GetPerformanceProfiler()->GetFrameTimeMs();
+	maxFrameTimeMs_ = frameTimeMs > maxFrameTimeMs_ ? frameTimeMs : maxFrameTimeMs_;
+	ImGui::Text("%s", std::format("フレーム時間 {:.2f}ms / 最大フレーム時間 {:.2f}ms", frameTimeMs, maxFrameTimeMs_).c_str());
+	if (ImGui::Button("最大値をリセット")) {
+		maxFrameTimeMs_ = 0.0f;
 	}
 
 	// SRV の使用数.
@@ -144,7 +153,9 @@ void GraphicsDebugWindow::DrawWorkerTextureTest() {
 
 	// ワーカーで作っている最中は押せなくする（作業を積みすぎないため）.
 	ImGui::BeginDisabled(workerJobRunning_);
+	ImGui::Combo("大きさ", &workerTextureSizeIndex_, kWorkerTextureSizeLabels, 4);
 	const bool pressed = ImGui::Button("Create Texture", ImVec2{-1.0f, 0.0f});
+	const uint32_t size = kWorkerTextureSizes[workerTextureSizeIndex_];
 	ImGui::EndDisabled();
 
 	if (pressed) {
@@ -157,14 +168,13 @@ void GraphicsDebugWindow::DrawWorkerTextureTest() {
 			JobPriority::Normal,
 
 			// 作業（ワーカーで実行）：画素を作るだけ。D3D12 と ImGui には触らない.
-			[seed]() -> Pixels {
-				constexpr uint32_t kSize = kWorkerTextureSize;
-				auto pixels = std::make_shared<std::vector<uint8_t>>(kSize * kSize * 4);
-				for (uint32_t y = 0; y < kSize; ++y) {
-					for (uint32_t x = 0; x < kSize; ++x) {
-						uint8_t* p = pixels->data() + (y * kSize + x) * 4;
-						p[0] = static_cast<uint8_t>(x * 255 / (kSize - 1)); // R：左から右へ明るく.
-						p[1] = static_cast<uint8_t>(y * 255 / (kSize - 1)); // G：上から下へ明るく.
+			[seed, size]() -> Pixels {
+				auto pixels = std::make_shared<std::vector<uint8_t>>(size * size * 4);
+				for (uint32_t y = 0; y < size; ++y) {
+					for (uint32_t x = 0; x < size; ++x) {
+						uint8_t* p = pixels->data() + (y * size + x) * 4;
+						p[0] = static_cast<uint8_t>(x * 255 / (size - 1)); // R：左から右へ明るく.
+						p[1] = static_cast<uint8_t>(y * 255 / (size - 1)); // G：上から下へ明るく.
 						p[2] = static_cast<uint8_t>((seed * 64) % 256);     // B：押すたびに変わる.
 						p[3] = 255;                                         // A.
 					}
@@ -173,7 +183,7 @@ void GraphicsDebugWindow::DrawWorkerTextureTest() {
 			},
 
 			// 完了処理（メインスレッドで実行）：ここで初めて GPU の部品に触る.
-			[this](JobResult<Pixels> result) {
+			[this, size](JobResult<Pixels> result) {
 				workerJobRunning_ = false;
 				if (!result.Succeeded()) {
 					return;
@@ -186,7 +196,7 @@ void GraphicsDebugWindow::DrawWorkerTextureTest() {
 				// 何枚目かを覚えておき、転送が終わったときに、まだ最新のテクスチャかを確かめる.
 				const uint32_t serial = ++workerTextureSerial_;
 				workerTexture_ = CreateTestTexture(
-					kWorkerTextureSize, kWorkerTextureSize, std::move(*result.value),
+					size, size, std::move(*result.value),
 					[this, serial]() {
 						if (serial == workerTextureSerial_) {
 							workerTextureReady_ = true;
@@ -202,7 +212,7 @@ void GraphicsDebugWindow::DrawWorkerTextureTest() {
 		const D3D12_GPU_DESCRIPTOR_HANDLE handle = graphics_->GetSrvManager()->GetGPUHandle(workerTexture_.srvIndex);
 		ImGui::Image(
 			(ImTextureID)handle.ptr,
-			ImVec2(static_cast<float>(workerTexture_.width), static_cast<float>(workerTexture_.height))
+			ImVec2(256.0f, 256.0f)
 		);
 	} else if (workerJobRunning_ || workerTexture_.srvIndex != SrvManager::kInvalidIndex) {
 		ImGui::TextUnformatted("作成中・転送中...");

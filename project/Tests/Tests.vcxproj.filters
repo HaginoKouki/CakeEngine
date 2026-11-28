@@ -25,6 +25,9 @@
     <ClCompile Include="..\Engine\Graphics\Descriptor\IndexFreeList.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\WarpDeviceTests.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\externals\doctest\doctest.h" />

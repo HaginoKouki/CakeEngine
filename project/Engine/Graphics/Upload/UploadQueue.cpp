@@ -39,10 +39,10 @@ void UploadQueue::Record(ID3D12GraphicsCommandList* commandList) {
 		Pending pending = std::move(pending_.front());
 		pending_.pop_front();
 
-		// CreateBufferResource で、一時バッファを作る.
+		// 一時バッファを作る.
 		auto bufferResource = CreateBufferResource(device_, pending.bufferSize);
 
-		// UpdateSubresources(commandList, 転送先, 一時バッファ, 0, 0, subresources の数, subresources の先頭) で、データを写してコピーの命令を積む.
+		// データを一時バッファへ写し、転送先へのコピーの命令を積む.
 		UpdateSubresources(
 			commandList,
 			pending.request.destination.Get(),
@@ -52,7 +52,7 @@ void UploadQueue::Record(ID3D12GraphicsCommandList* commandList) {
 			pending.request.subresources.data()
 		);
 
-		// 転送先を COPY_DEST から stateAfter へ移すバリアを積む（今の UploadTextureData のバリアと同じ形）.
+		// 転送先を COPY_DEST から stateAfter へ移す.
 		D3D12_RESOURCE_BARRIER barrier{};
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -62,16 +62,16 @@ void UploadQueue::Record(ID3D12GraphicsCommandList* commandList) {
 		barrier.Transition.StateAfter = pending.request.stateAfter;
 		commandList->ResourceBarrier(1, &barrier);
 
-		// 一時バッファを DeferredReleaseQueue に預ける。一時バッファを値でキャプチャするだけの、空のラムダを Enqueue すればよい.
-		//  ラムダが解放されるときに、キャプチャした ComPtr も解放される.
-		deferredReleaseQueue_->Enqueue([bufferResource]() {});
+		// 一時バッファと転送先を、GPU がこのフレームのコピーを終えるまで生かす.
+		// 空のラムダに ComPtr をキャプチャして預け、ラムダが消えるときに一緒に手放す.
+		deferredReleaseQueue_->Enqueue([bufferResource, destination = pending.request.destination]() {});
 
-		// onComplete を recorded_ の末尾に入れる（空の std::function なら入れない）.
+		// 完了処理があれば、このフレームの分として控える.
 		if (pending.request.onComplete) {
 			recorded_.push_back(std::move(pending.request.onComplete));
 		}
 
-		// bytesLastFrame_ に大きさを足す.
+		// 統計：このフレームの転送量.
 		bytesLastFrame_ += pending.bufferSize;
 	}
 }

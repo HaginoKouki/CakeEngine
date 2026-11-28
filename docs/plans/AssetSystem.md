@@ -891,7 +891,7 @@ GPU を使わない部分はテスト用のプロジェクトで自動で確か�
 - MeshRenderer のマテリアル数の上限。初期値は 8（フェーズ5。Assets/ のモデルでサブメッシュ数を数えて決める）
 - コピーキューに切り替える場合のリソース状態の扱い（暗黙の状態遷移の規則）。切り替えるときに D3D12 の仕様で確認する
 - CI の Windows ランナーで WARP が動くか（フェーズ1）
-- slnx で、ソリューションの Release 構成から AssetPipeline を外す書き方（フェーズ3）
+- slnx で、ソリューションの Release 構成から AssetPipeline を外す書き方（フェーズ3）。フェーズ1の Tests で確かめた書き方：Project 要素の中に `<Build Solution="Release|*" Project="false" />` を置くと、ソリューションの Release 構成でそのプロジェクトをビルドしない。Debug 構成だけを持つプロジェクトには、あわせて `<BuildType Project="Debug" />` を置き、ソリューションのどの構成からもプロジェクトの Debug 構成を使わせる。AssetPipeline.lib は Debug ではリンクするので、AssetPipeline.vcxproj に必要なのは前者だけのはず（フェーズ3で確かめる）
 - Media Foundation をメモリ上のバイト列から使うときの手順と、対応する形式（フェーズ3）
 - パッケージの出力にかかる時間（フェーズ5）
 - 初回起動で Assets/ をすべてインポートするのにかかる時間（フェーズ3）

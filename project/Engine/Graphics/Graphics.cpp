@@ -10,9 +10,9 @@ Graphics::~Graphics() {
 	}
 }
 
-void Graphics::Initialize(HWND hwnd, uint32_t width, uint32_t height) {
+void Graphics::Initialize(HWND hwnd, const DirectXDeviceDesc& deviceDesc, uint32_t width, uint32_t height) {
 	// 1. Device.
-	device_.Initialize();
+	device_.Initialize(deviceDesc);
 
 	// 2. CommandManager.
 	commandManager_.Initialize(device_.GetD3D12Device());

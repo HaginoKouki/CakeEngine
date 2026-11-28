@@ -44,7 +44,7 @@ class Graphics {
 
 public:
 	~Graphics();
-	void Initialize(HWND hwnd, uint32_t width, uint32_t height);
+	void Initialize(HWND hwnd, const DirectXDeviceDesc& deviceDesc, uint32_t width, uint32_t height);
 
 	// フレームの先頭。GPU が使い終わったリソースを解放する.
 	void BeginFrame();

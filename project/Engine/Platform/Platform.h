@@ -14,6 +14,7 @@
 #include "Engine/Platform/Input/InputManager.h"
 #include "Engine/Platform/Sound/SoundManager.h"
 #include "Engine/Platform/Job/JobSystem.h"
+#include "Engine/Platform/CommandLine/CommandLine.h"
 
 namespace Cake {
 
@@ -23,6 +24,7 @@ private:
 	InputManager input_;
 	SoundManager sound_;
 	JobSystem jobSystem_;
+	CommandLineArgs commandLineArgs_;
 
 	bool timerPeriodRaised_ = false; // timeBeginPeriod が成功したか.
 
@@ -45,6 +47,7 @@ public:
 	InputManager& GetInput() { return input_; }
 	SoundManager& GetSound() { return sound_; }
 	JobSystem& GetJobSystem() { return jobSystem_; }
+	CommandLineArgs& GetCommandLineArgs() { return commandLineArgs_; }
 };
 
 } // namespace Cake

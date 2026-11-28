@@ -78,6 +78,7 @@
     <ClCompile Include="Engine\Graphics\Shader\ShaderLibrary.cpp" />
     <ClCompile Include="Engine\Graphics\Upload\UploadBudget.cpp" />
     <ClCompile Include="Engine\Graphics\Upload\UploadQueue.cpp" />
+    <ClCompile Include="Engine\Platform\CommandLine\CommandLine.cpp" />
     <ClCompile Include="Engine\Platform\File\FileDialog.cpp" />
     <ClCompile Include="Engine\Platform\Input\GamePad.cpp" />
     <ClCompile Include="Engine\Platform\Input\InputManager.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="Engine\Graphics\Shader\ShaderParam.h" />
     <ClInclude Include="Engine\Graphics\Upload\UploadBudget.h" />
     <ClInclude Include="Engine\Graphics\Upload\UploadQueue.h" />
+    <ClInclude Include="Engine\Platform\CommandLine\CommandLine.h" />
     <ClInclude Include="Engine\Platform\File\FileDialog.h" />
     <ClInclude Include="Engine\Platform\Input\GamePad.h" />
     <ClInclude Include="Engine\Platform\Input\InputManager.h" />

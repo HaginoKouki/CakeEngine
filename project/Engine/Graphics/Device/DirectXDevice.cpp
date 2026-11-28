@@ -12,25 +12,31 @@ namespace {
 constexpr const char* kLogCategory = "DirectXDevice";
 }
 
-void DirectXDevice::Initialize() {
+void DirectXDevice::Initialize(const DirectXDeviceDesc& desc) {
 	DebugLog::GetInstance().LogInitStart(kLogCategory);
 
-	EnableDebugLayer();
+	EnableDebugLayer(desc);
 	CreateFactory();
 	SelectAdapter();
 	CreateDevice();
-	SetupInfoQueue();
+	SetupInfoQueue(desc);
 
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
 }
 
-void DirectXDevice::EnableDebugLayer() {
-#ifdef _DEBUG
+void DirectXDevice::EnableDebugLayer(const DirectXDeviceDesc& desc) {
+	if (!desc.enableDebugLayer) {
+		return;
+	}
+
 	Microsoft::WRL::ComPtr<ID3D12Debug1> debugController;
 	HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
 	if (SUCCEEDED(hr)) {
 		debugController->EnableDebugLayer();
-		debugController->SetEnableGPUBasedValidation(TRUE);
+		if (desc.enableGpuValidation) {
+			debugController->SetEnableGPUBasedValidation(TRUE);
+		}
+		DebugLog::GetInstance().Log(LogLevel::Info, kLogCategory, std::format("デバッグレイヤーを有効にしました（GPU ベースの検証：{}）", desc.enableGpuValidation ? "あり" : "なし"));
 	} else {
 		DebugLog::GetInstance().Log(
 			LogLevel::Warn,
@@ -39,7 +45,6 @@ void DirectXDevice::EnableDebugLayer() {
 		);
 		DebugLog::GetInstance().LogHRESULT(hr);
 	}
-#endif
 }
 
 void DirectXDevice::CreateFactory() {
@@ -102,8 +107,11 @@ void DirectXDevice::CreateDevice() {
 	);
 }
 
-void DirectXDevice::SetupInfoQueue() {
-#ifdef _DEBUG
+void DirectXDevice::SetupInfoQueue(const DirectXDeviceDesc& desc) {
+	if (!desc.enableDebugLayer) {
+		return;
+	}
+
 	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue;
 	if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
 		// ヤバイエラー時に止まる.
@@ -129,7 +137,6 @@ void DirectXDevice::SetupInfoQueue() {
 		// 指定したメッセージの表示を抑制する.
 		infoQueue->PushStorageFilter(&filter);
 	}
-#endif
 }
 
 } // namespace Cake

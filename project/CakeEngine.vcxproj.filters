@@ -211,6 +211,9 @@
     <Filter Include="Engine\Editor\Debug">
       <UniqueIdentifier>{92d75ee7-90c1-4d1c-a49a-d9b21e6cd777}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Platform\CommandLine">
+      <UniqueIdentifier>{0fa6e67a-981f-40a1-aa22-4be2b5d8ff71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application\Application.cpp">
@@ -542,6 +545,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Editor\Debug\GraphicsDebugWindow.cpp">
       <Filter>Engine\Editor\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Platform\CommandLine\CommandLine.cpp">
+      <Filter>Engine\Platform\CommandLine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1000,6 +1006,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Editor\Debug\GraphicsDebugWindow.h">
       <Filter>Engine\Editor\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Platform\CommandLine\CommandLine.h">
+      <Filter>Engine\Platform\CommandLine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

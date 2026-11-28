@@ -34,6 +34,9 @@ void Platform::Initialize(HINSTANCE hInstance, HWND hwnd, std::chrono::steady_cl
 	// JobSystemを起動する。ワーカーの本数は、CPUコア数に応じて自動で決める.
 	jobSystem_.Initialize();
 
+	// コマンドライン引数を読む.
+	commandLineArgs_.Initialize();
+
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
 }
 

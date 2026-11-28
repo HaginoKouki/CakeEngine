@@ -143,7 +143,15 @@ void Application::Initialize(HINSTANCE hInstance) {
 	windowApp_.SetInputManager(&platform_.GetInput());
 
 	// Graphics層の初期化.
-	graphics_.Initialize(hwnd, clientWidth_, clientHeight_);
+	DirectXDeviceDesc deviceDesc;
+#ifdef _DEBUG
+	deviceDesc.enableDebugLayer = true;
+	deviceDesc.enableGpuValidation = true;
+#else
+	deviceDesc.enableDebugLayer = platform_.GetCommandLineArgs().Has(L"--d3d-debug");
+	deviceDesc.enableGpuValidation = platform_.GetCommandLineArgs().Has(L"--gpu-validation");
+#endif
+	graphics_.Initialize(hwnd, deviceDesc, clientWidth_, clientHeight_);
 	// ユーザー定義シェーダーの登録.
 	// マテリアル読み込みでシェーダ名を解決するため、AssetContext より前に登録する.
 	Game::RegisterGameShaders(*graphics_.GetShaderLibrary());
@@ -221,8 +229,6 @@ void Application::Initialize(HINSTANCE hInstance) {
 
 	DebugLog::GetInstance().LogInitComplete(kLogCategory);
 }
-
-
 
 void Application::Run() {
 	while (windowApp_.ProcessMessage()) {
